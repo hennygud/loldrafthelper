@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Помощник драфта LoL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Forum&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
 <style>
 /* VOICE: тёмный хекстех-стиль драфта: торжественно, но читаемо
    IDEA: экран выбора чемпионов: слоты с золотыми рамками и портретами
@@ -179,13 +179,122 @@ footer.band{padding-top:0}
 .tile.p .tp{border-color:var(--gold);box-shadow:0 0 12px rgba(200,170,110,.7)}
 .tile.p .tp::before{content:"✓";position:absolute;right:0;top:0;z-index:2;color:#1a1206;background:var(--gold);padding:0 5px;font:700 12px/16px Inter,sans-serif}
 .picker-top .chip{white-space:nowrap}
+
+/* ===== STATS-SITE THEME: плоский тёмный интерфейс в духе u.gg / op.gg / porofessor ===== */
+:root{--bg:#0b0d14;--panel:#151824;--panel2:#1c2030;--line:#262b3d;--ink:#e6e8f0;--mute:#8a90a6;
+ --acc:#5383e8;--blue:#5383e8;--red:#e84057;--good:#2fbf8a;--bad:#e84057;--gold:#f0b232;--gold2:#e6e8f0;--gold3:#2c3247;--teal:#5383e8}
+body{background:var(--bg);font-family:Inter,system-ui,sans-serif}
+h1,h2,h3,.big,.why h4,th{font-family:Inter,system-ui,sans-serif!important;letter-spacing:0}
+h1{font-size:clamp(24px,3vw,32px);font-weight:800;color:var(--ink)}
+h2{font-size:18px;font-weight:700;color:var(--ink)}
+h3{font-size:15px;font-weight:700}
+.big{font-weight:800;font-size:clamp(30px,4vw,42px);color:var(--ink)}
+.total .big{font-size:clamp(28px,3.6vw,38px);color:var(--ink)}
+header p{font-size:15px}
+.rule{display:none}
+.frame,.team,.hero,.top,.picker,.banbar,.comp,.livebar{background:var(--panel);border:1px solid var(--line)!important;border-image:none!important;border-radius:10px;box-shadow:none}
+.team::before{height:3px;border-radius:10px 10px 0 0;box-shadow:none}
+.team.ally h3{color:var(--blue)}.team.enemy h3{color:var(--red)}
+.role,.bbtn{border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
+.row.me .role{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.row.me .rl{background:var(--acc);color:#fff}
+.row.lane .role{border-color:var(--red);box-shadow:0 0 0 2px var(--red)}
+.row.active input{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
+.row.active .role{box-shadow:0 0 0 2px var(--acc)}
+.rl{background:rgba(11,13,20,.85);font-weight:700}
+input[type=text],textarea{border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+input:disabled{color:var(--acc)}
+.btn,.chip{border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+.btn:hover,.chip:hover{border-color:var(--acc);box-shadow:none}
+.chip.on,#poolmode.on,#poolbtn.on{background:var(--acc);border-color:var(--acc);color:#fff}
+label.f,.f{color:var(--mute);text-transform:none}
+.picker-head h3,.top h3,h2{color:var(--ink)}
+.who{color:var(--acc)}
+.port{border:2px solid var(--line);box-shadow:none;border-radius:12px}
+.port.s{border-radius:8px}.port.xs{border-radius:6px;border-width:1px}
+.hero .port{border-color:var(--acc)}
+.med{border-radius:inherit;color:#fff;font-family:Inter,sans-serif;font-weight:700}
+.gl{fill:#fff;opacity:.85}
+.tile .tp{border-radius:8px;border:2px solid transparent;background:var(--panel2)}
+.tile:hover .tp{border-color:var(--acc);box-shadow:none}
+.tile.a .tp{border-color:var(--blue)}.tile.e .tp{border-color:var(--red)}
+.tile.top1 .tp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+.tile .rk{background:var(--gold);border-radius:0 0 6px 0}
+.tile.p .tp{border-color:var(--good);box-shadow:none}.tile.p .tp::before{background:var(--good);color:#fff}
+.track{background:var(--bg);border:0;border-radius:6px;height:10px}
+.fill{border-radius:6px;box-shadow:none}
+.why{border-top:1px solid var(--line)}
+.why h4{font-size:13px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.pos{color:var(--good)}.neg{color:var(--bad)}
+.pick{border-radius:8px}.pick.on{border-color:var(--acc);background:rgba(83,131,232,.12)}.pick:hover{background:var(--panel2)}
+th{font-size:12px;font-weight:600;color:var(--mute);border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.03em}
+td{border-bottom:1px solid var(--line)}
+tbody tr:hover{background:var(--panel2)}tbody tr.on{background:rgba(83,131,232,.12)}
+.bg h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.bslot.filled .bbtn::after{background:rgba(232,64,87,.28)}
+.bslot.active .bbtn{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.pchip{border-radius:999px;border:1px solid var(--line);background:var(--panel2)}
+summary{color:var(--ink)}
+/* тиры как на стат-сайтах */
+.tier{display:inline-grid;place-items:center;min-width:30px;height:22px;padding:0 6px;border-radius:6px;font:800 12px Inter,sans-serif;color:#fff;flex:none}
+.tier.big{min-width:44px;height:30px;font-size:16px;border-radius:8px}
+.t-Sp{background:#ff4e50}.t-S{background:#ff9b00}.t-A{background:#3273fa}.t-B{background:#2fbf8a}.t-C{background:#5c6178}.t-D{background:#3a3e52;color:#b9bdd0}
+.name-line{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+/* живой режим */
+.livebar{display:flex;gap:12px 16px;align-items:center;flex-wrap:wrap;padding:12px 16px;margin-top:14px}
+.dot{width:10px;height:10px;border-radius:50%;background:#5c6178;flex:none}
+.livebar[data-s=live] .dot{background:var(--red);box-shadow:0 0 0 0 rgba(232,64,87,.6)}
+.livebar[data-s=idle] .dot{background:var(--good)}
+.livebar[data-s=nobridge] .dot,.livebar[data-s=noclient] .dot{background:var(--gold)}
+@media (prefers-reduced-motion:no-preference){.livebar[data-s=live] .dot{animation:pulse 1.4s infinite}}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(232,64,87,0)}100%{box-shadow:0 0 0 0 rgba(232,64,87,0)}}
+.ltxt{flex:1 1 260px;font-size:14px}.ltxt b{font-weight:700}
+.livetag{background:var(--red);color:#fff;font:800 11px Inter,sans-serif;padding:3px 7px;border-radius:5px;letter-spacing:.06em}
+.timer{font:800 18px Inter,sans-serif;font-variant-numeric:tabular-nums}
+.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
+.howto{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 16px 10px;color:var(--ink)}
+.howto summary{font-size:14px;padding:8px 0}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 4px}
+@media(max-width:760px){.steps{grid-template-columns:minmax(0,1fr)}}
+.step{background:var(--panel2);border-radius:8px;padding:12px 14px;font-size:14px}
+.step b.n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;margin-right:6px;font-size:13px}
+.step code{background:var(--bg);padding:1px 6px;border-radius:5px;font-size:13px}
+.step p{margin:8px 0 0;color:var(--mute)}
+.slot-live input{border-color:rgba(232,64,87,.55)}
+/* анализ составов */
+.comp{margin-top:22px;padding:16px}
+.comp h2{margin:0 0 4px}.comp .sub{color:var(--mute);font-size:13px;margin:0 0 14px}
+.cgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
+@media(max-width:640px){.cgrid{grid-template-columns:minmax(0,1fr)}}
+.ct h3{margin:0 0 10px;display:flex;justify-content:space-between;gap:8px}
+.ct.a h3{color:var(--blue)}.ct.e h3{color:var(--red)}
+.ct h3 small{color:var(--mute);font-weight:500;font-size:12px}
+.dmg{display:flex;height:22px;border-radius:6px;overflow:hidden;font:700 11px/22px Inter,sans-serif;color:#fff;margin-bottom:10px;background:var(--bg)}
+.dmg span{text-align:center;white-space:nowrap;overflow:hidden}
+.dmg .ad{background:#e8833a}.dmg .ap{background:#7b61ff}
+.m{display:grid;grid-template-columns:100px minmax(0,1fr) 34px;gap:8px;align-items:center;font-size:13px;margin:5px 0}
+.mt{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}.mt i{display:block;height:100%;border-radius:4px}
+.ct.a .mt i{background:var(--blue)}.ct.e .mt i{background:var(--red)}
+.m .v{text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.tag{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.tag.warn{border-color:rgba(232,64,87,.5);color:#ff8a9a}
+.pick span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 </style>
 </head>
 <body>
 <header class="band"><div class="wrap">
 <h1>Помощник драфта: лучший пик под ваш состав и против их</h1>
 <p>Впишите союзников и врагов, нажмите на свою роль. Каждый чемпион получает три оценки: линия, против вражеского состава и синергия с командой. Лучший пик выбирается по их сумме.</p>
-<div class="rule"></div></div></header>
+<div class="rule"></div>
+<div class="livebar" id="livebar" data-s="off"><span class="dot"></span><span class="ltxt" id="ltxt"></span><span class="timer" id="ltimer"></span><button class="btn primary" id="livebtn" type="button">Подключить клиент</button></div>
+<details class="howto" id="howto"><summary>Как подключить клиент LoL (3 шага, 1 минута)</summary>
+<div class="steps">
+<div class="step"><b class="n">1</b><b>Поставьте Python</b><p>Скачайте с python.org и установите. В установщике поставьте галочку «Add Python to PATH». Это делается один раз.</p></div>
+<div class="step"><b class="n">2</b><b>Запустите мост</b><p>Положите <code>lol_bridge.py</code> куда угодно и дважды кликните по нему. Откроется чёрное окно: не закрывайте его, пока играете.</p></div>
+<div class="step"><b class="n">3</b><b>Нажмите «Подключить клиент»</b><p>Кнопка выше. Зайдите в выбор чемпионов, и пики, баны и ваша роль появятся сами. Если браузер спросит доступ к устройствам в сети, разрешите.</p></div>
+</div></details>
+</div></header>
 
 <section class="band banband" aria-label="Баны"><div class="wrap"><div class="banbar">
   <div class="bg"><h3>Баны вашей команды</h3><div class="bslots" id="bansL"></div></div>
@@ -222,8 +331,9 @@ footer.band{padding-top:0}
 <section aria-live="polite">
   <div id="hero"></div>
   <div class="tops" id="tops"></div>
+  <div class="comp" id="comp"></div>
   <h2 style="margin-top:26px">Полный рейтинг для вашей роли</h2>
-  <div class="scroll"><table><thead><tr><th>Чемпион</th><th>Линия</th><th>Состав</th><th>Синергия</th><th>Итог</th></tr></thead><tbody id="tbl"></tbody></table></div>
+  <div class="scroll"><table><thead><tr><th>Чемпион</th><th>Тир</th><th>Линия</th><th>Состав</th><th>Синергия</th><th>Итог</th></tr></thead><tbody id="tbl"></tbody></table></div>
   <details><summary>Как считается оценка</summary>
   <p><b>Линия:</b> известные контрпики (±3), дальний бой против ближнего на топе и миде, ранняя сила против поздней, защита от рывков. На боте учитываются оба врага: АДК полностью, саппорт наполовину.</p>
   <p><b>Против состава:</b> урон в % от здоровья против танков, бурст против составов без фронтлайна, блок рывков против мобильных врагов, защита от дайва, жёсткий engage против поука, ловля неподвижных керри, наказание поздних составов.</p>
@@ -587,6 +697,10 @@ const portrait=n=>ICONS?`<img src="${LOCAL_ICONS?'icons/'+iconId(n)+'.png':iconU
 const badge=(n,cls='')=>`<span class="port ${cls}">${portrait(n)}</span>`;
 if(ICONS){document.addEventListener('error',e=>{const t=e.target;if(t.tagName==='IMG'&&t.dataset.n){if(!t.dataset.cdn){t.dataset.cdn=1;t.src=iconUrl(t.dataset.n)}else t.outerHTML=med(t.dataset.n)}},true);
 }
+const TIERS=[[6,'S+','Sp'],[4,'S','S'],[2.5,'A','A'],[1,'B','B'],[-0.5,'C','C'],[-1e9,'D','D']];
+const TMAP=new Map();
+function rankTiers(res){TMAP.clear();const n=res.length||1;res.forEach((x,i)=>{const f=i/n;let k=f<.05?0:f<.15?1:f<.35?2:f<.65?3:f<.85?4:5;if(x.t<1)k=Math.max(k,3);if(x.t<=0)k=Math.max(k,4);TMAP.set(x.c.n,k)})}
+const tierB=(n,cls='')=>{const k=TMAP.get(n);if(k==null)return'';const x=TIERS[k];return `<span class="tier t-${x[2]} ${cls}" title="Тир среди всех вариантов для вашей роли">${x[1]}</span>`};
 const sgn=v=>(v>0?'+':v<0?'−':'')+Math.abs(R1(v));
 
 function buildDraft(){
@@ -614,20 +728,22 @@ function render(){
   markRows();
   const res=evaluate(st);
   updatePicker(res);
-  if(!res.length){$('hero').innerHTML='<div class="hero"><p class="empty">Нет доступных чемпионов: все заняты, забанены или не входят в ваш пул.</p></div>';$('tops').innerHTML='';$('tbl').innerHTML='';return}
+  lastRes=res;rankTiers(res);renderLive();
+  if(!res.length){$('comp').innerHTML='';$('hero').innerHTML='<div class="hero"><p class="empty">Нет доступных чемпионов: все заняты, забанены или не входят в ваш пул.</p></div>';$('tops').innerHTML='';$('tbl').innerHTML='';return}
   const sel=res.find(x=>x.c.n===st.sel)||res[0];
   const mx=k=>Math.max(1,...res.map(x=>Math.abs(x[k].v)));
   const M={l:mx('l'),k:mx('k'),s:mx('s')};
   const bar=(lab,v,m,col)=>{const w=Math.abs(v)/m*50;return`<div class="bar"><span>${lab}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?col:'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
   const isBest=sel===res[0];
-  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}${isBest?'':` · место ${res.indexOf(sel)+1}`}</div><div class="big">${esc(sel.c.n)}</div></div>
+  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}${isBest?'':` · место ${res.indexOf(sel)+1}`}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}</div></div>
    <div class="total"><div class="kicker">Итог</div><div class="big">${sgn(sel.t)}</div></div></div>
    <div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}</div>
    ${reasons(sel)}${isBest?'':`<button class="btn" id="back">Показать лучший пик (${esc(res[0].c.n)})</button>`}</div>`;
   const top=(title,key)=>{const l=[...res].sort((a,b)=>b[key].v-a[key].v||b.t-a.t).slice(0,5);
     return`<div class="top"><h3>${title}</h3>${l.map(x=>`<button class="pick${x===sel?' on':''}" data-n="${esc(x.c.n)}">${badge(x.c.n,'s')}<span>${esc(x.c.n)}</span><span class="${x[key].v>0?'pos':x[key].v<0?'neg':''}">${sgn(x[key].v)}</span></button>`).join('')}</div>`};
   $('tops').innerHTML=top('Против соперника по линии','l')+top('Против их состава','k')+top('Синергия с вашими','s');
-  $('tbl').innerHTML=res.slice(0,25).map(x=>`<tr data-n="${esc(x.c.n)}" class="${x===sel?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
+  $('comp').innerHTML=compHTML(sel);
+  $('tbl').innerHTML=res.slice(0,25).map(x=>`<tr data-n="${esc(x.c.n)}" class="${x===sel?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
 }
 $('legal').textContent=ICONS?(LOCAL_ICONS?'Неофициальный инструмент. Портреты берутся из папки icons/ рядом с файлом (Ahri.png, LeeSin.png…), иначе из Data Dragon (Riot Games). League of Legends принадлежит Riot Games.':'Неофициальный инструмент. Иконки чемпионов загружаются из Data Dragon (Riot Games) в вашем браузере. League of Legends принадлежит Riot Games.'):'Неофициальный инструмент, не связан с Riot Games. Оценки составлены вручную и не зависят от патча.';
 /* ---------- выбор чемпиона как в драфте ---------- */
@@ -692,7 +808,101 @@ function placePick(name){
   active=nextEmpty(side)||active;render();
 }
 
-const boot=()=>{buildDraft();buildPicker();render()};
+/* ---------- анализ составов ---------- */
+let lastRes=[];
+function teamList(side){return ROLES.map(([r])=>side==='ally'&&r===st.me?null:find(st[side][r]||'')).filter(Boolean)}
+function profile(L){
+  const n=L.length||1,sum=k=>L.reduce((s,c)=>s+c[k],0);
+  const phys=L.reduce((s,c)=>s+(c.dmg==='P'?1:c.dmg==='X'?.5:0),0);
+  const pct=k=>Math.round(sum(k)/(3*5)*100);
+  const sc=L.length?sum('sc')/L.length:2;
+  return{n:L.length,ad:L.length?Math.round(phys/L.length*100):50,fr:pct('fr'),en:pct('en'),cc:pct('cc'),po:pct('po'),bu:pct('bu'),mo:pct('mo'),sc};
+}
+function compCard(cls,title,L,note){
+  const p=profile(L);
+  if(!p.n)return`<div class="ct ${cls}"><h3>${title}</h3><p class="sub">Пока никого не выбрано</p></div>`;
+  const ap=100-p.ad,M=[['Фронтлайн','fr'],['Инициация','en'],['Контроль','cc'],['Бурст','bu'],['Поук','po'],['Мобильность','mo']];
+  const tags=[];
+  if(p.ad>=75)tags.push(['Почти весь урон физический','warn']);if(ap>=75)tags.push(['Почти весь урон магический','warn']);
+  if(p.fr<20&&p.n>=3)tags.push(['Нет фронтлайна','warn']);if(p.en<20&&p.n>=3)tags.push(['Некому начинать драки','warn']);
+  if(p.mo>=45)tags.push(['Очень мобильные','']);if(p.po>=40)tags.push(['Поук','']);if(p.bu>=55)tags.push(['Взрывной урон','']);
+  tags.push([p.sc>=2.5?'Сильны в поздней игре':p.sc<=1.6?'Сильны в ранней игре':'Сильны в середине игры','']);
+  return`<div class="ct ${cls}"><h3>${title}<small>${note}</small></h3>
+  <div class="dmg">${p.ad?`<span class="ad" style="width:${p.ad}%">AD ${p.ad}%</span>`:''}${ap?`<span class="ap" style="width:${ap}%">AP ${ap}%</span>`:''}</div>
+  ${M.map(([l,k])=>`<div class="m"><span>${l}</span><span class="mt"><i style="width:${Math.min(100,p[k])}%"></i></span><span class="v">${p[k]}</span></div>`).join('')}
+  <div class="tags">${tags.map(([t,c])=>`<span class="tag ${c}">${t}</span>`).join('')}</div></div>`;
+}
+function compHTML(sel){
+  const A=teamList('ally'),E=teamList('enemy');
+  return`<h2>Анализ составов</h2><p class="sub">Ваша команда показана вместе с ${esc(sel.c.n)}, чтобы было видно, какие дыры закрывает пик.</p>
+  <div class="cgrid">${compCard('a','Ваша команда',sel?[...A,sel.c]:A,`${A.length+1} из 5`)}${compCard('e','Враги',E,`${E.length} из 5`)}</div>`;
+}
+
+/* ---------- живой режим: мост к клиенту ---------- */
+const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500'; /* страницу отдаёт сам мост (.exe) */
+const BRIDGE=SERVED?'/state':'http://127.0.0.1:27500/state';
+const POSMAP={top:'T',jungle:'J',middle:'M',bottom:'B',utility:'S'};
+const ALIASMAP={};CH.forEach(c=>{ALIASMAP[norm(iconId(c.n))]=c;ALIASMAP[norm(c.n)]=c});
+const byAlias=a=>a?(ALIASMAP[norm(a)]||find(a)):null;
+const live={on:false,s:'off',last:'',phase:'',timer:null,hover:'',err:0};
+live.on=SERVED;try{const v=localStorage.getItem('draft-live');if(v!==null)live.on=v==='1'}catch(e){}
+if(SERVED&&$('howto'))$('howto').style.display='none';
+function fillRoles(slots,champs,skip){
+  for(const c of champs){
+    const free=ROLES.map(x=>x[0]).filter(r=>r!==skip&&!slots[r]);
+    const r=c.roles.split('').find(x=>free.includes(x))||free[0];
+    if(r)slots[r]=c.n;
+  }
+}
+function applyLive(d){
+  const key=JSON.stringify([d.me,d.ally,d.enemy,d.bans]);
+  live.hover='';
+  const meP=(d.ally||[]).find(p=>p.me);if(meP){const c=byAlias(meP.alias);live.hover=c?c.n:''}
+  if(key===live.last)return false;live.last=key;
+  if(POSMAP[d.me])st.me=POSMAP[d.me];
+  const ally=blank(),enemy=blank(),restA=[],restE=[];
+  for(const p of d.ally||[]){if(p.me)continue;const c=byAlias(p.alias);if(!c)continue;const r=POSMAP[p.pos];if(r&&r!==st.me&&!ally[r])ally[r]=c.n;else restA.push(c)}
+  for(const p of d.enemy||[]){const c=byAlias(p.alias);if(!c)continue;const r=POSMAP[p.pos];if(r&&!enemy[r])enemy[r]=c.n;else restE.push(c)}
+  fillRoles(ally,restA,st.me);fillRoles(enemy,restE,null);
+  const bs=Array(10).fill('');
+  (d.bans&&d.bans.ally||[]).map(byAlias).filter(Boolean).slice(0,5).forEach((c,i)=>bs[i]=c.n);
+  (d.bans&&d.bans.enemy||[]).map(byAlias).filter(Boolean).slice(0,5).forEach((c,i)=>bs[5+i]=c.n);
+  st.ally=ally;st.enemy=enemy;st.bs=bs;syncBans();st.sel=null;
+  buildDraft();save();return true;
+}
+async function poll(){
+  if(!live.on)return;
+  let changed=false;
+  try{
+    const r=await fetch(BRIDGE,{cache:'no-store'});const d=await r.json();
+    live.err=0;live.phase=d.phaseName||'';live.timer=d.champSelect?d.timer:null;
+    live.s=!d.client?'noclient':d.champSelect?'live':'idle';
+    if(d.champSelect)changed=applyLive(d);else live.last='';
+  }catch(e){live.s='nobridge';live.timer=null}
+  if(changed)render();else renderLive();
+  setTimeout(poll,1000);
+}
+function renderLive(){
+  const bar=$('livebar');if(!bar)return;
+  bar.dataset.s=live.on?live.s:'off';
+  $('livebtn').textContent=live.on?'Отключить':'Подключить клиент';
+  $('livebtn').classList.toggle('primary',!live.on);
+  $('ltimer').textContent=live.on&&live.s==='live'&&live.timer!=null?Math.floor(live.timer/60)+':'+String(live.timer%60).padStart(2,'0'):'';
+  let t;
+  if(!live.on)t='<b>Ручной режим.</b> Хотите, чтобы пики и баны вставлялись сами? Нажмите «Подключить клиент».';
+  else if(live.s==='nobridge')t='<b>Не вижу мост.</b> Запустите <code>lol_bridge.py</code> и не закрывайте его окно. Подробности в инструкции ниже.';
+  else if(live.s==='noclient')t='<b>Мост работает,</b> но клиент League of Legends не запущен.';
+  else if(live.s==='idle')t=`<b>Клиент подключён</b> · ${esc(live.phase)}. Зайдите в выбор чемпионов, и всё заполнится само.`;
+  else if(live.s==='live'){
+    let hv='';
+    if(live.hover&&lastRes.length){const i=lastRes.findIndex(x=>x.c.n===live.hover);hv=i>=0?` · вы навели <b>${esc(live.hover)}</b>: ${tierB(live.hover)} место ${i+1}`:` · вы навели <b>${esc(live.hover)}</b>`}
+    t=`<span class="livetag">LIVE</span> <b>Выбор чемпионов</b> идёт, пики и баны подтягиваются из клиента${hv}`;
+  }else t='Подключаюсь…';
+  $('ltxt').innerHTML=t;
+  if(live.on&&live.s==='nobridge'&&!live.err){live.err=1;$('howto').open=true}
+}
+
+const boot=()=>{buildDraft();buildPicker();render();if(live.on)poll()};
 if(ICONS){const to=new Promise((_,rj)=>setTimeout(rj,2500));
   Promise.race([fetch('https://ddragon.leagueoflegends.com/api/versions.json').then(r=>r.json()),to]).then(v=>{DDV=v[0]}).catch(()=>{}).then(boot)}
 else boot();
@@ -709,6 +919,7 @@ document.addEventListener('click',e=>{
   const clr=e.target.closest('.clr');
   if(clr&&clr.dataset.clr){const[s,r]=clr.dataset.clr.split('-');st[s][r]='';$(clr.dataset.clr).value='';active=clr.dataset.clr;poolMode=false;st.sel=null;save();render();return}
   const chip=e.target.closest('.chip[data-role]');if(chip){pickRole=chip.dataset.role;render();return}
+  if(e.target.id==='livebtn'){live.on=!live.on;try{localStorage.setItem('draft-live',live.on?'1':'0')}catch(_){}live.s='connecting';live.last='';if(live.on)poll();renderLive();return}
   const bb=e.target.closest('[data-ban]');if(bb){active='ban-'+bb.dataset.ban;poolMode=false;render();return}
   const cb=e.target.closest('[data-clrban]');if(cb){const i=+cb.dataset.clrban;st.bs[i]='';syncBans();active='ban-'+i;poolMode=false;st.sel=null;save();render();return}
   const cp=e.target.closest('[data-clrpool]');if(cp){togglePool(cp.dataset.clrpool);return}
