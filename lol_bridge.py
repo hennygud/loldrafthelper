@@ -6,17 +6,35 @@
 Что делает: раз в секунду смотрит в клиент League of Legends, кто кого
 пикнул и забанил, и отдаёт это странице помощника драфта.
 
-Как запустить: дважды кликните по файлу (Windows) или выполните
-    python lol_bridge.py
-и не закрывайте окно, пока играете.
+Как запустить: дважды кликните по LoLDraftHelper.exe — откроется окно помощника.
+Закрыли окно — программа выключилась. Из исходников: python lol_bridge.py
+(без пакета pywebview страница откроется в окне Edge или в браузере).
+Флаги: --headless (только мост, без окна), --selftest ФАЙЛ (проверка сборки).
 
 Безопасность:
   * читает только экран выбора чемпионов (как U.GG, Porofessor и др.);
   * ничего не нажимает в клиенте и не лезет в память игры;
   * слушает только ваш компьютер (127.0.0.1), снаружи к нему не подключиться.
 
-Только стандартная библиотека Python 3.8+.
+Окно рисует pywebview (встроенный в Windows движок Edge WebView2), остальное — стандартная библиотека.
 """
+import os as _os
+import sys as _sys
+
+
+def _restart_fresh():
+    """После обновления из версии 1.0.0 новый .exe мог унаследовать временную папку старой версии
+    (так устроены однофайловые сборки PyInstaller). Перезапускаемся начисто, пока старая папка жива."""
+    if not getattr(_sys, "frozen", False) or "--after-update" not in _sys.argv or _os.environ.get("LOLDH_FRESH") == "1":
+        return
+    import subprocess as _sp
+    env = {k: v for k, v in _os.environ.items() if not k.startswith("_PYI_") and k != "_MEIPASS2"}
+    env.update(LOLDH_FRESH="1", PYINSTALLER_RESET_ENVIRONMENT="1")
+    _sp.Popen([_sys.executable] + _sys.argv[1:], env=env, close_fds=True)
+    _os._exit(0)
+
+
+_restart_fresh()
 import base64
 import json
 import os
@@ -34,7 +52,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 PORT = 27500
 PAGE_NAME = "lol_draft_helper.html"
-VERSION = "1.0.0"  # при выпуске через GitHub Actions подставляется из тега автоматически
+VERSION = "1.0.1"  # при выпуске через GitHub Actions подставляется из тега автоматически
 REPO = "hennygud/loldrafthelper"
 UPDATE_URL = os.environ.get("LOL_UPDATE_URL", f"https://api.github.com/repos/{REPO}/releases/latest")
 UPDATE = {"current": VERSION, "available": False}
@@ -43,6 +61,10 @@ SELF_PATH = sys.executable if IS_FROZEN else ""      # путь к самому 
 ALLOWED_URL_PREFIX = "https://github.com/"           # качаем обновления только отсюда
 MIN_EXE_SIZE = 1_000_000                             # меньше этого точно не наш exe
 ORIGINS_OK = (f"http://127.0.0.1:{PORT}", "https://hennygud.github.io")
+APP_DIR = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser("~"), "LoLDraftHelper")
+LOG_PATH = os.path.join(APP_DIR, "log.txt")
+NO_CONSOLE = sys.stdout is None                      # собрано как оконное приложение: печатать некуда
+LAST_SEEN = [0.0]                                    # когда страница в последний раз обращалась к мосту
 
 
 def find_page():
@@ -83,7 +105,18 @@ _CTX.verify_mode = ssl.CERT_NONE  # у клиента самоподписанн
 
 
 def say(msg):
-    print(time.strftime("[%H:%M:%S] ") + msg, flush=True)
+    line = time.strftime("[%H:%M:%S] ") + msg
+    if not NO_CONSOLE:
+        print(line, flush=True)
+    if IS_FROZEN:  # у .exe нет консоли, поэтому пишем журнал в файл
+        try:
+            os.makedirs(APP_DIR, exist_ok=True)
+            if os.path.exists(LOG_PATH) and os.path.getsize(LOG_PATH) > 512_000:
+                os.replace(LOG_PATH, LOG_PATH + ".1")
+            with open(LOG_PATH, "a", encoding="utf-8") as f:
+                f.write(line + "\n")
+        except OSError:
+            pass
 
 
 # ─────────────── поиск клиента ───────────────
@@ -276,8 +309,10 @@ def _download(url, dest):
 
 
 def relaunch():
-    flags = 0x00000010 if platform.system() == "Windows" else 0  # CREATE_NEW_CONSOLE
-    subprocess.Popen([SELF_PATH, "--after-update", "--no-browser"], creationflags=flags, close_fds=True)
+    # новая версия должна распаковаться заново, а не брать временную папку этой
+    env = {k: v for k, v in os.environ.items() if not k.startswith("_PYI_") and k != "_MEIPASS2"}
+    env.update(LOLDH_FRESH="1", PYINSTALLER_RESET_ENVIRONMENT="1")
+    subprocess.Popen([SELF_PATH, "--after-update"], env=env, close_fds=True)
 
 
 def exit_soon():
@@ -416,6 +451,13 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
+        if self.path.startswith("/state") or self.path.startswith("/ping"):
+            LAST_SEEN[0] = time.time()
+        if self.path.startswith("/ping"):
+            self.send_response(204)
+            self._cors()
+            self.end_headers()
+            return
         if self.path.startswith("/state"):
             with LOCK:
                 data = dict(STATE, version=VERSION, update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
@@ -461,15 +503,69 @@ class Handler(BaseHTTPRequestHandler):
         pass  # не засоряем окно
 
 
+# ─────────────── окно приложения ───────────────
+
+def open_window(url):
+    """Своё окно (Edge WebView2 через pywebview). Возвращает True, когда окно закрыли; False — если открыть не вышло."""
+    try:
+        import webview
+    except Exception as e:
+        say(f"Своё окно недоступно ({e})")
+        return False
+    try:
+        store = os.path.join(APP_DIR, "webview")
+        os.makedirs(store, exist_ok=True)
+        webview.create_window(f"Помощник драфта · {VERSION}", url, width=1380, height=920,
+                              min_size=(960, 640), background_color="#0d1117")
+        webview.start(private_mode=False, storage_path=store)  # private_mode=False: пул и настройки сохраняются
+        return True
+    except Exception as e:
+        say(f"Не удалось открыть окно: {e}")
+        return False
+
+
+def open_app_mode(url):
+    """Запасной вариант: окно Edge/Chrome без адресной строки."""
+    if platform.system() != "Windows":
+        return False
+    roots = [os.environ.get(v, "") for v in ("ProgramFiles(x86)", "ProgramFiles", "LOCALAPPDATA")]
+    exes = [os.path.join(r, *p) for r in roots if r for p in
+            (("Microsoft", "Edge", "Application", "msedge.exe"), ("Google", "Chrome", "Application", "chrome.exe"))]
+    for exe in exes:
+        if os.path.isfile(exe):
+            try:
+                subprocess.Popen([exe, f"--app={url}", "--window-size=1380,920"], close_fds=True)
+                return True
+            except OSError:
+                pass
+    return False
+
+
+def selftest(out):
+    """Проверка свежей сборки в GitHub Actions: всё ли упаковалось. Пишет ok или ошибку в файл."""
+    lines = []
+    try:
+        assert find_page(), "страница не упакована"
+        import webview  # noqa: F401
+        from webview.platforms import winforms  # подгружает .NET и библиотеки WebView2
+        lines = ["ok", f"version {VERSION}", f"renderer {getattr(winforms, 'renderer', '?')}"]
+        code = 0
+    except BaseException as e:
+        lines, code = [f"fail {type(e).__name__}: {e}"], 1
+    with open(out, "w", encoding="utf-8") as f:
+        f.write("\n".join(lines))
+    os._exit(code)
+
+
 def main():
     lockfile = None
     if "--lockfile" in sys.argv:
         lockfile = sys.argv[sys.argv.index("--lockfile") + 1]
-    print("=" * 56)
-    print(f"  Мост LoL → Помощник драфта · версия {VERSION}")
-    print(f"  Работает на http://127.0.0.1:{PORT}  (только ваш компьютер)")
-    print("  Не закрывайте это окно, пока пользуетесь помощником.")
-    print("=" * 56, flush=True)
+    if "--selftest" in sys.argv:
+        selftest(sys.argv[sys.argv.index("--selftest") + 1])
+    headless = "--headless" in sys.argv
+    url = f"http://127.0.0.1:{PORT}/"
+    say(f"Помощник драфта {VERSION}: мост на {url} (только ваш компьютер)")
     srv = None
     for _ in range(40 if "--after-update" in sys.argv else 1):  # после обновления старый мост ещё закрывается
         try:
@@ -478,19 +574,33 @@ def main():
         except OSError:
             time.sleep(0.5)
     if srv is None:
-        print(f"\nПорт {PORT} занят: мост, похоже, уже запущен в другом окне.")
-        input("Нажмите Enter, чтобы закрыть…")
+        say(f"Порт {PORT} занят: помощник уже запущен, открываю ещё одно окно к нему.")
+        if not headless and not open_window(url):
+            open_app_mode(url) or webbrowser.open(url)
         return
     threading.Thread(target=cleanup_old, daemon=True).start()
     threading.Thread(target=update_loop, daemon=True).start()
     threading.Thread(target=poll_loop, args=(Client(lockfile),), daemon=True).start()
-    if "--no-browser" not in sys.argv:
-        threading.Timer(0.8, lambda: webbrowser.open(f"http://127.0.0.1:{PORT}/")).start()
-        print("  Страница открылась в браузере. Если нет: http://127.0.0.1:%d" % PORT, flush=True)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    if not headless:
+        if open_window(url):  # окно закрыли — выключаемся целиком
+            say("Окно закрыто, выход.")
+            os._exit(0)
+        if not open_app_mode(url):
+            webbrowser.open(url)
+        say("Открыто в браузере. Если нет: " + url)
+    started = time.time()
     try:
-        srv.serve_forever()
+        while True:
+            time.sleep(5)
+            # у .exe нет консоли, чтобы его закрыть: выключаемся сами, когда страницу закрыли
+            if NO_CONSOLE and not headless:
+                idle = time.time() - (LAST_SEEN[0] or started)
+                if idle > (180 if LAST_SEEN[0] else 300):
+                    say("Страница давно закрыта, выход.")
+                    os._exit(0)
     except KeyboardInterrupt:
-        print("\nМост остановлен.")
+        say("Мост остановлен.")
 
 
 if __name__ == "__main__":

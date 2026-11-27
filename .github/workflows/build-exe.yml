@@ -13,11 +13,18 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyinstaller
+      - run: pip install pyinstaller pywebview
       - if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: sed -i "s/^VERSION = .*/VERSION = \"${GITHUB_REF_NAME#v}\"/" lol_bridge.py
-      - run: pyinstaller --onefile --name LoLDraftHelper --add-data "lol_draft_helper.html;." lol_bridge.py
+      - run: pyinstaller --onefile --windowed --name LoLDraftHelper --add-data "lol_draft_helper.html;." --collect-all webview --collect-all clr_loader --collect-all pythonnet --hidden-import clr lol_bridge.py
+      - name: selftest (не выпускаем сломанный exe)
+        shell: pwsh
+        run: |
+          $p = Start-Process dist/LoLDraftHelper.exe -ArgumentList '--selftest', "$PWD/selftest.txt" -PassThru
+          if (-not $p.WaitForExit(120000)) { $p.Kill(); throw 'selftest timeout' }
+          Get-Content selftest.txt
+          if ((Get-Content selftest.txt -TotalCount 1) -ne 'ok') { throw 'selftest failed' }
       - shell: pwsh
         run: (Get-FileHash dist/LoLDraftHelper.exe -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline dist/LoLDraftHelper.exe.sha256
       - uses: actions/upload-artifact@v4

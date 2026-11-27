@@ -280,18 +280,18 @@ summary{color:var(--ink)}
 .tag{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
 .tag.warn{border-color:rgba(232,64,87,.5);color:#ff8a9a}
 .pick span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.updbar{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;margin-top:10px;padding:10px 16px;border-radius:10px;background:rgba(240,178,50,.1);border:1px solid rgba(240,178,50,.5)}
+.updbar{position:sticky;top:0;z-index:100;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;padding:10px max(16px,calc((100% - 1240px)/2));background:#3a2c0e;border-bottom:1px solid rgba(240,178,50,.6);box-shadow:0 4px 14px rgba(0,0,0,.45)}
 .updbar[hidden]{display:none}.ui{font-size:18px;color:var(--gold)}.ut{flex:1 1 220px;font-size:14px}.ut small{color:var(--mute)}
 a.btn{display:inline-grid;place-items:center;text-decoration:none}
 </style>
 </head>
 <body>
+<div class="updbar" id="updbar" hidden><span class="ui">⬆</span><span class="ut">Доступна новая версия <b id="updv"></b> <small id="updc"></small></span><button class="btn primary" id="updgo" type="button" hidden>Обновить</button><a class="btn primary" id="updlink" target="_blank" rel="noopener">Скачать</a><button class="btn" id="upddis" type="button">Позже</button></div>
 <header class="band"><div class="wrap">
 <h1>Помощник драфта: лучший пик под ваш состав и против их</h1>
 <p>Впишите союзников и врагов, нажмите на свою роль. Каждый чемпион получает три оценки: линия, против вражеского состава и синергия с командой. Лучший пик выбирается по их сумме.</p>
 <div class="rule"></div>
 <div class="livebar" id="livebar" data-s="off"><span class="dot"></span><span class="ltxt" id="ltxt"></span><span class="timer" id="ltimer"></span><button class="btn primary" id="livebtn" type="button">Подключить клиент</button></div>
-<div class="updbar" id="updbar" hidden><span class="ui">⬆</span><span class="ut">Доступна новая версия <b id="updv"></b> <small id="updc"></small></span><button class="btn primary" id="updgo" type="button" hidden>Обновить</button><a class="btn primary" id="updlink" target="_blank" rel="noopener">Скачать</a><button class="btn" id="upddis" type="button">Позже</button></div>
 <details class="howto" id="howto"><summary>Как подключить клиент LoL (3 шага, 1 минута)</summary>
 <div class="steps">
 <div class="step"><b class="n">1</b><b>Поставьте Python</b><p>Скачайте с python.org и установите. В установщике поставьте галочку «Add Python to PATH». Это делается один раз.</p></div>
@@ -852,12 +852,21 @@ const byAlias=a=>a?(ALIASMAP[norm(a)]||find(a)):null;
 const live={upd:null,ver:'',on:false,s:'off',last:'',phase:'',timer:null,hover:'',err:0};
 live.on=SERVED;try{const v=localStorage.getItem('draft-live');if(v!==null)live.on=v==='1'}catch(e){}
 if(SERVED&&$('howto'))$('howto').style.display='none';
+if(SERVED)setInterval(()=>fetch('/ping').catch(()=>{}),15000);
+/* Клиент не показывает роли врагов. Перебираем все способы раздать свободные роли (до 5! = 120)
+   и берём тот, где больше всего чемпионов стоят на своих обычных ролях:
+   основная роль 3 очка, вторая 2, третья 1. Если кого-то всё равно приходится ставить не на его роль,
+   туда скорее пойдёт чемпион с большим числом ролей (он гибче). */
 function fillRoles(slots,champs,skip){
-  for(const c of champs){
-    const free=ROLES.map(x=>x[0]).filter(r=>r!==skip&&!slots[r]);
-    const r=c.roles.split('').find(x=>free.includes(x))||free[0];
-    if(r)slots[r]=c.n;
-  }
+  const free=ROLES.map(x=>x[0]).filter(r=>r!==skip&&!slots[r]);
+  const cs=champs.slice(0,free.length);if(!cs.length)return;
+  const fit=(c,r)=>{const i=c.roles.indexOf(r);return i<0?c.roles.length*.1:i===0?3:i===1?2:1};
+  let best=null,bestS=-1;
+  const go=(i,used,acc,s)=>{
+    if(i===cs.length){if(s>bestS+1e-9){bestS=s;best=acc.slice()}return}
+    for(const r of free){if(used.has(r))continue;used.add(r);acc.push(r);go(i+1,used,acc,s+fit(cs[i],r));acc.pop();used.delete(r)}
+  };
+  go(0,new Set(),[],0);cs.forEach((c,i)=>slots[best[i]]=c.n);
 }
 function applyLive(d){
   const key=JSON.stringify([d.me,d.ally,d.enemy,d.bans]);
