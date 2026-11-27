@@ -1,0 +1,32 @@
+name: build-exe
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pyinstaller
+      - if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        run: sed -i "s/^VERSION = .*/VERSION = \"${GITHUB_REF_NAME#v}\"/" lol_bridge.py
+      - run: pyinstaller --onefile --name LoLDraftHelper --add-data "lol_draft_helper.html;." lol_bridge.py
+      - shell: pwsh
+        run: (Get-FileHash dist/LoLDraftHelper.exe -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline dist/LoLDraftHelper.exe.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: LoLDraftHelper
+          path: dist/LoLDraftHelper.exe*
+      - if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/LoLDraftHelper.exe
+            dist/LoLDraftHelper.exe.sha256

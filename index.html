@@ -280,6 +280,9 @@ summary{color:var(--ink)}
 .tag{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
 .tag.warn{border-color:rgba(232,64,87,.5);color:#ff8a9a}
 .pick span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.updbar{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;margin-top:10px;padding:10px 16px;border-radius:10px;background:rgba(240,178,50,.1);border:1px solid rgba(240,178,50,.5)}
+.updbar[hidden]{display:none}.ui{font-size:18px;color:var(--gold)}.ut{flex:1 1 220px;font-size:14px}.ut small{color:var(--mute)}
+a.btn{display:inline-grid;place-items:center;text-decoration:none}
 </style>
 </head>
 <body>
@@ -288,6 +291,7 @@ summary{color:var(--ink)}
 <p>Впишите союзников и врагов, нажмите на свою роль. Каждый чемпион получает три оценки: линия, против вражеского состава и синергия с командой. Лучший пик выбирается по их сумме.</p>
 <div class="rule"></div>
 <div class="livebar" id="livebar" data-s="off"><span class="dot"></span><span class="ltxt" id="ltxt"></span><span class="timer" id="ltimer"></span><button class="btn primary" id="livebtn" type="button">Подключить клиент</button></div>
+<div class="updbar" id="updbar" hidden><span class="ui">⬆</span><span class="ut">Доступна новая версия <b id="updv"></b> <small id="updc"></small></span><button class="btn primary" id="updgo" type="button" hidden>Обновить</button><a class="btn primary" id="updlink" target="_blank" rel="noopener">Скачать</a><button class="btn" id="upddis" type="button">Позже</button></div>
 <details class="howto" id="howto"><summary>Как подключить клиент LoL (3 шага, 1 минута)</summary>
 <div class="steps">
 <div class="step"><b class="n">1</b><b>Поставьте Python</b><p>Скачайте с python.org и установите. В установщике поставьте галочку «Add Python to PATH». Это делается один раз.</p></div>
@@ -840,11 +844,12 @@ function compHTML(sel){
 
 /* ---------- живой режим: мост к клиенту ---------- */
 const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500'; /* страницу отдаёт сам мост (.exe) */
-const BRIDGE=SERVED?'/state':'http://127.0.0.1:27500/state';
+const BASE=SERVED?'':'http://127.0.0.1:27500';
+const BRIDGE=BASE+'/state';
 const POSMAP={top:'T',jungle:'J',middle:'M',bottom:'B',utility:'S'};
 const ALIASMAP={};CH.forEach(c=>{ALIASMAP[norm(iconId(c.n))]=c;ALIASMAP[norm(c.n)]=c});
 const byAlias=a=>a?(ALIASMAP[norm(a)]||find(a)):null;
-const live={on:false,s:'off',last:'',phase:'',timer:null,hover:'',err:0};
+const live={upd:null,ver:'',on:false,s:'off',last:'',phase:'',timer:null,hover:'',err:0};
 live.on=SERVED;try{const v=localStorage.getItem('draft-live');if(v!==null)live.on=v==='1'}catch(e){}
 if(SERVED&&$('howto'))$('howto').style.display='none';
 function fillRoles(slots,champs,skip){
@@ -875,12 +880,29 @@ async function poll(){
   let changed=false;
   try{
     const r=await fetch(BRIDGE,{cache:'no-store'});const d=await r.json();
-    live.err=0;live.phase=d.phaseName||'';live.timer=d.champSelect?d.timer:null;
+    if(live.ver&&d.version&&d.version!==live.ver){location.reload();return}
+    live.upd=d.update;live.ver=d.version;live.err=0;live.phase=d.phaseName||'';live.timer=d.champSelect?d.timer:null;
     live.s=!d.client?'noclient':d.champSelect?'live':'idle';
     if(d.champSelect)changed=applyLive(d);else live.last='';
   }catch(e){live.s='nobridge';live.timer=null}
   if(changed)render();else renderLive();
   setTimeout(poll,1000);
+}
+async function updateNow(){
+  const b=$('updgo'),c=$('updc');b.disabled=true;b.textContent='Обновляю…';c.textContent='';
+  try{
+    const r=await fetch(BASE+'/update',{method:'POST',headers:{'X-LoL-Update':'1'}});const d=await r.json();
+    if(d.ok)c.textContent='Перезапускаюсь, страница обновится сама…';
+    else{c.textContent=d.error||'Ошибка обновления';b.disabled=false;b.textContent='Повторить'}
+  }catch(e){c.textContent='Перезапускаюсь, страница обновится сама…'} /* мост мог уже перезапуститься */
+}
+function renderUpdate(){
+  const bar=$('updbar'),u=live.on&&live.upd;
+  let dis='';try{dis=localStorage.getItem('upd-dismissed')||''}catch(_){}
+  const ok=u&&u.available&&u.latest&&u.latest!==dis&&/^https:\/\/github\.com\//.test(u.url||'');
+  bar.hidden=!ok;if(!ok)return;
+  $('updv').textContent=u.latest;$('updc').textContent=u.current?'(у вас '+u.current+')':'';
+  $('updlink').href=u.url;$('updlink').hidden=!!u.canUpdate;$('updgo').hidden=!u.canUpdate;
 }
 function renderLive(){
   const bar=$('livebar');if(!bar)return;
@@ -898,7 +920,7 @@ function renderLive(){
     if(live.hover&&lastRes.length){const i=lastRes.findIndex(x=>x.c.n===live.hover);hv=i>=0?` · вы навели <b>${esc(live.hover)}</b>: ${tierB(live.hover)} место ${i+1}`:` · вы навели <b>${esc(live.hover)}</b>`}
     t=`<span class="livetag">LIVE</span> <b>Выбор чемпионов</b> идёт, пики и баны подтягиваются из клиента${hv}`;
   }else t='Подключаюсь…';
-  $('ltxt').innerHTML=t;
+  $('ltxt').innerHTML=t;renderUpdate();
   if(live.on&&live.s==='nobridge'&&!live.err){live.err=1;$('howto').open=true}
 }
 
@@ -920,6 +942,8 @@ document.addEventListener('click',e=>{
   if(clr&&clr.dataset.clr){const[s,r]=clr.dataset.clr.split('-');st[s][r]='';$(clr.dataset.clr).value='';active=clr.dataset.clr;poolMode=false;st.sel=null;save();render();return}
   const chip=e.target.closest('.chip[data-role]');if(chip){pickRole=chip.dataset.role;render();return}
   if(e.target.id==='livebtn'){live.on=!live.on;try{localStorage.setItem('draft-live',live.on?'1':'0')}catch(_){}live.s='connecting';live.last='';if(live.on)poll();renderLive();return}
+  if(e.target.id==='updgo'){updateNow();return}
+  if(e.target.id==='upddis'){try{localStorage.setItem('upd-dismissed',(live.upd||{}).latest||'')}catch(_){}renderUpdate();return}
   const bb=e.target.closest('[data-ban]');if(bb){active='ban-'+bb.dataset.ban;poolMode=false;render();return}
   const cb=e.target.closest('[data-clrban]');if(cb){const i=+cb.dataset.clrban;st.bs[i]='';syncBans();active='ban-'+i;poolMode=false;st.sel=null;save();render();return}
   const cp=e.target.closest('[data-clrpool]');if(cp){togglePool(cp.dataset.clrpool);return}
