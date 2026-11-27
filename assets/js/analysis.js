@@ -1,6 +1,6 @@
 // Экран «Анализ игр» в главном окне: последние 20 игр игрока, разобранные той же моделью, что работает в драфте.
 {
-const {CH,evaluate,setStats,D,norm,iconId,R1}=window.MLK_MODEL;
+const {CH,evaluate,setStats,D,norm,iconId,R1,patchWR}=window.MLK_MODEL;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500';
@@ -199,7 +199,8 @@ function renderDetail(){
     ${a.skip?'':`<div class="total"><div class="kicker">${esc(tr('Оценка пика'))}</div><div class="big ${cls(a.mine.t)}">${sgn(a.mine.t)}</div></div>`}</div>`;
   if(a.skip){box.innerHTML=html+`<p class="sub ga-skipnote">${esc(tr(SKIP[a.skip]))}</p>`;return}
   const placeText=tr(a.rank===1?'Лучший вариант по модели':`${a.rank} место из ${a.of}`);
-  html+=`<div class="ga-verdict"><span class="tier t-${a.tier[1]}">${a.tier[0]}</span><span>${esc(placeText)}</span>
+  const w=patchWR(a.me.c,a.role);
+  html+=`<div class="ga-verdict"><span class="tier t-${a.tier[1]}">${a.tier[0]}</span>${w?`<span class="wrchip" title="${esc(tr('Реальный винрейт на этой роли по данным матчей'))}">${w.wr.toFixed(1)}% · ${w.games} ${esc(tr('игр'))}</span>`:''}<span>${esc(placeText)}</span>
     <span class="ga-dot">·</span><span>${esc(tr('Драфт команд'))}: <b class="${cls(a.diff)}">${sgn(a.diff)}</b> ${esc(tr(a.diff>1?'в вашу пользу':a.diff<-1?'против вас':'примерно равный'))}</span></div>`;
   html+=bars(a.mine)+reasons(a.mine);
   html+=`<h3 class="ga-sub">${esc(tr(a.rank===1?'Другие сильные варианты':'Модель предложила бы'))}</h3><div class="ga-alts">${a.alts.map(x=>{

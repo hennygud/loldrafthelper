@@ -239,10 +239,10 @@ const ROLE_FULL={T:'топ',J:'лес',M:'мид',B:'Бот',S:'саппорт'}
    Пока данных нет, всё работает по моим оценкам, как раньше. Когда данные есть, каждая оценка смешивается с ними:
    Отклонение в 1 п.п. от ожидаемого винрейта = 0,6 балла.
    Подмешивание байесовское (см. blend): шум на малых выборках почти не двигает оценку, большие выборки говорят сами за себя. */
-const D={on:false,patch:'',games:0,ln:{},vs:{},sy:{},sc:{},wr:{},roles:[]};
+const D={on:false,patch:'',games:0,ln:{},vs:{},sy:{},sc:{},wr:{},rules:{},roles:[]};
 const PT=.6,KW=200;
 function setStats(s){
-  Object.assign(D,{on:false,patch:s.patch,games:s.games,ln:{},vs:{},sy:{},sc:{},wr:{},roles:[]});
+  Object.assign(D,{on:false,patch:s.patch,games:s.games,ln:{},vs:{},sy:{},sc:{},wr:{},rules:s.rules||{},roles:[]});
   const nm=x=>{const c=find(x);return c&&c.n};
   for(const e of s.counters||[]){const a=nm(e.c),b=nm(e.vs);if(a&&b)D.ln[a+'|'+b+'|'+e.r]=e}
   for(const e of s.vs||[]){const a=nm(e.c),b=nm(e.vs);if(a&&b)D.vs[a+'|'+b+'|'+e.r]=e}
@@ -259,17 +259,28 @@ function setStats(s){
 function blend(rule,e,cap){
   /* Байесовское смешивание. Мой балл = «заранее известный» перекос (с неопределённостью 3 п.п.), данные = измеренный перекос
      с ошибкой 50%/√игр. Если моей оценки нет, ожидаем перекос около нуля (неопределённость 2 п.п.): редкие пары почти не двигаются,
-     а пары с тысячами игр говорят сами за себя. Жёсткого порога нет: данные влияют ровно настолько, насколько они надёжны. */
-  if(!e||e.n<30)return{v:rule,note:''};
-  const se=50/Math.sqrt(e.n),r=rule/PT,tau=rule?3:2;
+     а пары с тысячами игр говорят сами за себя. Если данные уверенно (z≥2,5) говорят обратное, моя пара снимается
+     и остаётся только то, что показывают данные. */
+  if(!e||e.n<30)return{v:rule,note:rule?' · моя оценка, данных нет':''};
+  const se=50/Math.sqrt(e.n),z=Math.abs(e.delta)/se,same=Math.sign(e.delta)===Math.sign(rule);
+  const orig=rule;if(rule&&!same&&z>=2.5)rule=0;
+  /* Пары, которых нет в моих правилах, добавляются только при значимых данных: матчапы и синергии в данных в основном шум. */
+  if(!orig&&!(z>=3&&e.n>=150))return{v:0,note:''};
+  const r=rule/PT,tau=rule?3:2;
   const pm=(r/(tau*tau)+e.delta/(se*se))/(1/(tau*tau)+1/(se*se));
-  const v=Math.max(-cap,Math.min(cap,pm*PT)),z=Math.abs(e.delta)/se,same=Math.sign(e.delta)===Math.sign(rule);
-  /* Пометки строже, чем само смешивание: пар тысячи, и при z≥2 случайные «подтверждения» и «опровержения» были бы на каждом шагу. */
-  const tag=rule?(z>=2.5?(same?'подтверждено данными':'данные не согласны'):e.n>=300&&z<1?'данные не подтверждают':''):(z>=3&&e.n>=150?'по данным':'');
-  return{v,note:tag?` · ${tag}: ${Math.round(e.wr)}%, ${e.n} игр`:''}}
-
-/* Сила на патче: винрейт чемпиона в этой роли. По проверке половинами это самый надёжный сигнал из данных после ролей.
-   Реальный разброс винрейтов на высоком ранге около 1,4 п.п., поэтому малые выборки сильно прижимаются к 50%. */
+  const v=Math.max(-cap,Math.min(cap,pm*PT)),stat=`${Math.round(e.wr)}%, ${e.n} игр`;
+  const tag=rule?(z>=2.5?`подтверждено данными: ${stat}`:`моя оценка, данные неоднозначны: ${stat}`)
+    :orig?`данные опровергают мою оценку: ${stat}`:`по данным: ${stat}`;
+  return{v,note:tag?` · ${tag}`:''}}
+/* Правило модели («против состава», синергия, черты на линии) с весом, проверенным на играх (stats.json → rules).
+   k — во сколько раз реальный эффект больше или меньше моего балла; k = 0 значит, что данные правило опровергли. */
+function ruled(p,t,id){
+  if(!id||!D.on||!p)return[p,t,id];
+  const e=D.rules[id];
+  if(!e||e.n<200)return[p,t+' · моя оценка, данных мало',id];
+  if(e.k<.15)return null;   /* данные опровергли правило или показали, что эффекта почти нет */
+  const label=e.z>=2.5&&Math.sign(e.obs)===Math.sign(e.pred)?`подтверждено данными, ${e.n} игр`:'моя оценка, данные неоднозначны';
+  return[p*e.k,`${t} · ${label}`,id]}
 function meta(c,me){
   if(!D.on)return{v:0,why:[]};
   const e=D.wr[c.n+'|'+me];
@@ -278,8 +289,10 @@ function meta(c,me){
   const v=Math.max(-2,Math.min(2,pm*PT));
   return{v,why:[[v,`${e.wr.toFixed(1)}% побед в этой роли на патче ${D.patch}, ${e.games} игр`]]};
 }
+/* Реальный винрейт на роли — рядом с тиром, чтобы было видно, где модель и данные расходятся. */
+function patchWR(c,me){const e=D.on&&D.wr[c.n+'|'+me];return e&&e.games>=100?e:null}
 function lane(c,me,en){
-  const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
+  const why=[];let v=0;const add=(p,t,id)=>{const r=ruled(p,t,id);if(r){v+=r[0];why.push(r)}};
   const opps=me==='B'?[[en.B,1],[en.S,.5]]:me==='S'?[[en.S,1],[en.B,.5]]:[[en[me],1]];
   const any=opps.filter(o=>o[0]);
   if(!any.length)return{v:0,why:[[0,'соперник по линии не указан']]};
@@ -293,77 +306,77 @@ function lane(c,me,en){
       if(Math.abs(b.v)>=(r0?.05:.3))add(b.v*w,(b.v>0?`контрпик к ${o.n}`:`${o.n} контрит ${c.n}`)+b.note);
     }
     if(me==='T'||me==='M'){
-      if(has(c,'r')&&!has(o,'r'))add(.75,`дальний бой против ближнего ${o.n}`);
-      if(!has(c,'r')&&has(o,'r'))add(-.5,`ближний бой против дальнего ${o.n}`);}
-    if(c.sc===1&&o.sc===3)add(.75*w,`давит рано, пока ${o.n} не раскачался`);
-    if(c.sc===3&&o.sc===1)add(-.5*w,`${o.n} сильнее в ранней фазе`);
-    if(o.mo===3&&has(c,'d'))add(1*w,`гасит рывки ${o.n}`);
+      if(has(c,'r')&&!has(o,'r'))add(.75,`дальний бой против ближнего ${o.n}`,'lane.ranged');
+      if(!has(c,'r')&&has(o,'r'))add(-.5,`ближний бой против дальнего ${o.n}`,'lane.melee');}
+    if(c.sc===1&&o.sc===3)add(.75*w,`давит рано, пока ${o.n} не раскачался`,'lane.early_vs_late');
+    if(c.sc===3&&o.sc===1)add(-.5*w,`${o.n} сильнее в ранней фазе`,'lane.late_vs_early');
+    if(o.mo===3&&has(c,'d'))add(1*w,`гасит рывки ${o.n}`,'lane.dash_block');
   }
   return{v,why}}
 
 function comp(c,E,laneOpp,me){
-  const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
+  const why=[];let v=0;const add=(p,t,id)=>{const r=ruled(p,t,id);if(r){v+=r[0];why.push(r)}};
   const n=E.length;if(!n)return{v:0,why:[[0,'вражеский состав не указан']]};
   const phys=E.reduce((s,e)=>s+(e.dmg==='P'?1:e.dmg==='X'?.5:0),0),mag=n-phys;
-  if(n>=3&&phys/n>=.7&&c.fr>=2)add(1,'враги почти полностью на физ. уроне — броня окупится');
-  if(n>=3&&mag/n>=.7&&c.fr>=2)add(.75,'враги почти полностью на маг. уроне — сопротивление магии окупится');
-  if(n>=3&&mag/n>=.7&&(c.n==='Galio'||c.n==='Kassadin'))add(1,'антимаг против AP-состава');
+  if(n>=3&&phys/n>=.7&&c.fr>=2)add(1,'враги почти полностью на физ. уроне — броня окупится','comp.armor');
+  if(n>=3&&mag/n>=.7&&c.fr>=2)add(.75,'враги почти полностью на маг. уроне — сопротивление магии окупится','comp.mr');
+  if(n>=3&&mag/n>=.7&&(c.n==='Galio'||c.n==='Kassadin'))add(1,'антимаг против AP-состава','comp.antimage');
   const tanks=E.filter(e=>e.fr>=2),tw=E.reduce((s,e)=>s+(e.fr===3?1:e.fr===2?.6:0),0);
-  if(tw>=1.6&&has(c,'t'))add(2,`урон от % здоровья против ${names(tanks)}`);
-  if(tw>=1.6&&has(c,'a')&&!has(c,'t'))add(-1,`ассасину тяжело против танков (${names(tanks)})`);
-  if(n>=3&&tw<=.6&&(has(c,'a')||c.bu===3))add(1.5,'у врагов почти нет фронтлайна — бурст убивает');
+  if(tw>=1.6&&has(c,'t'))add(2,`урон от % здоровья против ${names(tanks)}`,'comp.percent_hp');
+  if(tw>=1.6&&has(c,'a')&&!has(c,'t'))add(-1,`ассасину тяжело против танков (${names(tanks)})`,'comp.assassin_vs_tanks');
+  if(n>=3&&tw<=.6&&(has(c,'a')||c.bu===3))add(1.5,'у врагов почти нет фронтлайна — бурст убивает','comp.burst_no_front');
   const mob=E.filter(e=>e.mo===3);
-  if(mob.length>=2&&has(c,'d'))add(2,`блокирует рывки: ${names(mob)}`);
-  else if(mob.length>=2&&c.cc>=3)add(.5,`много контроля против мобильных: ${names(mob)}`);
+  if(mob.length>=2&&has(c,'d'))add(2,`блокирует рывки: ${names(mob)}`,'comp.dash_block');
+  else if(mob.length>=2&&c.cc>=3)add(.5,`много контроля против мобильных: ${names(mob)}`,'comp.cc_vs_mobile');
   const divers=E.filter(e=>has(e,'a')||(e.en===3&&e.mo>=2));
-  if(divers.length>=2&&c.pe>=3)add(1.5,`защитит своих от дайва: ${names(divers)}`);
-  if(divers.length>=2&&has(c,'c')&&c.mo<=1)add(-1,`уязвим к дайву: ${names(divers)}`);
+  if(divers.length>=2&&c.pe>=3)add(1.5,`защитит своих от дайва: ${names(divers)}`,'comp.peel_vs_dive');
+  if(divers.length>=2&&has(c,'c')&&c.mo<=1)add(-1,`уязвим к дайву: ${names(divers)}`,'comp.carry_vs_dive');
   const poke=E.filter(e=>e.po===3);
-  if(poke.length>=2&&c.en===3)add(1.5,`жёсткий engage против поука (${names(poke)})`);
-  if(poke.length>=2&&has(c,'h'))add(.5,'отхил помогает пережить поук');
+  if(poke.length>=2&&c.en===3)add(1.5,`жёсткий engage против поука (${names(poke)})`,'comp.engage_vs_poke');
+  if(poke.length>=2&&has(c,'h'))add(.5,'отхил помогает пережить поук','comp.heal_vs_poke');
   const immob=E.filter(e=>has(e,'r')&&e.mo<=1&&(has(e,'c')||e.bu>=3||e.dp>=3));
-  if(immob.length&&has(c,'a'))add(1,`ловит неподвижных керри: ${names(immob)}`);
-  else if(immob.length&&c.en===3)add(.75,`может поймать ${names(immob)}`);
+  if(immob.length&&has(c,'a'))add(1,`ловит неподвижных керри: ${names(immob)}`,'comp.catch_assassin');
+  else if(immob.length&&c.en===3)add(.75,`может поймать ${names(immob)}`,'comp.catch_engage');
   const eng=E.filter(e=>e.en===3);
-  if(eng.length>=2&&has(c,'e')&&c.pe>=3)add(1.5,`отбивает инициацию: ${names(eng)}`);
+  if(eng.length>=2&&has(c,'e')&&c.pe>=3)add(1.5,`отбивает инициацию: ${names(eng)}`,'comp.disengage');
   const sc=E.reduce((s,e)=>s+e.sc,0)/n;
-  if(n>=3&&sc>=2.5&&c.sc===1)add(1,'враги раскачиваются поздно — их можно наказать рано');
-  if(n>=3&&sc<=1.6&&c.sc===3)add(-.75,'враги сильнее в ранней игре');
-  let cross=0;for(const e of E){if(e===laneOpp)continue;if(CT[e.n]&&CT[e.n].has(c.n)&&cross<1){cross+=.5;add(.5,`неудобен для ${e.n}`)}}
+  if(n>=3&&sc>=2.5&&c.sc===1)add(1,'враги раскачиваются поздно — их можно наказать рано','comp.early_vs_late');
+  if(n>=3&&sc<=1.6&&c.sc===3)add(-.75,'враги сильнее в ранней игре','comp.late_vs_early');
+  let cross=0;for(const e of E){if(e===laneOpp)continue;if(CT[e.n]&&CT[e.n].has(c.n)&&cross<1){cross+=.5;add(.5,`неудобен для ${e.n}`,'comp.cross_counter')}}
   if(D.on&&me){let dv=0;for(const e of E){if(e===laneOpp)continue;const x=D.vs[c.n+'|'+e.n+'|'+me];if(!x||x.n<100)continue;
     const b=blend(0,x,2);if(Math.abs(b.v)>=.3){dv+=b.v*.5;why.push([R1(b.v*.5),`${b.v>0?'удобен против':'неудобен против'} ${e.n}${b.note}`])}}
     dv=Math.max(-1.5,Math.min(1.5,dv));v+=dv}
   return{v,why}}
 
 function syn(c,A){
-  const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
+  const why=[];let v=0;const add=(p,t,id)=>{const r=ruled(p,t,id);if(r){v+=r[0];why.push(r)}};
   const n=A.length;if(!n)return{v:0,why:[[0,'союзники не указаны']]};
   const phys=A.reduce((s,a)=>s+(a.dmg==='P'?1:a.dmg==='X'?.5:0),0),mag=n-phys,d=phys-mag;
-  if(n>=2&&d>=1.5){if(c.dmg==='M')add(2,'команде не хватает магического урона');else if(c.dmg==='P')add(-1,'в команде уже перебор физ. урона');else add(.75,'смешанный урон разбавит физ. состав')}
-  if(n>=2&&d<=-1.5){if(c.dmg==='P')add(2,'команде не хватает физического урона');else if(c.dmg==='M')add(-1,'в команде уже перебор маг. урона');else add(.75,'смешанный урон разбавит маг. состав')}
+  if(n>=2&&d>=1.5){if(c.dmg==='M')add(2,'команде не хватает магического урона','syn.need_magic');else if(c.dmg==='P')add(-1,'в команде уже перебор физ. урона','syn.too_much_phys');else add(.75,'смешанный урон разбавит физ. состав','syn.mixed_vs_phys')}
+  if(n>=2&&d<=-1.5){if(c.dmg==='P')add(2,'команде не хватает физического урона','syn.need_phys');else if(c.dmg==='M')add(-1,'в команде уже перебор маг. урона','syn.too_much_magic');else add(.75,'смешанный урон разбавит маг. состав','syn.mixed_vs_magic')}
   const fr=A.reduce((s,a)=>s+(a.fr===3?1:a.fr===2?.6:0),0);
-  if(fr<1&&c.fr>=2)add(c.fr===3?2.5:2,'в команде нет фронтлайна');
-  if(fr<1&&c.fr===0&&n>=3)add(-.5,'команде нужен фронтлайн, а этот чемпион хрупкий');
-  if(!A.some(a=>a.en===3)&&c.en===3)add(1.5,'в команде некому начинать драку');
-  if(n>=2&&A.reduce((s,a)=>s+a.cc,0)/n<1.6&&c.cc>=3)add(1,'мало контроля в составе');
+  if(fr<1&&c.fr>=2)add(c.fr===3?2.5:2,'в команде нет фронтлайна','syn.frontline');
+  if(fr<1&&c.fr===0&&n>=3)add(-.5,'команде нужен фронтлайн, а этот чемпион хрупкий','syn.fragile');
+  if(!A.some(a=>a.en===3)&&c.en===3)add(1.5,'в команде некому начинать драку','syn.engage');
+  if(n>=2&&A.reduce((s,a)=>s+a.cc,0)/n<1.6&&c.cc>=3)add(1,'мало контроля в составе','syn.cc');
   const hc=A.filter(a=>has(a,'c'));
-  if(hc.length&&(c.pe>=3||has(c,'e')))add(2,`защищает и усиливает ${names(hc)}`);
+  if(hc.length&&(c.pe>=3||has(c,'e')))add(2,`защищает и усиливает ${names(hc)}`,'syn.protect_carry');
   const ench=A.filter(a=>has(a,'e')&&a.pe>=3);
-  if(ench.length&&has(c,'c'))add(1.5,`${names(ench)} раскроет гиперкерри`);
+  if(ench.length&&has(c,'c'))add(1.5,`${names(ench)} раскроет гиперкерри`,'syn.enchanter_carry');
   const ys=A.filter(a=>a.n==='Yasuo'||a.n==='Yone');
-  if(ys.length&&has(c,'k'))add(1.5,`подбросы для ${names(ys)}`);
-  if(c.n==='Yasuo'||c.n==='Yone'){const k=A.filter(a=>has(a,'k'));if(k.length)add(Math.min(3,.75*k.length),`подбросы союзников: ${names(k)}`)}
+  if(ys.length&&has(c,'k'))add(1.5,`подбросы для ${names(ys)}`,'syn.knockup_for_yasuo');
+  if(c.n==='Yasuo'||c.n==='Yone'){const k=A.filter(a=>has(a,'k'));if(k.length)add(Math.min(3,.75*k.length),`подбросы союзников: ${names(k)}`,'syn.yasuo_knockups')}
   for(const a of A){
     if(!D.on){if(PAIR.has(c.n+'+'+a.n))add(2.5,`известная связка с ${a.n}`);continue}
     const r0=PAIR.has(c.n+'+'+a.n)?2.5:0,b=blend(r0,D.sy[c.n+'|'+a.n],3);
     if(Math.abs(b.v)>=(r0?.05:.3))add(b.v,(b.v>0?(r0?'известная связка с ':'хорошо сочетается с '):'плохо сочетается с ')+a.n+b.note)}
-  if(A.filter(a=>a.po===3).length>=2&&c.po>=2)add(1,'поддерживает поук-состав');
+  if(A.filter(a=>a.po===3).length>=2&&c.po>=2)add(1,'поддерживает поук-состав','syn.poke');
   const eng=A.filter(a=>a.en===3);
-  if(eng.length&&c.bu>=3&&c.mo>=2)add(.75,`заходит следом за ${names(eng)}`);
+  if(eng.length&&c.bu>=3&&c.mo>=2)add(.75,`заходит следом за ${names(eng)}`,'syn.follow_up');
   const sc=A.reduce((s,a)=>s+a.sc,0)/n;
-  if(n>=3&&sc>=2.6&&c.sc===1)add(.5,'даст позднему составу ранний темп');
-  if(n>=3&&sc<=1.5&&c.sc===3)add(-.5,'команда хочет закончить рано, а он поздний');
-  if(n>=3&&!A.some(a=>has(a,'r'))&&has(c,'r'))add(.5,'в команде нет дальнего боя');
+  if(n>=3&&sc>=2.6&&c.sc===1)add(.5,'даст позднему составу ранний темп','syn.early_tempo');
+  if(n>=3&&sc<=1.5&&c.sc===3)add(-.5,'команда хочет закончить рано, а он поздний','syn.late_vs_early');
+  if(n>=3&&!A.some(a=>has(a,'r'))&&has(c,'r'))add(.5,'в команде нет дальнего боя','syn.ranged');
   return{v,why}}
 
 function evaluate(st,selected=null){
@@ -383,7 +396,7 @@ function evaluate(st,selected=null){
 const ICON_ID={"Cho'Gath":'Chogath',"Kai'Sa":'Kaisa',"Kha'Zix":'Khazix',"Vel'Koz":'Velkoz',"Bel'Veth":'Belveth',LeBlanc:'Leblanc',Wukong:'MonkeyKing','Nunu & Willump':'Nunu','Renata Glasc':'Renata'};
 const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z0-9]/g,'');
 /* Модель отдельно от интерфейса: её же использует окно анализа игр (analysis.html). */
-const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,meta,ROLES,ROLE_FULL,setStats,D,norm,iconId,R1};
+const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,meta,patchWR,ROLES,ROLE_FULL,setStats,D,norm,iconId,R1};
 if(typeof module!=='undefined'){module.exports=MODEL;}
 else if(typeof window!=='undefined'&&(window.MLK_MODEL=MODEL,window.MLK_MODEL_ONLY)){/* окно анализа: интерфейс драфта не нужен */}
 else{
@@ -462,7 +475,7 @@ function render(){
   const bar=(lab,v,m,col)=>{const w=Math.abs(v)/m*50;return`<div class="bar"><span>${lab}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?col:'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
   const isBest=sel===res[0];
   const showBreakdown=$('hero').querySelector('details')?.open;
-  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${showingOwn?(mine.status==='locked'?'Ваш пик':'Ваш препик'):isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}</div></div>
+  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${showingOwn?(mine.status==='locked'?'Ваш пик':'Ваш препик'):isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}${(w=>w?`<span class="wrchip" title="${esc(tr('Реальный винрейт на этой роли по данным матчей'))}">${w.wr.toFixed(1)}% · ${w.games} ${esc(tr('игр'))}</span>`:'')(patchWR(sel.c,st.me))}</div></div>
    <div class="total"><div class="kicker">Итог</div><div class="big ${sel.t<0?'neg':sel.t>0?'pos':''}">${sgn(sel.t)}</div></div></div>
    <details class="breakdown" ${showBreakdown?"open":""}><summary>Почему этот пик</summary><div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}${bar('Сила на патче',sel.m.v,M.m,'var(--good)')}</div>
    ${reasons(sel)}</details>${inspected?`<button class="btn" id="back">${own?'К моему чемпиону':'К лучшему пику'}</button>`:''}</div>`;
@@ -477,7 +490,7 @@ function renderRanking(selected){
   const q=norm($('rankSearch').value), sort=$('rankSort').value;
   const rows=ranking.filter(x=>matchesSearch(x.c.n,q));
   if(sort!=='total')rows.sort((a,b)=>b[sort].v-a[sort].v||b.t-a.t);
-  $('tbl').innerHTML=rows.map(x=>`<tr data-n="${esc(x.c.n)}" class="${x.c.n===selected?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td>${sgn(x.m.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
+  $('tbl').innerHTML=rows.map(x=>`<tr data-n="${esc(x.c.n)}" class="${x.c.n===selected?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td>${(w=>w?w.wr.toFixed(1)+'%':'—')(patchWR(x.c,st.me))}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
   $('rankEmpty').hidden=rows.length>0;
   localize($('tbl'));
 }
