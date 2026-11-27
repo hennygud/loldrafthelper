@@ -49,6 +49,7 @@ import urllib.error
 import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from player_profile import read_profile
 
 PORT = 27500
 PAGE_NAME = "lol_draft_helper.html"
@@ -235,7 +236,7 @@ class Client:
     def get(self, path):
         return self.request("GET", path)
 
-    def request(self, method, path, data=None):
+    def request(self, method, path, data=None, *, binary=False):
         if not self.base and not self.connect():
             raise ConnectionError("no client")
         body = None if data is None else json.dumps(data).encode("utf-8")
@@ -244,6 +245,8 @@ class Client:
         try:
             with urllib.request.urlopen(req, timeout=3, context=_CTX) as r:
                 body = r.read()
+                if binary:
+                    return body
                 return json.loads(body) if body else None
         except urllib.error.HTTPError as e:
             if e.code == 404 and method == "GET":
@@ -683,6 +686,26 @@ class Handler(BaseHTTPRequestHandler):
                 data = dict(STATE, version=VERSION, stats=stats_stamp(), update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
                 body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             ctype = "application/json; charset=utf-8"
+        elif self.path == "/profile":
+            if self.headers.get("Origin") and self.headers["Origin"] not in ORIGINS_OK:
+                self.send_error(403)
+                return
+            if self.headers.get("Host", "").split(":")[0] not in ("127.0.0.1", "localhost"):
+                self.send_error(403)
+                return
+            client = Client(getattr(self.server, "lockfile", None))
+            body = json.dumps(read_profile(client), ensure_ascii=False).encode()
+            ctype = "application/json; charset=utf-8"
+        elif (icon := re.fullmatch(r"/profile-icon/([0-9]{1,6})\.jpg", self.path)):
+            client = Client(getattr(self.server, "lockfile", None))
+            try:
+                body = client.request("GET", f"/lol-game-data/assets/v1/profile-icons/{icon[1]}.jpg", binary=True)
+            except (ConnectionError, urllib.error.HTTPError):
+                body = None
+            if not body:
+                self.send_error(404)
+                return
+            ctype = "image/jpeg"
         elif (preview := re.fullmatch(r"/preview/([1-9][0-9]{0,5})/(TOP|JUNGLE|MIDDLE|BOTTOM|UTILITY)", self.path)):
             client = Client(getattr(self.server, "lockfile", None))
             body = json.dumps(preview_loadout(client, int(preview[1]), preview[2])).encode()

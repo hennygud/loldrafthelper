@@ -180,3 +180,37 @@ th { position: sticky; top: 0; background: var(--well); color: var(--mute) }tbod
   .banbar { flex-wrap: wrap; gap: 10px }.bslots { grid-template-columns: repeat(5,44px) }
   .row { grid-template-columns: 52px minmax(0,1fr); gap: 5px; min-height: 72px }.slot-name { font-size: 13px }
 }
+
+.banner.has-profile { min-height: 0; padding: 28px 32px 20px }
+#playerProfile { width: 100%; min-width: 0 }
+#playerProfile small { display: block; font-size: 13px; color: #c0cbd5 }
+.profile-id,.profile-numbers,.profile-history-head,.profile-match { display: flex; align-items: center }
+.profile-id { gap: 16px; padding-right: 150px }
+.profile-id > div:last-child { min-width: 0; overflow-wrap: anywhere }
+.profile-avatar { position: relative; flex: none; width: 70px; height: 70px; display: grid; place-items: center; overflow: hidden; border: 1px solid #849d70; border-radius: 14px; background: var(--well); color: var(--lime); font-size: 26px }
+.profile-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover }
+.profile-id h1 { font-size: clamp(27px,3.2vw,38px); line-height: 1.15; margin: 2px 0 4px; letter-spacing: -.045em }
+.profile-id em,.profile-numbers em { font-style: normal; font-size: .55em; color: #bac6d2; font-weight: 550; letter-spacing: 0 }
+.profile-numbers { flex-wrap: wrap; gap: 12px 30px; margin: 22px 0 }
+.profile-numbers > div + div { border-left: 1px solid #53616c; padding-left: 30px }
+.profile-numbers strong { display: block; font-size: 23px; letter-spacing: -.025em }
+.profile-numbers em { font-size: 15px }
+.profile-history { padding-top: 12px; border-top: 1px solid #44505b }
+.profile-history-head { justify-content: space-between; margin-bottom: 10px; gap: 10px }
+.profile-history-head button { background: transparent; border: 0; color: var(--lime); font-size: 13px; padding: 3px 0 }
+#recentGames { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 9px }
+.profile-match { min-width: 0; gap: 9px; border: 1px solid #445354; border-radius: 8px; padding: 8px; background: #101923ef }
+.profile-match .portrait { width: 38px; height: 38px; flex: none; border-radius: 5px }
+.profile-match > div { min-width: 0 }
+.profile-match b { font-size: 13px }
+.profile-match[data-result=win] b { color: #b6e990 }
+.profile-match[data-result=loss] b { color: #ffb3ac }
+#recentGames small { font-size: 12px; overflow-wrap: anywhere }
+@media(max-width: 920px) { #recentGames { grid-template-columns: repeat(auto-fit,minmax(145px,1fr)) } }
+@media(max-width: 600px) {
+  .banner.has-profile { padding: 48px 15px 16px }
+  .profile-id { padding-right: 0; gap: 10px }.profile-avatar { width: 54px; height: 54px }
+  .profile-numbers { gap: 10px 16px; margin: 16px 0 }
+  .profile-numbers > div + div { border: 0; padding: 0 }.profile-numbers strong { font-size: 18px }
+  #recentGames { grid-template-columns: repeat(auto-fit,minmax(130px,1fr)) }
+}

@@ -1,5 +1,31 @@
 // Russian is the source language for the draft engine and bridge messages.
 const english = {
+  "Профиль игрока": "Player profile",
+  "Ранг": "Rank",
+  "Уровень": "Level",
+  "Текущий сезон": "Current season",
+  "Доля побед за сезон": "Season win rate",
+  "Нет данных": "Unavailable",
+  "Без ранга": "Unranked",
+  "Последние матчи": "Recent matches",
+  "Все матчи": "All matches",
+  "Свернуть историю": "Collapse history",
+  "Подробнее": "Details",
+  "История матчей недоступна": "Match history unavailable",
+  "Пока нет матчей": "No matches yet",
+  "Победа": "Victory",
+  "Поражение": "Defeat",
+  "Переигровка": "Remake",
+  "Железо": "Iron",
+  "Бронза": "Bronze",
+  "Серебро": "Silver",
+  "Золото": "Gold",
+  "Платина": "Platinum",
+  "Изумруд": "Emerald",
+  "Алмаз": "Diamond",
+  "Мастер": "Master",
+  "Грандмастер": "Grandmaster",
+  "Претендент": "Challenger",
   "MLK.gg — к обзору": "MLK.gg home",
   "Язык интерфейса": "Interface language",
   "Свернуть": "Minimize",
@@ -51,7 +77,7 @@ const english = {
   "Нет совпадений": "No matches",
   "Как считается оценка": "How scoring works",
   "Линия:": "Lane.",
-  "известные контрпики (±3), дальний бой против ближнего на топе и миде, ранняя сила против поздней, защита от рывков. На боте учитываются оба врага: АДК полностью, саппорт наполовину.": "Known counters (±3), range advantage in top and mid, early power against scaling, and dash denial. In bot lane, the opposing carry has full weight and the support has half weight.",
+  "известные контрпики (±3), дальний бой против ближнего на топе и миде, ранняя сила против поздней, защита от рывков. На боте учитываются оба врага: Бот полностью, саппорт наполовину.": "Known counters (±3), range advantage in top and mid, early power against scaling, and dash denial. In bot lane, the opposing carry has full weight and the support has half weight.",
   "Против состава:": "Team matchup.",
   "урон в % от здоровья против танков, бурст против составов без фронтлайна, блок рывков против мобильных врагов, защита от дайва, жёсткий engage против поука, ловля неподвижных керри, наказание поздних составов.": "The score considers percent-health damage against tanks, burst against fragile teams, dash denial, peel against dive, engage into poke, access to immobile carries and pressure against scaling teams.",
   "Синергия:": "Synergy.",
@@ -77,7 +103,7 @@ const english = {
   "Топ": "Top",
   "Лес": "Jungle",
   "Мид": "Mid",
-  "АДК": "Bot",
+  "Бот": "Bot",
   "Сап": "Support",
   "топ": "Top",
   "лес": "Jungle",
@@ -126,7 +152,7 @@ const english = {
   "Ваша команда": "Your team",
   "Враги": "Enemies",
   "{0} из 5": "{0} of 5",
-  "Мост отключён": "Bridge offline",
+  "Нет связи с MLK.gg": "MLK.gg disconnected",
   "Ожидание клиента": "Waiting for client",
   "Клиент подключён": "Client connected",
   "Драфт идёт": "Draft in progress",
@@ -259,7 +285,7 @@ function localize(root){
       translateField(node,'text',node.nodeValue,v=>{node.nodeValue=v});
       return;
     }
-    if(node.nodeType!==Node.ELEMENT_NODE||node.matches('script,style,[data-lang],svg'))return;
+    if(node.nodeType!==Node.ELEMENT_NODE||node.matches('script,style,[data-lang],svg,#playerProfile'))return;
     for(const attr of ['aria-label','title','placeholder']){
       translateField(node,attr,node.getAttribute(attr),v=>node.setAttribute(attr,v));
     }
