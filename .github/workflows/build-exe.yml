@@ -22,23 +22,23 @@ jobs:
         run: |
           EXTRA=""
           if [ -f stats.json ]; then EXTRA='--add-data stats.json;.'; fi
-          pyinstaller --onefile --windowed --name LoLDraftHelper --add-data "lol_draft_helper.html;." $EXTRA --collect-all webview --collect-all clr_loader --collect-all pythonnet --hidden-import clr lol_bridge.py
+          pyinstaller --onefile --windowed --name mlkdrafthelper --icon assets/mlkdrafthelper.ico --add-data "assets;assets" --add-data "lol_draft_helper.html;." $EXTRA --collect-all webview --collect-all clr_loader --collect-all pythonnet --hidden-import clr lol_bridge.py
       - name: selftest (не выпускаем сломанный exe)
         shell: pwsh
         run: |
-          $p = Start-Process dist/LoLDraftHelper.exe -ArgumentList '--selftest', "$PWD/selftest.txt" -PassThru
+          $p = Start-Process dist/mlkdrafthelper.exe -ArgumentList '--selftest', "$PWD/selftest.txt" -PassThru
           if (-not $p.WaitForExit(120000)) { $p.Kill(); throw 'selftest timeout' }
           Get-Content selftest.txt
           if ((Get-Content selftest.txt -TotalCount 1) -ne 'ok') { throw 'selftest failed' }
       - shell: pwsh
-        run: (Get-FileHash dist/LoLDraftHelper.exe -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline dist/LoLDraftHelper.exe.sha256
+        run: (Get-FileHash dist/mlkdrafthelper.exe -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline dist/mlkdrafthelper.exe.sha256
       - uses: actions/upload-artifact@v4
         with:
-          name: LoLDraftHelper
-          path: dist/LoLDraftHelper.exe*
+          name: mlkdrafthelper
+          path: dist/mlkdrafthelper.exe*
       - if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            dist/LoLDraftHelper.exe
-            dist/LoLDraftHelper.exe.sha256
+            dist/mlkdrafthelper.exe
+            dist/mlkdrafthelper.exe.sha256

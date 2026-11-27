@@ -3,352 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Помощник драфта LoL</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
-<style>
-/* VOICE: тёмный хекстех-стиль драфта: торжественно, но читаемо
-   IDEA: экран выбора чемпионов: слоты с золотыми рамками и портретами
-   PICTURE: два столбца слотов и карточка лучшего пика с золотым кольцом вокруг портрета
-   COLOUR and TYPE: ночной синий #010a13 / #0a1428, золото #c8aa6e, бирюза хекстеха #0ac8b9, красный врагов; Forum + Inter
-   LAYOUT: драфт слева, результат справа; ниже 900px одна колонка */
-:root{color-scheme:dark;--bg:#010a13;--panel:#0b1a2e;--line:#2a3a4d;--gold:#c8aa6e;--gold2:#f0e6d2;--gold3:#785a28;--teal:#0ac8b9;--blue:#5cb3ff;--red:#f0566b;--good:#0ac8b9;--bad:#f08a55;--ink:#f0e6d2;--mute:#a09b8c}
-:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
-*{box-sizing:border-box;min-width:0}
-body{margin:0;color:var(--ink);font:16px/1.5 Inter,system-ui,sans-serif;overflow-x:clip;
- background:radial-gradient(900px 520px at 75% -8%,#123659 0,transparent 62%),radial-gradient(700px 400px at 0% 100%,#0b2a30 0,transparent 60%),var(--bg)}
-h1,h2,h3,.big{font-family:Forum,Georgia,serif;font-weight:400;line-height:1.1;margin:0;letter-spacing:.02em}
-h1{font-size:clamp(28px,4.2vw,46px);text-wrap:balance;color:var(--gold2)}
-h2{font-size:24px;margin-bottom:10px;color:var(--gold)}
-h3{font-size:21px}
-.band{padding:clamp(20px,3vw,40px) max(4vw,16px)}
-header.band{padding-bottom:8px}
-header p{margin:10px 0 18px;color:var(--mute);max-width:70ch}
-.wrap{max-width:1240px;margin:0 auto}
-.rule{height:1px;background:linear-gradient(90deg,var(--gold),transparent 80%);position:relative}
-.rule::after{content:"";position:absolute;left:0;top:-4px;width:9px;height:9px;background:var(--gold);transform:rotate(45deg)}
-.main{display:grid;grid-template-columns:minmax(0,500px) minmax(0,1fr);gap:28px;align-items:start}
-@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
-.frame,.team,.hero,.top{background:linear-gradient(180deg,#0e2138,#091428);border:2px solid;border-image:linear-gradient(180deg,var(--gold),var(--gold3)) 1;box-shadow:inset 0 0 0 1px #000,0 8px 30px rgba(0,0,0,.45)}
-.teams{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
-@media(max-width:460px){.teams{grid-template-columns:minmax(0,1fr)}}
-.team{padding:12px;position:relative}
-.team::before{content:"";position:absolute;left:0;right:0;top:0;height:4px;background:var(--blue);box-shadow:0 0 14px var(--blue)}
-.team.enemy::before{background:var(--red);box-shadow:0 0 14px var(--red)}
-.team h3{margin:6px 0 10px}
-.team.ally h3{color:var(--blue)}.team.enemy h3{color:var(--red)}
-.row{display:grid;grid-template-columns:56px minmax(0,1fr);gap:8px;margin-bottom:8px;align-items:center}
-.role{position:relative;width:56px;height:56px;padding:0;overflow:hidden;border:2px solid var(--gold3);background:radial-gradient(circle,#0f2540,#030c16);color:var(--gold2);cursor:pointer;font-family:Inter,sans-serif}
-.enemy .role{cursor:default}
-.pt{position:absolute;inset:0;display:block;font-size:20px}
-.pt img,.port img{width:100%;height:100%;object-fit:cover;display:block}
-.rl{position:absolute;left:0;right:0;bottom:0;background:rgba(1,10,19,.88);font:600 11px/1 Inter,sans-serif;padding:3px 0;text-align:center;letter-spacing:.04em}
-.row.me .role{border-color:var(--gold);box-shadow:0 0 14px rgba(200,170,110,.65)}
-.row.me .rl{background:var(--gold);color:#1a1206}
-.row.lane .role{border-color:var(--red);box-shadow:0 0 14px rgba(240,86,107,.55)}
-.row.lane .rl{background:var(--red);color:#fff}
-.med{position:relative;display:grid;place-items:center;width:100%;height:100%;background:radial-gradient(circle at 30% 25%,hsl(var(--h) 50% 36%),hsl(var(--h) 55% 12%));font:400 1em Forum,Georgia,serif;color:var(--gold2)}
-input[type=text],textarea{width:100%;height:44px;border:1px solid var(--gold3);border-radius:0;background:#010a13;color:var(--gold2);font:16px Inter,sans-serif;padding:0 10px}
-textarea{height:64px;padding:8px 10px;resize:vertical}
-input::placeholder,textarea::placeholder{color:#6d7480}
-input.bad{border-color:var(--bad);box-shadow:0 0 0 1px var(--bad)}
-input:disabled{background:transparent;border-style:dashed;color:var(--gold)}
-input:focus-visible,button:focus-visible,textarea:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
-.hint{font-size:13px;color:var(--mute);margin:8px 0 0}
-.extra{margin-top:16px;display:grid;gap:14px}
-label.f,.f{display:block;font-size:13px;font-weight:600;margin-bottom:4px;color:var(--gold)}
-.check{display:flex;gap:8px;align-items:center;font-size:14px;min-height:32px;color:var(--gold2)}
-.check input{width:18px;height:18px;accent-color:var(--teal)}
-.weights{display:grid;gap:2px}
-.w{display:grid;grid-template-columns:150px minmax(0,1fr) 36px;gap:8px;align-items:center;font-size:14px}
-.w output{text-align:right;font-variant-numeric:tabular-nums;color:var(--gold)}
-input[type=range]{width:100%;accent-color:var(--teal);height:32px}
-.btns{display:flex;gap:8px;flex-wrap:wrap}
-.btn{min-height:44px;padding:0 18px;border:1px solid var(--gold3);background:linear-gradient(#1e2328,#0f141a);color:var(--gold2);font:600 14px Inter,sans-serif;cursor:pointer;letter-spacing:.03em}
-.btn:hover{border-color:var(--gold);color:#fff;box-shadow:0 0 12px rgba(200,170,110,.3)}
-.hero{padding:clamp(16px,2.4vw,26px);display:grid;gap:16px}
-.hero-top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
-.gl{position:absolute;top:9%;right:9%;width:30%;height:30%;fill:var(--gold);filter:drop-shadow(0 0 2px #000)}
-.xs .gl,.pick .gl{display:none}
-.port{width:96px;height:96px;border-radius:50%;overflow:hidden;border:3px solid var(--gold);box-shadow:0 0 0 2px #000,0 0 24px rgba(200,170,110,.4);flex:none;font-size:34px;background:#05101c}
-.port img{transform:scale(1.12)}
-.port.s{width:38px;height:38px;border-width:2px;box-shadow:0 0 0 1px #000;font-size:15px}
-.port.xs{width:24px;height:24px;border-width:1px;box-shadow:none;font-size:10px}
-.kicker{font-size:13px;color:var(--mute);font-weight:600}
-.big{font-size:clamp(38px,6vw,60px);color:var(--gold2)}
-.total{margin-left:auto;text-align:right}
-.total .big{font-size:clamp(36px,5vw,52px);color:var(--gold)}
-.bars{display:grid;gap:9px}
-.bar{display:grid;grid-template-columns:170px minmax(0,1fr) 52px;gap:10px;align-items:center;font-size:14px}
-.track{position:relative;height:12px;background:#030c16;border:1px solid var(--gold3)}
-.track::after{content:"";position:absolute;left:50%;top:-4px;bottom:-4px;width:1px;background:var(--mute)}
-.fill{position:absolute;top:0;bottom:0;box-shadow:0 0 10px currentColor}
-.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;color:var(--gold2)}
-@media(max-width:520px){.bar{grid-template-columns:96px minmax(0,1fr) 44px}}
-.why{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);gap:14px;border-top:1px solid var(--gold3);padding-top:14px}
-@media(max-width:700px){.why{grid-template-columns:minmax(0,1fr)}}
-.why h4{margin:0 0 4px;font:400 17px Forum,Georgia,serif;color:var(--gold);letter-spacing:.03em}
-.why ul{margin:0;padding:0;list-style:none;font-size:14px}
-.why li{padding:3px 0;display:grid;grid-template-columns:40px minmax(0,1fr);gap:6px}
-.pos{color:var(--teal);font-weight:600;font-variant-numeric:tabular-nums}.neg{color:var(--bad);font-weight:600;font-variant-numeric:tabular-nums}
-.tops{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:22px}
-@media(max-width:700px){.tops{grid-template-columns:minmax(0,1fr)}}
-.top{padding:12px}
-.top h3{margin-bottom:8px;color:var(--gold);font-size:19px}
-.pick{display:flex;gap:10px;align-items:center;width:100%;min-height:46px;background:none;border:1px solid transparent;padding:4px 6px;color:var(--gold2);font:500 15px Inter,sans-serif;cursor:pointer;text-align:left}
-.pick:hover{background:rgba(200,170,110,.08)}
-.pick.on{border-color:var(--gold3);background:rgba(10,200,185,.1)}
-.pick span:nth-child(2){flex:1}
-table{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
-th,td{padding:7px 8px;border-bottom:1px solid #1d2c3e;text-align:right;white-space:nowrap}
-th:first-child,td:first-child{text-align:left}
-th{font:400 16px Forum,Georgia,serif;color:var(--gold);border-bottom:1px solid var(--gold3)}
-.tn{display:inline-flex;gap:10px;align-items:center}
-tbody tr{cursor:pointer}tbody tr:hover{background:rgba(200,170,110,.08)}tbody tr.on{background:rgba(10,200,185,.12)}
-.scroll{overflow-x:auto}
-.empty{color:var(--mute);padding:20px 0}
-details{margin-top:28px;font-size:14px;color:var(--mute)}
-details p{max-width:75ch}
-summary{cursor:pointer;font-weight:600;color:var(--gold);min-height:32px}
-.legal{font-size:12px;color:var(--mute);margin:0;max-width:80ch}
-footer.band{padding-top:0}
-@media (prefers-reduced-motion:no-preference){.fill{transition:width .25s,left .25s}}
-
-.main{grid-template-columns:minmax(0,560px) minmax(0,1fr)}
-@media(max-width:900px){.main{grid-template-columns:minmax(0,1fr)}}
-.fld{position:relative;display:block}
-.fld input{padding-right:34px}
-.fld input:placeholder-shown+.clr{display:none}
-.clr{position:absolute;right:0;top:0;width:38px;height:44px;background:none;border:0;color:var(--mute);font-size:20px;line-height:1;cursor:pointer}
-.clr:hover{color:var(--red)}
-.row.active input{border-color:var(--teal);box-shadow:0 0 0 1px var(--teal)}
-.row.active .role{box-shadow:0 0 12px rgba(10,200,185,.55)}
-.picker{margin-top:18px;padding:14px;background:linear-gradient(180deg,#0e2138,#091428);border:2px solid;border-image:linear-gradient(180deg,var(--gold),var(--gold3)) 1;box-shadow:inset 0 0 0 1px #000,0 8px 30px rgba(0,0,0,.45)}
-.picker-head{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}
-.picker-head h3{color:var(--gold)}
-.who{font-size:13px;color:var(--teal);font-weight:600}
-.picker-top{display:flex;gap:8px;margin-bottom:8px}
-.picker-top input{flex:1 1 auto}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chip{min-height:38px;padding:0 12px;border:1px solid var(--gold3);background:#05101c;color:var(--gold2);font:600 13px Inter,sans-serif;cursor:pointer}
-.chip:hover{border-color:var(--gold)}
-.chip.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:10px 8px;max-height:380px;overflow-y:auto;margin-top:12px;padding:4px 4px 8px}
-.grid::-webkit-scrollbar{width:8px}.grid::-webkit-scrollbar-thumb{background:var(--gold3)}
-.tile{position:relative;padding:0;border:0;background:none;color:var(--gold2);cursor:pointer;display:grid;gap:4px;justify-items:center;font:500 11px/1.1 Inter,sans-serif;min-width:0}
-.tile[hidden]{display:none}
-.tile .tp{position:relative;display:block;width:100%;aspect-ratio:1;border:2px solid var(--gold3);overflow:hidden;background:#05101c;font-size:22px}
-.tile .tp img{width:100%;height:100%;object-fit:cover;display:block}
-.tile:hover .tp{border-color:var(--gold);box-shadow:0 0 12px rgba(200,170,110,.55)}
-.tile .nm{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile.a .tp{border-color:var(--blue)}.tile.e .tp{border-color:var(--red)}
-.tile.a,.tile.e,.tile.b{cursor:not-allowed}
-.tile.a .tp::after,.tile.e .tp::after,.tile.b .tp::after{content:"";position:absolute;inset:0;background:rgba(1,10,19,.62)}
-.tile.b .tp{filter:grayscale(1);border-color:#4a4f57}
-.tile.b .tp::before{content:"✕";position:absolute;inset:0;display:grid;place-items:center;z-index:1;color:var(--red);font:700 28px Inter,sans-serif}
-.picker.bans .tile.b{cursor:pointer}
-.tile .rk{position:absolute;top:0;left:0;z-index:2;background:var(--gold);color:#1a1206;font:700 10px/1 Inter,sans-serif;padding:3px 5px}
-.tile .rk[hidden]{display:none}
-.tile.top1 .tp{border-color:var(--gold);box-shadow:0 0 10px rgba(200,170,110,.6)}
-.noresult{grid-column:1/-1;color:var(--mute);padding:14px 0;text-align:center}
-
-.banband{padding-top:6px;padding-bottom:10px}
-.banbar{display:flex;justify-content:space-between;gap:12px 24px;flex-wrap:wrap;padding:12px 16px 14px;background:linear-gradient(180deg,#0e2138,#091428);border:2px solid;border-image:linear-gradient(180deg,var(--gold),var(--gold3)) 1;box-shadow:inset 0 0 0 1px #000,0 8px 30px rgba(0,0,0,.45)}
-.bg h3{font-size:18px;margin:0 0 8px;color:var(--blue)}
-.bg.r h3{color:var(--red);text-align:right}
-.bslots{display:flex;gap:8px}
-.bg.r .bslots{justify-content:flex-end}
-.bslot{position:relative;width:54px;height:54px}
-.bbtn{position:relative;display:block;width:100%;height:100%;padding:0;overflow:hidden;border:2px solid var(--gold3);background:radial-gradient(circle,#0f2540,#030c16);cursor:pointer;color:var(--mute)}
-.bbtn:hover{border-color:var(--gold)}
-.bbtn .x{position:absolute;inset:0;display:grid;place-items:center;font:700 20px Inter,sans-serif;opacity:.3;z-index:1;pointer-events:none}
-.bslot.filled .bbtn .pt{filter:grayscale(1) brightness(.75)}
-.bslot.filled .bbtn::after{content:"";position:absolute;inset:0;background:rgba(240,86,107,.3)}
-.bslot.filled .x{opacity:.9;color:var(--red)}
-.bslot.active .bbtn{border-color:var(--teal);box-shadow:0 0 12px rgba(10,200,185,.65)}
-.bslot .clr{display:none;position:absolute;right:-7px;top:-7px;width:20px;height:20px;background:#030c16;border:1px solid var(--gold3);border-radius:50%;font-size:13px;color:var(--gold2);z-index:3;place-items:center}
-.bslot.filled .clr{display:grid}
-@media(max-width:520px){.bslot{width:44px;height:44px}.bslots{gap:6px}.bg.r h3{text-align:left}.bg.r .bslots{justify-content:flex-start}}
-.poolrow{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px;min-height:30px;align-items:center}
-.pchip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--gold3);background:#05101c;padding:2px 2px 2px 3px;font-size:13px}
-.pchip .port{flex:none}
-.pchip button{width:24px;height:24px;border:0;background:none;color:var(--mute);font-size:16px;cursor:pointer}
-.pchip button:hover{color:var(--red)}
-.picker.pool .picker-head h3{color:var(--teal)}
-#poolmode.on,#poolbtn.on{background:var(--gold);color:#1a1206;border-color:var(--gold)}
-.tile.p .tp{border-color:var(--gold);box-shadow:0 0 12px rgba(200,170,110,.7)}
-.tile.p .tp::before{content:"✓";position:absolute;right:0;top:0;z-index:2;color:#1a1206;background:var(--gold);padding:0 5px;font:700 12px/16px Inter,sans-serif}
-.picker-top .chip{white-space:nowrap}
-
-/* ===== STATS-SITE THEME: плоский тёмный интерфейс в духе u.gg / op.gg / porofessor ===== */
-:root{--bg:#0b0d14;--panel:#151824;--panel2:#1c2030;--line:#262b3d;--ink:#e6e8f0;--mute:#8a90a6;
- --acc:#5383e8;--blue:#5383e8;--red:#e84057;--good:#2fbf8a;--bad:#e84057;--gold:#f0b232;--gold2:#e6e8f0;--gold3:#2c3247;--teal:#5383e8}
-body{background:var(--bg);font-family:Inter,system-ui,sans-serif}
-h1,h2,h3,.big,.why h4,th{font-family:Inter,system-ui,sans-serif!important;letter-spacing:0}
-h1{font-size:clamp(24px,3vw,32px);font-weight:800;color:var(--ink)}
-h2{font-size:18px;font-weight:700;color:var(--ink)}
-h3{font-size:15px;font-weight:700}
-.big{font-weight:800;font-size:clamp(30px,4vw,42px);color:var(--ink)}
-.total .big{font-size:clamp(28px,3.6vw,38px);color:var(--ink)}
-header p{font-size:15px}
-.rule{display:none}
-.frame,.team,.hero,.top,.picker,.banbar,.comp,.livebar{background:var(--panel);border:1px solid var(--line)!important;border-image:none!important;border-radius:10px;box-shadow:none}
-.team::before{height:3px;border-radius:10px 10px 0 0;box-shadow:none}
-.team.ally h3{color:var(--blue)}.team.enemy h3{color:var(--red)}
-.role,.bbtn{border-radius:8px;border:1px solid var(--line);background:var(--panel2)}
-.row.me .role{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
-.row.me .rl{background:var(--acc);color:#fff}
-.row.lane .role{border-color:var(--red);box-shadow:0 0 0 2px var(--red)}
-.row.active input{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}
-.row.active .role{box-shadow:0 0 0 2px var(--acc)}
-.rl{background:rgba(11,13,20,.85);font-weight:700}
-input[type=text],textarea{border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-input:disabled{color:var(--acc)}
-.btn,.chip{border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
-.btn:hover,.chip:hover{border-color:var(--acc);box-shadow:none}
-.chip.on,#poolmode.on,#poolbtn.on{background:var(--acc);border-color:var(--acc);color:#fff}
-label.f,.f{color:var(--mute);text-transform:none}
-.picker-head h3,.top h3,h2{color:var(--ink)}
-.who{color:var(--acc)}
-.port{border:2px solid var(--line);box-shadow:none;border-radius:12px}
-.port.s{border-radius:8px}.port.xs{border-radius:6px;border-width:1px}
-.hero .port{border-color:var(--acc)}
-.med{border-radius:inherit;color:#fff;font-family:Inter,sans-serif;font-weight:700}
-.gl{fill:#fff;opacity:.85}
-.tile .tp{border-radius:8px;border:2px solid transparent;background:var(--panel2)}
-.tile:hover .tp{border-color:var(--acc);box-shadow:none}
-.tile.a .tp{border-color:var(--blue)}.tile.e .tp{border-color:var(--red)}
-.tile.top1 .tp{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
-.tile .rk{background:var(--gold);border-radius:0 0 6px 0}
-.tile.p .tp{border-color:var(--good);box-shadow:none}.tile.p .tp::before{background:var(--good);color:#fff}
-.track{background:var(--bg);border:0;border-radius:6px;height:10px}
-.fill{border-radius:6px;box-shadow:none}
-.why{border-top:1px solid var(--line)}
-.why h4{font-size:13px;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
-.pos{color:var(--good)}.neg{color:var(--bad)}
-.pick{border-radius:8px}.pick.on{border-color:var(--acc);background:rgba(83,131,232,.12)}.pick:hover{background:var(--panel2)}
-th{font-size:12px;font-weight:600;color:var(--mute);border-bottom:1px solid var(--line);text-transform:uppercase;letter-spacing:.03em}
-td{border-bottom:1px solid var(--line)}
-tbody tr:hover{background:var(--panel2)}tbody tr.on{background:rgba(83,131,232,.12)}
-.bg h3{font-size:12px;text-transform:uppercase;letter-spacing:.05em}
-.bslot.filled .bbtn::after{background:rgba(232,64,87,.28)}
-.bslot.active .bbtn{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
-.pchip{border-radius:999px;border:1px solid var(--line);background:var(--panel2)}
-summary{color:var(--ink)}
-/* тиры как на стат-сайтах */
-.tier{display:inline-grid;place-items:center;min-width:30px;height:22px;padding:0 6px;border-radius:6px;font:800 12px Inter,sans-serif;color:#fff;flex:none}
-.tier.big{min-width:44px;height:30px;font-size:16px;border-radius:8px}
-.t-Sp{background:#ff4e50}.t-S{background:#ff9b00}.t-A{background:#3273fa}.t-B{background:#2fbf8a}.t-C{background:#5c6178}.t-D{background:#3a3e52;color:#b9bdd0}
-.name-line{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-/* живой режим */
-.livebar{display:flex;gap:12px 16px;align-items:center;flex-wrap:wrap;padding:12px 16px;margin-top:14px}
-.dot{width:10px;height:10px;border-radius:50%;background:#5c6178;flex:none}
-.livebar[data-s=live] .dot{background:var(--red);box-shadow:0 0 0 0 rgba(232,64,87,.6)}
-.livebar[data-s=idle] .dot{background:var(--good)}
-.livebar[data-s=nobridge] .dot,.livebar[data-s=noclient] .dot{background:var(--gold)}
-@media (prefers-reduced-motion:no-preference){.livebar[data-s=live] .dot{animation:pulse 1.4s infinite}}
-@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(232,64,87,0)}100%{box-shadow:0 0 0 0 rgba(232,64,87,0)}}
-.ltxt{flex:1 1 260px;font-size:14px}.ltxt b{font-weight:700}
-.livetag{background:var(--red);color:#fff;font:800 11px Inter,sans-serif;padding:3px 7px;border-radius:5px;letter-spacing:.06em}
-.timer{font:800 18px Inter,sans-serif;font-variant-numeric:tabular-nums}
-.btn.primary{background:var(--acc);border-color:var(--acc);color:#fff}
-.howto{margin-top:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px 16px 10px;color:var(--ink)}
-.howto summary{font-size:14px;padding:8px 0}
-.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:6px 0 4px}
-@media(max-width:760px){.steps{grid-template-columns:minmax(0,1fr)}}
-.step{background:var(--panel2);border-radius:8px;padding:12px 14px;font-size:14px}
-.step b.n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;margin-right:6px;font-size:13px}
-.step code{background:var(--bg);padding:1px 6px;border-radius:5px;font-size:13px}
-.step p{margin:8px 0 0;color:var(--mute)}
-.slot-live input{border-color:rgba(232,64,87,.55)}
-/* анализ составов */
-.comp{margin-top:22px;padding:16px}
-.comp h2{margin:0 0 4px}.comp .sub{color:var(--mute);font-size:13px;margin:0 0 14px}
-.cgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px}
-@media(max-width:640px){.cgrid{grid-template-columns:minmax(0,1fr)}}
-.ct h3{margin:0 0 10px;display:flex;justify-content:space-between;gap:8px}
-.ct.a h3{color:var(--blue)}.ct.e h3{color:var(--red)}
-.ct h3 small{color:var(--mute);font-weight:500;font-size:12px}
-.dmg{display:flex;height:22px;border-radius:6px;overflow:hidden;font:700 11px/22px Inter,sans-serif;color:#fff;margin-bottom:10px;background:var(--bg)}
-.dmg span{text-align:center;white-space:nowrap;overflow:hidden}
-.dmg .ad{background:#e8833a}.dmg .ap{background:#7b61ff}
-.m{display:grid;grid-template-columns:100px minmax(0,1fr) 34px;gap:8px;align-items:center;font-size:13px;margin:5px 0}
-.mt{height:8px;background:var(--bg);border-radius:4px;overflow:hidden}.mt i{display:block;height:100%;border-radius:4px}
-.ct.a .mt i{background:var(--blue)}.ct.e .mt i{background:var(--red)}
-.m .v{text-align:right;color:var(--mute);font-variant-numeric:tabular-nums}
-.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-.tag{font-size:12px;padding:3px 8px;border-radius:999px;background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
-.tag.warn{border-color:rgba(232,64,87,.5);color:#ff8a9a}
-.pick span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.updbar{position:sticky;top:0;z-index:100;display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;padding:10px max(16px,calc((100% - 1240px)/2));background:#3a2c0e;border-bottom:1px solid rgba(240,178,50,.6);box-shadow:0 4px 14px rgba(0,0,0,.45)}
-.updbar[hidden]{display:none}.dstat{margin-top:10px;padding:7px 12px;border-radius:8px;border:1px solid rgba(77,163,255,.4);background:rgba(77,163,255,.08);color:var(--mute);font-size:13px}.dstat[hidden]{display:none}.dstat b{color:var(--text)}.ui{font-size:18px;color:var(--gold)}.ut{flex:1 1 220px;font-size:14px}.ut small{color:var(--mute)}
-a.btn{display:inline-grid;place-items:center;text-decoration:none}
-</style>
+<title>MLK Helper</title>
+<link rel="icon" href="assets/mlkdrafthelper.ico">
+<link rel="stylesheet" href="assets/draft.css">
+<link rel="stylesheet" href="assets/portraits.css">
 </head>
 <body>
+<header class="windowbar" id="windowbar">
+  <a class="brand" href="#overview" aria-label="MLK Helper — к обзору"><span class="brand-mark"><img src="assets/mlk-helper.png" alt=""></span><strong>MLK <span>Helper</span></strong></a>
+  <nav aria-label="Навигация"><a href="#overview">Обзор</a><a href="#collection">Чемпионы</a><a href="#settings">Настройки</a></nav>
+  <span class="pywebview-drag-region"></span>
+  <div class="window-actions"><button id="minimize" title="Свернуть" aria-label="Свернуть окно" hidden>−</button><button id="fullscreen" title="На весь экран" aria-label="На весь экран" aria-pressed="false" hidden><span aria-hidden="true">⛶</span></button><button id="close" title="Закрыть" aria-label="Закрыть окно" hidden>×</button></div>
+</header>
 <div class="updbar" id="updbar" hidden><span class="ui">⬆</span><span class="ut">Доступна новая версия <b id="updv"></b> <small id="updc"></small></span><button class="btn primary" id="updgo" type="button" hidden>Обновить</button><a class="btn primary" id="updlink" target="_blank" rel="noopener">Скачать</a><button class="btn" id="upddis" type="button">Позже</button></div>
-<header class="band"><div class="wrap">
-<h1>Помощник драфта: лучший пик под ваш состав и против их</h1>
-<p>Впишите союзников и врагов, нажмите на свою роль. Каждый чемпион получает три оценки: линия, против вражеского состава и синергия с командой. Лучший пик выбирается по их сумме.</p>
-<div class="rule"></div>
-<div class="dstat" id="dstat" hidden></div>
-<div class="livebar" id="livebar" data-s="off"><span class="dot"></span><span class="ltxt" id="ltxt"></span><span class="timer" id="ltimer"></span><button class="btn primary" id="livebtn" type="button">Подключить клиент</button></div>
-<details class="howto" id="howto"><summary>Как подключить клиент LoL (3 шага, 1 минута)</summary>
-<div class="steps">
-<div class="step"><b class="n">1</b><b>Поставьте Python</b><p>Скачайте с python.org и установите. В установщике поставьте галочку «Add Python to PATH». Это делается один раз.</p></div>
-<div class="step"><b class="n">2</b><b>Запустите мост</b><p>Положите <code>lol_bridge.py</code> куда угодно и дважды кликните по нему. Откроется чёрное окно: не закрывайте его, пока играете.</p></div>
-<div class="step"><b class="n">3</b><b>Нажмите «Подключить клиент»</b><p>Кнопка выше. Зайдите в выбор чемпионов, и пики, баны и ваша роль появятся сами. Если браузер спросит доступ к устройствам в сети, разрешите.</p></div>
-</div></details>
-</div></header>
-
-<section class="band banband" aria-label="Баны"><div class="wrap"><div class="banbar">
-  <div class="bg"><h3>Баны вашей команды</h3><div class="bslots" id="bansL"></div></div>
-  <div class="bg r"><h3>Баны врагов</h3><div class="bslots" id="bansR"></div></div>
-</div></div></section>
-
-<main class="band" style="padding-top:12px"><div class="wrap main">
-<section aria-label="Драфт">
-  <div class="teams">
-    <div class="team ally"><h3>Ваша команда</h3><div id="ally"></div></div>
-    <div class="team enemy"><h3>Враги</h3><div id="enemy"></div></div>
-  </div>
-  <p class="hint">Нажмите на слот (игрока или бана вверху), затем выберите чемпиона в сетке. Свою роль отметьте нажатием на её значок в синей колонке.</p>
-  <section class="picker" id="picker" aria-label="Выбор чемпиона">
-    <div class="picker-head"><h3>Выбор чемпиона</h3><span class="who" id="who"></span></div>
-    <div class="picker-top"><input type="text" id="pq" placeholder="Поиск чемпиона…" autocomplete="off" spellcheck="false" aria-label="Поиск чемпиона"><button class="chip" id="poolmode" type="button" data-poolmode>Мой пул</button></div>
-    <div class="chips" id="chips" role="group" aria-label="Фильтр по роли"></div>
-    <div class="grid" id="grid"></div>
-  </section>
-  <div class="extra">
-    <div><span class="f">Мой пул чемпионов</span><div class="poolrow" id="poolrow"></div>
-      <div class="btns"><button class="btn" id="poolbtn" type="button" data-poolmode>Выбрать пул в сетке</button></div>
-      <label class="check"><input type="checkbox" id="poolOnly"> Предлагать только из моего пула</label></div>
-    <div class="weights"><span class="f" style="font-size:13px;font-weight:600">Что важнее</span>
-      <div class="w"><label for="wl">Линия</label><input type="range" id="wl" min="0" max="2" step="0.25"><output id="wlo"></output></div>
-      <div class="w"><label for="wc">Против состава</label><input type="range" id="wc" min="0" max="2" step="0.25"><output id="wco"></output></div>
-      <div class="w"><label for="ws">Синергия</label><input type="range" id="ws" min="0" max="2" step="0.25"><output id="wso"></output></div>
+<main id="overview">
+  <section class="banner" aria-labelledby="phaseTitle">
+    <div class="banner-copy">
+      <div class="game"><i></i> League of Legends</div>
+      <h1 id="phaseTitle">Центр драфта</h1>
+      <p id="phaseCopy">Подключаемся к клиенту League of Legends…</p>
+      <button class="primary" id="choosePool">Настроить пул <span aria-hidden="true">↗</span></button>
     </div>
-    <div class="btns"><button class="btn" id="clear">Очистить драфт</button><button class="btn" id="sample">Пример</button></div>
-  </div>
-  <datalist id="champs"></datalist>
-</section>
-
-<section aria-live="polite">
+    <div class="livebar" id="livebar"><span class="dot"></span><span id="ltxt">Подключение…</span><strong id="ltimer"></strong></div>
+  </section>
+  <div class="loadout" id="loadout" role="status" hidden></div>
+  <section id="banband" class="banbar" hidden aria-label="Баны"><div><h3>Баны союзников</h3><div class="bslots" id="bansL"></div></div><div><h3>Баны соперников</h3><div class="bslots" id="bansR"></div></div></section>
+  <div class="draft-layout"><div id="teams" class="teams" hidden>
+    <section class="team ally"><h3>Союзники</h3><div id="ally"></div></section>
+    <section class="team enemy"><h3>Соперники</h3><div id="enemy"></div></section>
+  </div><section id="analysis" hidden>
   <div id="hero"></div>
   <div class="tops" id="tops"></div>
   <div class="comp" id="comp"></div>
-  <h2 style="margin-top:26px">Полный рейтинг для вашей роли</h2>
-  <div class="scroll"><table><thead><tr><th>Чемпион</th><th>Тир</th><th>Линия</th><th>Состав</th><th>Синергия</th><th>Итог</th></tr></thead><tbody id="tbl"></tbody></table></div>
+  <div class="ranking"><h2>Рейтинг для вашей роли</h2>
+  <div class="rank-tools"><input id="rankSearch" type="search" aria-label="Найти в рейтинге" placeholder="Найти чемпиона"><select id="rankSort" aria-label="Сортировка рейтинга"><option value="total">По итогу</option><option value="l">По линии</option><option value="k">Против состава</option><option value="s">По синергии</option></select></div>
+  <div class="scroll"><table><thead><tr><th>Чемпион</th><th>Тир</th><th>Линия</th><th>Состав</th><th>Синергия</th><th>Итог</th></tr></thead><tbody id="tbl"></tbody></table></div><p id="rankEmpty" hidden>Нет совпадений</p></div>
   <details><summary>Как считается оценка</summary>
   <p><b>Линия:</b> известные контрпики (±3), дальний бой против ближнего на топе и миде, ранняя сила против поздней, защита от рывков. На боте учитываются оба врага: АДК полностью, саппорт наполовину.</p>
   <p><b>Против состава:</b> урон в % от здоровья против танков, бурст против составов без фронтлайна, блок рывков против мобильных врагов, защита от дайва, жёсткий engage против поука, ловля неподвижных керри, наказание поздних составов.</p>
   <p><b>Синергия:</b> баланс физического и магического урона, нужен ли фронтлайн, engage и контроль, защита гиперкерри, подбросы для Ясуо и Ёнэ, известные связки (Xayah + Rakan, Orianna + Malphite и другие).</p>
-  <p>Данные составлены вручную по общим знаниям об игре и не привязаны к патчу. Это не живая статистика винрейтов вроде U.GG, поэтому оценку стоит воспринимать как подсказку.</p>
+  <p>Базовые оценки рассчитываются по правилам. При наличии статистики матчей модель учитывает данные для конкретных пар чемпионов.</p>
   </details>
 </section>
-</div></main>
-<footer class="band"><div class="wrap"><p class="legal" id="legal"></p></div></footer>
-
+</div>
+  <div class="prep-layout">
+    <section class="panel collection" id="collection">
+      <div class="heading"><h2>Чемпионы</h2><span class="number" id="count"></span></div>
+      <div class="search"><span aria-hidden="true">⌕</span><input id="pq" type="search" placeholder="Поиск чемпиона" aria-label="Поиск чемпиона" autocomplete="off"></div>
+      <div id="chips" class="chips" role="group" aria-label="Фильтр по роли"></div>
+      <div class="grid" id="grid"></div>
+    </section>
+    <aside>
+      <section class="panel"><div class="heading"><h2>Мой пул</h2><span class="number" id="poolCount">0</span></div>
+        <div id="poolrow" class="poolrow"></div>
+        <label class="check"><input type="checkbox" id="poolOnly">Предлагать только из пула</label>
+      </section>
+      <section class="panel" id="settings"><div class="heading"><h2>Веса оценок</h2><button id="resetWeights" class="textbtn">Сбросить</button></div>
+        <div class="w"><label for="wl">Линия</label><output id="wlo"></output><input type="range" id="wl" min="0" max="2" step="0.25"></div>
+<div class="w"><label for="wc">Против состава</label><output id="wco"></output><input type="range" id="wc" min="0" max="2" step="0.25"></div>
+<div class="w"><label for="ws">Синергия</label><output id="wso"></output><input type="range" id="ws" min="0" max="2" step="0.25"></div>
+      </section>
+      <details class="panel connection" id="howto"><summary>Подключение клиента</summary><p>Запустите <b>mlkdrafthelper.exe</b> или мост командой <code>python lol_bridge.py</code>, затем откройте League of Legends. Для сайта разрешите браузеру доступ к локальной сети.</p></details>
+      <div class="source" id="dstat">Оценки по правилам драфта</div>
+    </aside>
+  </div>
+</main>
 <script>
 {
 const RAW=`Aatrox|TJ|P|222011322|khs
@@ -706,7 +425,7 @@ function syn(c,A){
   if(n>=3&&!A.some(a=>has(a,'r'))&&has(c,'r'))add(.5,'в команде нет дальнего боя');
   return{v,why}}
 
-function evaluate(st){
+function evaluate(st,selected=null){
   const me=st.me,A=[],en={},E=[],taken=new Set();
   for(const[r]of ROLES){
     if(r!==me){const a=find(st.ally[r]);if(a){A.push(a);taken.add(a.n)}}
@@ -715,6 +434,7 @@ function evaluate(st){
   const pool=new Set(st.pool.split(/[,\n]/).map(find).filter(Boolean).map(c=>c.n));
   let cands=CH.filter(c=>c.roles.includes(me)&&!taken.has(c.n));
   if(st.poolOnly&&pool.size)cands=cands.filter(c=>pool.has(c.n));
+  if(selected)cands=[selected];
   const laneOpp=en[me];
   return cands.map(c=>{const l=lane(c,me,en),k=comp(c,E,laneOpp,me),s=syn(c,A);
     return{c,l,k,s,t:st.w.l*l.v+st.w.c*k.v+st.w.s*s.v}}).sort((a,b)=>b.t-a.t||b.s.v-a.s.v);
@@ -724,140 +444,125 @@ else{
 /* ---------- интерфейс ---------- */
 const $=id=>document.getElementById(id);
 const blank=()=>({T:'',J:'',M:'',B:'',S:''});
-const SAMPLE={me:'M',ally:{T:'Ornn',J:'Jarvan IV',M:'',B:'Jinx',S:'Thresh'},enemy:{T:'Darius',J:'Kha\'Zix',M:'Yasuo',B:'Kai\'Sa',S:'Nautilus'},bans:'Zed, Viego',bs:['Zed','Viego','','','','','','','',''],pool:'',poolOnly:false,w:{l:1,c:1,s:1},sel:null};
-let st;try{st=JSON.parse(localStorage.getItem('draft-helper'))}catch(e){}
-if(!st||!st.ally)st=JSON.parse(JSON.stringify(SAMPLE));
-if(!Array.isArray(st.bs)){st.bs=Array(10).fill('');(st.bans||'').split(',').map(s=>{const c=find(s);return c?c.n:''}).filter(Boolean).slice(0,10).forEach((n,i)=>st.bs[i]=n)}
-if(typeof st.pool!=='string')st.pool='';
-const save=()=>{try{localStorage.setItem('draft-helper',JSON.stringify(st))}catch(e){}};
-$('champs').innerHTML=CH.map(c=>`<option value="${c.n}">`).join('');
+let prefs={};
+try{prefs=JSON.parse(localStorage.getItem('draft-helper'))||{}}catch(e){}
+const st={me:'',ally:blank(),enemy:blank(),bans:'',sel:null,pool:typeof prefs.pool==='string'?prefs.pool:'',
+  poolOnly:!!prefs.poolOnly,w:{l:1,c:1,s:1,...prefs.w}};
+function save(){try{localStorage.setItem('draft-helper',JSON.stringify({pool:st.pool,poolOnly:st.poolOnly,w:st.w}))}catch(e){}}
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const hue=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))%360;return h};
-const ICONS=true;
-const LOCAL_ICONS=false; /* true: сначала папка icons/ рядом с файлом; false: только Data Dragon (для сайта) */
 const ICON_ID={"Cho'Gath":'Chogath',"Kai'Sa":'Kaisa',"Kha'Zix":'Khazix',"Vel'Koz":'Velkoz',"Bel'Veth":'Belveth',LeBlanc:'Leblanc',Wukong:'MonkeyKing','Nunu & Willump':'Nunu','Renata Glasc':'Renata'};
-let DDV='14.24.1';
-const iconUrl=n=>`https://ddragon.leagueoflegends.com/cdn/${DDV}/img/champion/${ICON_ID[n]||n.replace(/[^A-Za-z]/g,'')}.png`;
-const GL={T:'M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z',J:'M15 2 7 13l3.5 1.5L8 22l10-12-3.5-1.5z',M:'M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z',B:'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 4a6 6 0 1 1 0 12 6 6 0 0 1 0-12zm0 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',S:'M12 21s-8-5.2-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.8-8 11-8 11z'};
-const med=n=>{const c=find(n),g=GL[c&&c.roles[0]];return `<span class="med" style="--h:${hue(n)}" aria-hidden="true">${esc(n.replace(/[^A-Za-z ]/g,'').split(' ').map(w=>w[0]).join('').slice(0,2)||n[0])}${g?`<svg class="gl" viewBox="0 0 24 24"><path fill-rule="evenodd" d="${g}"/></svg>`:''}</span>`};
-const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z]/g,'');
-const portrait=n=>ICONS?`<img src="${LOCAL_ICONS?'icons/'+iconId(n)+'.png':iconUrl(n)}" data-n="${esc(n)}"${LOCAL_ICONS?'':' data-cdn="1"'} alt="" loading="lazy">`:med(n);
+const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z0-9]/g,'');
+const portrait=n=>`<span class="portrait icon-${iconId(n)}" aria-hidden="true"></span>`;
 const badge=(n,cls='')=>`<span class="port ${cls}">${portrait(n)}</span>`;
-if(ICONS){document.addEventListener('error',e=>{const t=e.target;if(t.tagName==='IMG'&&t.dataset.n){if(!t.dataset.cdn){t.dataset.cdn=1;t.src=iconUrl(t.dataset.n)}else t.outerHTML=med(t.dataset.n)}},true);
-}
 const TIERS=[[6,'S+','Sp'],[4,'S','S'],[2.5,'A','A'],[1,'B','B'],[-0.5,'C','C'],[-1e9,'D','D']];
 const TMAP=new Map();
 function rankTiers(res){TMAP.clear();const n=res.length||1;res.forEach((x,i)=>{const f=i/n;let k=f<.05?0:f<.15?1:f<.35?2:f<.65?3:f<.85?4:5;if(x.t<1)k=Math.max(k,3);if(x.t<=0)k=Math.max(k,4);TMAP.set(x.c.n,k)})}
 const tierB=(n,cls='')=>{const k=TMAP.get(n);if(k==null)return'';const x=TIERS[k];return `<span class="tier t-${x[2]} ${cls}" title="Тир среди всех вариантов для вашей роли">${x[1]}</span>`};
 const sgn=v=>(v>0?'+':v<0?'−':'')+Math.abs(R1(v));
 
-function buildDraft(){
-  for(const side of['ally','enemy']){
-    $(side).innerHTML=ROLES.map(([r,lab])=>`<div class="row" id="${side}-row-${r}"><button class="role" data-r="${r}" ${side==='enemy'?'tabindex="-1"':''} aria-label="${lab}"><span class="pt"></span><span class="rl">${lab}</span></button><span class="fld"><input type="text" id="${side}-${r}" data-side="${side}" data-r="${r}" autocomplete="off" spellcheck="false" placeholder=" "><button class="clr" type="button" data-clr="${side}-${r}" aria-label="Очистить слот" tabindex="-1">×</button></span></div>`).join('')}
-  for(const[r]of ROLES){$('ally-'+r).value=st.ally[r]||'';$('enemy-'+r).value=st.enemy[r]||''}
-  $('poolOnly').checked=st.poolOnly;
-  for(const k of['l','c','s']){$('w'+k).value=st.w[k]}
-}
-function markRows(){
-  for(const[r]of ROLES){
-    const ar=$('ally-row-'+r),er=$('enemy-row-'+r),ai=$('ally-'+r);
-    ar.classList.toggle('me',r===st.me);er.classList.toggle('lane',r===st.me);
-    ai.disabled=r===st.me;ai.placeholder=r===st.me?'вы выбираете':' ';if(r===st.me)ai.value='';
-    ar.querySelector('.role').setAttribute('aria-pressed',r===st.me);
-    for(const side of['ally','enemy']){const i=$(side+'-'+r);i.classList.toggle('bad',!!i.value.trim()&&!find(i.value));i.title=i.classList.contains('bad')?'Чемпион не найден':'';
-      const c=find(i.value),pt=$(side+'-row-'+r).querySelector('.pt'),k=c?c.n:'';if(pt.dataset.n!==k){pt.dataset.n=k;pt.innerHTML=c?portrait(c.n):''}}
+function renderDraft(){
+  for(const side of ['ally','enemy']){
+    const team=$(side);
+    if(!team.children.length){
+      team.innerHTML=ROLES.map(([,label])=>`<div class="row"><div class="role"><span class="pt"></span><span class="rl">${label}</span></div><div><strong class="slot-name"></strong><small class="pick-state"></small></div></div>`).join('');
+    }
+    ROLES.forEach(([r],i)=>{
+      const p=live.slots[side][r],status=p?.status||'empty',name=p?.display||'';
+      const mark=p?.me?'Вы · ':'';
+      const state={locked:'Пик',hover:'Препик',empty:'Ожидание'}[status];
+      const row=team.children[i],pt=row.querySelector('.pt');
+      row.classList.toggle('me',!!p?.me);
+      row.dataset.status=status;
+      if(pt.dataset.name!==name){
+        pt.dataset.name=name;
+        pt.innerHTML=name?portrait(name):'';
+        row.querySelector('.slot-name').textContent=name||'—';
+      }
+      row.querySelector('.pick-state').textContent=mark+state;
+    });
   }
-  for(const k of['l','c','s'])$('w'+k+'o').textContent=st.w[k];
+  for(const [side,id] of [['ally','bansL'],['enemy','bansR']]){
+    const bans=live.bans[side]||[];
+    $(id).innerHTML=Array.from({length:5},(_,i)=>{
+      const n=displayName(bans[i]),label=n?'Бан · '+n:'Свободный слот бана';
+      return `<div class="bslot${n?' filled':''}" role="img" aria-label="${esc(label)}" title="${esc(label)}"><div class="bbtn"><span class="pt">${n?portrait(n):''}</span><span class="x">✕</span></div></div>`;
+    }).join('');
+  }
 }
 function reasons(x){
   const li=a=>a.length?a.map(([p,t])=>`<li><span class="${p>0?'pos':p<0?'neg':''}">${p?sgn(p):''}</span><span>${esc(t)}</span></li>`).join(''):'<li><span></span><span>ничего особенного</span></li>';
   return`<div class="why"><div><h4>Линия</h4><ul>${li(x.l.why)}</ul></div><div><h4>Против состава</h4><ul>${li(x.k.why)}</ul></div><div><h4>Синергия</h4><ul>${li(x.s.why)}</ul></div></div>`}
 function render(){
-  markRows();
+  $('banband').hidden=$('teams').hidden=live.s!=='live';
+  renderDraft();
+  $('analysis').hidden=live.s!=='live'||!st.me;
+  document.body.classList.toggle('in-draft',live.s==='live');
+  updatePool();
+  if($('analysis').hidden)return;
   const res=evaluate(st);
-  updatePicker(res);
-  lastRes=res;rankTiers(res);renderLive();
-  if(!res.length){$('comp').innerHTML='';$('hero').innerHTML='<div class="hero"><p class="empty">Нет доступных чемпионов: все заняты, забанены или не входят в ваш пул.</p></div>';$('tops').innerHTML='';$('tbl').innerHTML='';return}
-  const sel=res.find(x=>x.c.n===st.sel)||res[0];
-  const mx=k=>Math.max(1,...res.map(x=>Math.abs(x[k].v)));
+  ranking=res;
+  rankTiers(res);
+  const mine=live.mine, own=mine?.display, champion=own&&byAlias(mine.alias);
+  const inspected=res.find(x=>x.c.n===st.sel);
+  const ownResult=champion&&(res.find(x=>x.c===champion)||evaluate(st,champion)[0]);
+  const sel=inspected||ownResult||res[0];
+  const showingOwn=!!own&&!inspected;
+  if(!sel||(showingOwn&&!champion)){
+    const message=showingOwn?`${own} · для чемпиона пока нет оценки`:'Нет доступных чемпионов для вашей роли и пула.';
+    $('hero').innerHTML=`<div class="hero"><strong>${esc(message)}</strong></div>`;
+    $('comp').innerHTML='';$('tops').innerHTML='';renderRanking('');return;
+  }
+  const mx=k=>Math.max(1,Math.abs(sel[k].v),...res.map(x=>Math.abs(x[k].v)));
   const M={l:mx('l'),k:mx('k'),s:mx('s')};
   const bar=(lab,v,m,col)=>{const w=Math.abs(v)/m*50;return`<div class="bar"><span>${lab}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?col:'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
   const isBest=sel===res[0];
-  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}${isBest?'':` · место ${res.indexOf(sel)+1}`}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}</div></div>
-   <div class="total"><div class="kicker">Итог</div><div class="big">${sgn(sel.t)}</div></div></div>
+  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${showingOwn?(mine.status==='locked'?'Ваш пик':'Ваш препик'):isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}</div></div>
+   <div class="total"><div class="kicker">Итог</div><div class="big ${sel.t<0?'neg':sel.t>0?'pos':''}">${sgn(sel.t)}</div></div></div>
    <div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}</div>
-   ${reasons(sel)}${isBest?'':`<button class="btn" id="back">Показать лучший пик (${esc(res[0].c.n)})</button>`}</div>`;
+   ${reasons(sel)}${inspected?`<button class="btn" id="back">${own?'К моему чемпиону':'К лучшему пику'}</button>`:''}</div>`;
   const top=(title,key)=>{const l=[...res].sort((a,b)=>b[key].v-a[key].v||b.t-a.t).slice(0,5);
     return`<div class="top"><h3>${title}</h3>${l.map(x=>`<button class="pick${x===sel?' on':''}" data-n="${esc(x.c.n)}">${badge(x.c.n,'s')}<span>${esc(x.c.n)}</span><span class="${x[key].v>0?'pos':x[key].v<0?'neg':''}">${sgn(x[key].v)}</span></button>`).join('')}</div>`};
   $('tops').innerHTML=top('Против соперника по линии','l')+top('Против их состава','k')+top('Синергия с вашими','s');
   $('comp').innerHTML=compHTML(sel);
-  $('tbl').innerHTML=res.slice(0,25).map(x=>`<tr data-n="${esc(x.c.n)}" class="${x===sel?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
+  renderRanking(sel.c.n);
 }
-$('legal').textContent=ICONS?(LOCAL_ICONS?'Неофициальный инструмент. Портреты берутся из папки icons/ рядом с файлом (Ahri.png, LeeSin.png…), иначе из Data Dragon (Riot Games). League of Legends принадлежит Riot Games.':'Неофициальный инструмент. Иконки чемпионов загружаются из Data Dragon (Riot Games) в вашем браузере. League of Legends принадлежит Riot Games.'):'Неофициальный инструмент, не связан с Riot Games. Оценки составлены вручную и не зависят от патча.';
-/* ---------- выбор чемпиона как в драфте ---------- */
-let active=null,pickQ='',pickRole='*',poolMode=false,tiles=[];
-const RLAB={'*':'Все',T:'Топ',J:'Лес',M:'Мид',B:'АДК',S:'Сап'};
-const SIDE_LAB={ally:'Ваша команда',enemy:'Враги'};
-const canon=s=>{const c=find(s);return c?c.n:''};
-const poolList=()=>[...new Set(st.pool.split(',').map(canon).filter(Boolean))];
-const syncBans=()=>{st.bans=st.bs.filter(Boolean).join(', ')};
-function nextEmpty(side){const o=ROLES.map(x=>x[0]).filter(r=>!(side==='ally'&&r===st.me));const r=o.find(r=>!st[side][r]);return r?side+'-'+r:null}
-function nextBan(from){for(let k=0;k<10;k++){const i=(from+k)%10;if(!st.bs[i])return 'ban-'+i}return null}
-function buildPicker(){
-  const slot=i=>`<div class="bslot" id="ban-${i}"><button class="bbtn" type="button" data-ban="${i}" aria-label="Бан ${i+1}"><span class="pt"></span><span class="x">✕</span></button><button class="clr" type="button" data-clrban="${i}" aria-label="Убрать бан" tabindex="-1">×</button></div>`;
-  $('bansL').innerHTML=[0,1,2,3,4].map(slot).join('');$('bansR').innerHTML=[5,6,7,8,9].map(slot).join('');
-  $('chips').innerHTML=Object.entries(RLAB).map(([k,v])=>`<button class="chip${k===pickRole?' on':''}" type="button" data-role="${k}">${v}</button>`).join('');
-  $('grid').innerHTML=CH.map(c=>`<button class="tile" type="button" data-c="${esc(c.n)}" title="${esc(c.n)}"><span class="tp">${portrait(c.n)}</span><span class="nm">${esc(c.n)}</span><span class="rk" hidden></span></button>`).join('')+'<div class="noresult" hidden>Ничего не найдено</div>';
+let ranking=[];
+function renderRanking(selected){
+  const q=norm($('rankSearch').value), sort=$('rankSort').value;
+  const rows=ranking.filter(x=>norm(x.c.n).includes(q)||ALIAS[q]===x.c.n);
+  if(sort!=='total')rows.sort((a,b)=>b[sort].v-a[sort].v||b.t-a.t);
+  $('tbl').innerHTML=rows.map(x=>`<tr data-n="${esc(x.c.n)}" class="${x.c.n===selected?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
+  $('rankEmpty').hidden=rows.length>0;
+}
+/* ---------- личный пул ---------- */
+let pickRole='*',tiles=[];
+const poolList=()=>[...new Set(st.pool.split(',').map(find).filter(Boolean).map(c=>c.n))];
+function buildPool(){
+  $('chips').innerHTML=[['*','Все'],...ROLES].map(([r,label])=>`<button class="chip" type="button" data-role="${r}">${label}</button>`).join('');
+  $('grid').innerHTML=CH.map(c=>`<button class="tile" type="button" data-c="${esc(c.n)}"><span class="tp">${portrait(c.n)}</span><span class="nm">${esc(c.n)}</span></button>`).join('')+'<span class="noresult" hidden>Ничего не найдено</span>';
   tiles=[...$('grid').querySelectorAll('.tile')];
-  active=nextEmpty('enemy')||nextEmpty('ally')||nextBan(0);
 }
-function updatePicker(res){
-  if(!tiles.length)return;
-  const a=new Set(),e=new Set(),b=new Set(),pl=new Set(poolList());
-  for(const[r]of ROLES){const x=find(st.ally[r]||'');if(x&&r!==st.me)a.add(x.n);const y=find(st.enemy[r]||'');if(y)e.add(y.n)}
-  st.bs.forEach(n=>{if(n)b.add(n)});
-  const rank=new Map(res.slice(0,3).map((x,i)=>[x.c.n,i+1]));
-  const q=norm(pickQ),al=ALIAS[q]?norm(ALIAS[q]):null;let shown=0;
-  for(const t of tiles){
-    const n=t.dataset.c,c=BY[norm(n)],nn=norm(n);
-    t.classList.toggle('a',!poolMode&&a.has(n));t.classList.toggle('e',!poolMode&&e.has(n));t.classList.toggle('b',!poolMode&&b.has(n));t.classList.toggle('p',poolMode&&pl.has(n));
-    const rk=rank.get(n),m=t.querySelector('.rk');
-    m.hidden=!rk||poolMode;m.textContent=rk?'★'+rk:'';t.classList.toggle('top1',!!rk&&rk===1&&!poolMode);
-    const ok=(pickRole==='*'||c.roles.includes(pickRole))&&(!q||nn.includes(q)||nn===al);
-    t.hidden=!ok;if(ok)shown++;
+function updatePool(){
+  const selected=new Set(poolList()),q=norm($('pq').value);
+  let shown=0;
+  for(const tile of tiles){
+    const c=BY[norm(tile.dataset.c)];
+    tile.hidden=(pickRole!=='*'&&!c.roles.includes(pickRole))||!(norm(c.n).includes(q)||ALIAS[q]===c.n);
+    if(!tile.hidden)shown++;
+    tile.classList.toggle('p',selected.has(c.n));tile.setAttribute('aria-pressed',selected.has(c.n));
   }
-  $('grid').querySelector('.noresult').hidden=shown>0;
-  for(const ch of $('chips').children)ch.classList.toggle('on',ch.dataset.role===pickRole);
-  $('picker').classList.toggle('pool',poolMode);
-  for(const bt of document.querySelectorAll('[data-poolmode]'))bt.classList.toggle('on',poolMode);
-  $('poolmode').textContent=poolMode?'Готово':'Мой пул';$('poolbtn').textContent=poolMode?'Готово':'Выбрать пул в сетке';
-  for(const side of['ally','enemy'])for(const[r]of ROLES)$(side+'-row-'+r).classList.toggle('active',!poolMode&&active===side+'-'+r);
-  for(let i=0;i<10;i++){const s=$('ban-'+i),n=st.bs[i]||'',pt=s.querySelector('.pt');
-    s.classList.toggle('filled',!!n);s.classList.toggle('active',!poolMode&&active==='ban-'+i);
-    if(pt.dataset.n!==n){pt.dataset.n=n;pt.innerHTML=n?portrait(n):''}}
-  const pr=$('poolrow'),pk=st.pool;
-  if(pr.dataset.k!==pk){pr.dataset.k=pk;const L=poolList();
-    pr.innerHTML=L.length?L.map(n=>`<span class="pchip">${badge(n,'xs')}${esc(n)}<button type="button" data-clrpool="${esc(n)}" aria-label="Убрать ${esc(n)} из пула">×</button></span>`).join(''):'<span class="hint" style="margin:0">Пул пуст: нажмите «Выбрать пул в сетке» и отметьте чемпионов</span>'}
-  if(poolMode)$('who').textContent='Мой пул: нажимайте на чемпионов, чтобы добавить или убрать. Закончив, нажмите «Готово»';
-  else if(active&&active.startsWith('ban-')){const i=+active.slice(4);$('who').textContent='Выбираем: бан '+(i%5+1)+' · '+(i<5?'ваша команда':'враги')}
-  else if(active){const[s,r]=active.split('-');$('who').textContent='Выбираем: '+SIDE_LAB[s]+' · '+ROLES.find(x=>x[0]===r)[1]}
-  else $('who').textContent='Все слоты заполнены';
+  if(tiles.length)$('grid').querySelector('.noresult').hidden=shown>0;
+  for(const chip of $('chips').children)chip.classList.toggle('on',chip.dataset.role===pickRole);
+  $('count').textContent=shown;
+  $('poolCount').textContent=selected.size;
+  const row=$('poolrow');
+  if(row.dataset.pool!==st.pool){
+    row.dataset.pool=st.pool;
+    row.innerHTML=[...selected].map(n=>`<span class="pchip">${badge(n,'xs')}${esc(n)}<button type="button" data-c="${esc(n)}" aria-label="Убрать из пула ${esc(n)}">×</button></span>`).join('')||'<span class="hint">Нажмите на портрет, чтобы добавить чемпиона в пул.</span>';
+  }
 }
-function togglePool(name){
-  const L=poolList(),i=L.indexOf(name);if(i>=0)L.splice(i,1);else L.push(name);
-  st.pool=L.join(', ');st.sel=null;save();render();
-}
-function placePick(name){
-  if(poolMode){togglePool(name);return}
-  if(!active)return;
-  if(active.startsWith('ban-')){const i=+active.slice(4);st.bs[i]=name;syncBans();st.sel=null;save();active=nextBan(i+1)||active;render();return}
-  const[side,r]=active.split('-');if(side==='ally'&&r===st.me)return;
-  st[side][r]=name;$(active).value=name;st.sel=null;save();
-  active=nextEmpty(side)||active;render();
-}
-
 /* ---------- анализ составов ---------- */
-let lastRes=[];
+
 function teamList(side){return ROLES.map(([r])=>side==='ally'&&r===st.me?null:find(st[side][r]||'')).filter(Boolean)}
 function profile(L){
   const n=L.length||1,sum=k=>L.reduce((s,c)=>s+c[k],0);
@@ -891,58 +596,65 @@ const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500'; /* стр
 const BASE=SERVED?'':'http://127.0.0.1:27500';
 const BRIDGE=BASE+'/state';
 const POSMAP={top:'T',jungle:'J',middle:'M',bottom:'B',utility:'S'};
-const ALIASMAP={};CH.forEach(c=>{ALIASMAP[norm(iconId(c.n))]=c;ALIASMAP[norm(c.n)]=c});
-const byAlias=a=>a?(ALIASMAP[norm(a)]||find(a)):null;
-const live={upd:null,ver:'',on:false,s:'off',last:'',phase:'',timer:null,hover:'',err:0};
-live.on=SERVED;try{const v=localStorage.getItem('draft-live');if(v!==null)live.on=v==='1'}catch(e){}
-if(SERVED&&$('howto'))$('howto').style.display='none';
-fetch('stats.json?'+Date.now()).catch(()=>null).then(r=>r&&r.ok?r.json():null).then(s=>{
-  if(!s||!s.games)return;setStats(s);const el=$('dstat');el.hidden=false;
-  el.innerHTML=`Данные матчей: патч <b>${s.patch}</b>, <b>${s.games.toLocaleString('ru')}</b> игр (Platinum+). Мои оценки сверены с реальными играми: у пар с данными в причинах стоит пометка.`;
-  if(typeof buildDraft==='function')buildDraft()}).catch(()=>{});
-if(SERVED)setInterval(()=>fetch('/ping').catch(()=>{}),15000);
+const ALIASMAP=Object.create(null);CH.forEach(c=>{ALIASMAP[norm(iconId(c.n))]=c;ALIASMAP[norm(c.n)]=c});
+const byAlias=a=>ALIASMAP[norm(a)];
+const displayName=alias=>byAlias(alias)?.n||alias||'';
+const live={s:'connecting',last:'',slots:{ally:{},enemy:{}},bans:{},mine:null,upd:null,ver:''};
+
 /* Клиент не показывает роли врагов. Перебираем все способы раздать свободные роли (до 5! = 120)
    и берём тот, где больше всего чемпионов стоят на своих обычных ролях:
    основная роль 3 очка, вторая 2, третья 1. Если кого-то всё равно приходится ставить не на его роль,
    туда скорее пойдёт чемпион с большим числом ролей (он гибче). */
-function fillRoles(slots,champs,skip){
-  const free=ROLES.map(x=>x[0]).filter(r=>r!==skip&&!slots[r]);
+function fillRoles(slots,champs){
+  const free=ROLES.map(x=>x[0]).filter(r=>!slots[r]);
   const cs=champs.slice(0,free.length);if(!cs.length)return;
-  const fit=(c,r)=>{const i=c.roles.indexOf(r);return i<0?c.roles.length*.1:i===0?3:i===1?2:1};
+  const fit=(p,r)=>{const roles=byAlias(p.alias)?.roles||'';const i=roles.indexOf(r);return i<0?roles.length*.1:i===0?3:i===1?2:1};
   let best=null,bestS=-1;
   const go=(i,used,acc,s)=>{
     if(i===cs.length){if(s>bestS+1e-9){bestS=s;best=acc.slice()}return}
     for(const r of free){if(used.has(r))continue;used.add(r);acc.push(r);go(i+1,used,acc,s+fit(cs[i],r));acc.pop();used.delete(r)}
   };
-  go(0,new Set(),[],0);cs.forEach((c,i)=>slots[best[i]]=c.n);
+  go(0,new Set(),[],0);cs.forEach((c,i)=>slots[best[i]]=c);
 }
 function applyLive(d){
-  const key=JSON.stringify([d.me,d.ally,d.enemy,d.bans]);
-  live.hover='';
-  const meP=(d.ally||[]).find(p=>p.me);if(meP){const c=byAlias(meP.alias);live.hover=c?c.n:''}
-  if(key===live.last)return false;live.last=key;
-  if(POSMAP[d.me])st.me=POSMAP[d.me];
-  const ally=blank(),enemy=blank(),restA=[],restE=[];
-  for(const p of d.ally||[]){if(p.me)continue;const c=byAlias(p.alias);if(!c)continue;const r=POSMAP[p.pos];if(r&&r!==st.me&&!ally[r])ally[r]=c.n;else restA.push(c)}
-  for(const p of d.enemy||[]){const c=byAlias(p.alias);if(!c)continue;const r=POSMAP[p.pos];if(r&&!enemy[r])enemy[r]=c.n;else restE.push(c)}
-  fillRoles(ally,restA,st.me);fillRoles(enemy,restE,null);
-  const bs=Array(10).fill('');
-  (d.bans&&d.bans.ally||[]).map(byAlias).filter(Boolean).slice(0,5).forEach((c,i)=>bs[i]=c.n);
-  (d.bans&&d.bans.enemy||[]).map(byAlias).filter(Boolean).slice(0,5).forEach((c,i)=>bs[5+i]=c.n);
-  st.ally=ally;st.enemy=enemy;st.bs=bs;syncBans();st.sel=null;
-  buildDraft();save();return true;
+  const key=JSON.stringify([live.s,d.ally,d.enemy,d.bans]);
+  if(key===live.last)return false;
+  live.last=key;
+  const previous=live.mine;
+  live.slots={ally:{},enemy:{}};live.bans=d.bans||{};live.mine=null;
+  st.me='';st.ally=blank();st.enemy=blank();
+  for(const side of ['ally','enemy']){
+    const slots=live.slots[side],unassigned=[];
+    for(const player of d[side]||[]){
+      const display=displayName(player.alias)||player.name||(player.championId?'#'+player.championId:'');
+      const p={...player,display,status:player.status||(display?(player.hover?'hover':'locked'):'empty')};
+      const r=POSMAP[p.pos];
+      if(r&&!slots[r])slots[r]=p;else unassigned.push(p);
+    }
+    fillRoles(slots,unassigned);
+    for(const [r,p] of Object.entries(slots)){
+      if(p.status==='locked')st[side][r]=p.display;
+      if(side==='ally'&&p.me){st.me=r;live.mine=p}
+    }
+  }
+  st.bans=[...(live.bans.ally||[]),...(live.bans.enemy||[])].map(displayName).join(', ');
+  if(previous?.display!==live.mine?.display||previous?.status!==live.mine?.status||live.s!=='live')st.sel=null;
+  return true;
 }
 async function poll(){
-  if(!live.on)return;
-  let changed=false;
+  let d={};
   try{
-    const r=await fetch(BRIDGE,{cache:'no-store'});const d=await r.json();
+    const response=await fetch(BRIDGE,{cache:'no-store',signal:AbortSignal.timeout(5000)});
+    if(!response.ok)throw Error();
+    d=await response.json();
     if(live.ver&&d.version&&d.version!==live.ver){location.reload();return}
-    live.upd=d.update;live.ver=d.version;live.err=0;live.phase=d.phaseName||'';live.timer=d.champSelect?d.timer:null;
+    if(SERVED&&live.stats!==undefined&&d.stats!==undefined&&d.stats!==live.stats){location.reload();return}
+    live.stats=d.stats;
+    live.ver=d.version;live.upd=d.update;
     live.s=!d.client?'noclient':d.champSelect?'live':'idle';
-    if(d.champSelect)changed=applyLive(d);else live.last='';
-  }catch(e){live.s='nobridge';live.timer=null}
-  if(changed)render();else renderLive();
+  }catch(e){live.s='nobridge';live.upd=null}
+  if(applyLive(d))render();
+  renderLive(d);
   setTimeout(poll,1000);
 }
 async function updateNow(){
@@ -954,64 +666,107 @@ async function updateNow(){
   }catch(e){c.textContent='Перезапускаюсь, страница обновится сама…'} /* мост мог уже перезапуститься */
 }
 function renderUpdate(){
-  const bar=$('updbar'),u=live.on&&live.upd;
+  const bar=$('updbar'),u=live.upd;
   let dis='';try{dis=localStorage.getItem('upd-dismissed')||''}catch(_){}
   const ok=u&&u.available&&u.latest&&u.latest!==dis&&/^https:\/\/github\.com\//.test(u.url||'');
   bar.hidden=!ok;if(!ok)return;
   $('updv').textContent=u.latest;$('updc').textContent=u.current?'(у вас '+u.current+')':'';
   $('updlink').href=u.url;$('updlink').hidden=!!u.canUpdate;$('updgo').hidden=!u.canUpdate;
 }
-function renderLive(){
-  const bar=$('livebar');if(!bar)return;
-  bar.dataset.s=live.on?live.s:'off';
-  $('livebtn').textContent=live.on?'Отключить':'Подключить клиент';
-  $('livebtn').classList.toggle('primary',!live.on);
-  $('ltimer').textContent=live.on&&live.s==='live'&&live.timer!=null?Math.floor(live.timer/60)+':'+String(live.timer%60).padStart(2,'0'):'';
-  let t;
-  if(!live.on)t='<b>Ручной режим.</b> Хотите, чтобы пики и баны вставлялись сами? Нажмите «Подключить клиент».';
-  else if(live.s==='nobridge')t='<b>Не вижу мост.</b> Запустите <code>lol_bridge.py</code> и не закрывайте его окно. Подробности в инструкции ниже.';
-  else if(live.s==='noclient')t='<b>Мост работает,</b> но клиент League of Legends не запущен.';
-  else if(live.s==='idle')t=`<b>Клиент подключён</b> · ${esc(live.phase)}. Зайдите в выбор чемпионов, и всё заполнится само.`;
-  else if(live.s==='live'){
-    let hv='';
-    if(live.hover&&lastRes.length){const i=lastRes.findIndex(x=>x.c.n===live.hover);hv=i>=0?` · вы навели <b>${esc(live.hover)}</b>: ${tierB(live.hover)} место ${i+1}`:` · вы навели <b>${esc(live.hover)}</b>`}
-    t=`<span class="livetag">LIVE</span> <b>Выбор чемпионов</b> идёт, пики и баны подтягиваются из клиента${hv}`;
-  }else t='Подключаюсь…';
-  $('ltxt').innerHTML=t;renderUpdate();
-  if(live.on&&live.s==='nobridge'&&!live.err){live.err=1;$('howto').open=true}
+function renderLive(d){
+  $('livebar').dataset.s=live.s;
+  const messages={nobridge:'Мост отключён',noclient:'Ожидание клиента',idle:d.phaseName||'Клиент подключён',live:'Драфт идёт'};
+  const descriptions={nobridge:'Запустите mlkdrafthelper.exe или локальный мост, чтобы подключить клиент.',
+    noclient:'Запустите League of Legends. Составы и рекомендации появятся при выборе чемпионов.',
+    idle:'Клиент подключён. Когда начнётся выбор чемпионов, здесь появятся пики и баны.',
+    live:'Пики, баны и рекомендации обновляются из клиента.'};
+  $('phaseTitle').textContent=live.s==='live'?'Выбор чемпионов':'Центр драфта';
+  $('phaseCopy').textContent=descriptions[live.s];
+  $('ltxt').textContent=messages[live.s];
+  $('ltimer').textContent=live.s==='live'&&d.timer!=null?Math.floor(d.timer/60)+':'+String(d.timer%60).padStart(2,'0'):'';
+  const status=d.loadout||(live.s==='live'&&d.loadout!==undefined?'После вашего пика помощник применит руны и заклинания.':'');
+  if($('loadout').textContent!==status)$('loadout').textContent=status;
+  $('loadout').hidden=!status;
+  renderUpdate();
 }
 
-const boot=()=>{buildDraft();buildPicker();render();if(live.on)poll()};
-if(ICONS){const to=new Promise((_,rj)=>setTimeout(rj,2500));
-  Promise.race([fetch('https://ddragon.leagueoflegends.com/api/versions.json').then(r=>r.json()),to]).then(v=>{DDV=v[0]}).catch(()=>{}).then(boot)}
-else boot();
-document.addEventListener('input',e=>{const t=e.target;
-  if(t.dataset.side){st[t.dataset.side][t.dataset.r]=t.value;st.sel=null}
-  else if(t.id==='poolOnly'){st.poolOnly=t.checked;st.sel=null}
-  else if(/^w[lcs]$/.test(t.id))st.w[t.id[1]]=+t.value;
-  else if(t.id==='pq'){pickQ=t.value;render();return}
-  else return;save();render()});
-document.addEventListener('focusin',e=>{const t=e.target;if(t.dataset&&t.dataset.side&&!t.disabled){active=t.dataset.side+'-'+t.dataset.r;poolMode=false;render()}});
-document.addEventListener('click',e=>{
-  const tile=e.target.closest('.tile');
-  if(tile){if(!(tile.classList.contains('a')||tile.classList.contains('e')||tile.classList.contains('b')))placePick(tile.dataset.c);return}
-  const clr=e.target.closest('.clr');
-  if(clr&&clr.dataset.clr){const[s,r]=clr.dataset.clr.split('-');st[s][r]='';$(clr.dataset.clr).value='';active=clr.dataset.clr;poolMode=false;st.sel=null;save();render();return}
-  const chip=e.target.closest('.chip[data-role]');if(chip){pickRole=chip.dataset.role;render();return}
-  if(e.target.id==='livebtn'){live.on=!live.on;try{localStorage.setItem('draft-live',live.on?'1':'0')}catch(_){}live.s='connecting';live.last='';if(live.on)poll();renderLive();return}
-  if(e.target.id==='updgo'){updateNow();return}
-  if(e.target.id==='upddis'){try{localStorage.setItem('upd-dismissed',(live.upd||{}).latest||'')}catch(_){}renderUpdate();return}
-  const bb=e.target.closest('[data-ban]');if(bb){active='ban-'+bb.dataset.ban;poolMode=false;render();return}
-  const cb=e.target.closest('[data-clrban]');if(cb){const i=+cb.dataset.clrban;st.bs[i]='';syncBans();active='ban-'+i;poolMode=false;st.sel=null;save();render();return}
-  const cp=e.target.closest('[data-clrpool]');if(cp){togglePool(cp.dataset.clrpool);return}
-  if(e.target.closest('[data-poolmode]')){poolMode=!poolMode;render();return}
-  const role=e.target.closest('#ally .role');
-  if(role){st.me=role.dataset.r;st.ally[st.me]='';st.sel=null;if(active===('ally-'+st.me))active=nextEmpty('ally')||nextEmpty('enemy');save();render();return}
-  const p=e.target.closest('[data-n]');if(p){st.sel=p.dataset.n;save();render();$('hero').scrollIntoView({block:'nearest'});return}
-  if(e.target.id==='back'){st.sel=null;save();render()}
-  if(e.target.id==='clear'){st.ally=blank();st.enemy=blank();st.bans='';st.bs=Array(10).fill('');st.sel=null;buildDraft();active=nextEmpty('enemy')||nextEmpty('ally')||nextBan(0);save();render()}
-  if(e.target.id==='sample'){const keep={pool:st.pool,poolOnly:st.poolOnly,w:st.w};st=Object.assign(JSON.parse(JSON.stringify(SAMPLE)),keep);buildDraft();active=nextEmpty('enemy')||nextEmpty('ally')||nextBan(0);save();render()}
+const screenButton=$('fullscreen');
+let nativeFull=false;
+function screenLabel(full){
+  const label=full?'Вернуть размер окна':'На весь экран';
+  screenButton.title=label;screenButton.setAttribute('aria-label',label);
+  screenButton.setAttribute('aria-pressed',String(full));
+}
+function bindWindow(){
+  const api=window.pywebview?.api;
+  $('minimize').hidden=!api?.minimize;$('close').hidden=!api?.close;
+  if(api?.minimize)$('minimize').onclick=()=>api.minimize();
+  if(api?.close)$('close').onclick=()=>api.close();
+  screenButton.hidden=!api?.toggle_fullscreen&&!document.fullscreenEnabled;
+}
+screenButton.onclick=async()=>{
+  screenButton.disabled=true;
+  try{
+    const api=window.pywebview?.api;
+    if(api?.toggle_fullscreen){await api.toggle_fullscreen();nativeFull=!nativeFull;screenLabel(nativeFull)}
+    else if(document.fullscreenElement)await document.exitFullscreen();
+    else await document.documentElement.requestFullscreen();
+  }catch(e){screenButton.title='Полноэкранный режим недоступен'}
+  finally{screenButton.disabled=false}
+};
+document.addEventListener('fullscreenchange',()=>screenLabel(!!document.fullscreenElement));
+window.addEventListener('pywebviewready',bindWindow);
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&nativeFull){e.preventDefault();screenButton.click()}
 });
+bindWindow();
+function markNavigation(){
+  const hash=location.hash||'#overview';
+  for(const link of document.querySelectorAll('nav a')){
+    if(link.hash===hash)link.setAttribute('aria-current','location');
+    else link.removeAttribute('aria-current');
+  }
+}
+window.addEventListener('hashchange',markNavigation);
+markNavigation();
+$('rankSearch').oninput=()=>renderRanking(st.sel||live.mine?.display||ranking[0]?.c.n);
+$('rankSort').onchange=$('rankSearch').oninput;
+$('choosePool').onclick=()=>{location.hash='collection';$('collection').scrollIntoView();$('pq').focus({preventScroll:true})};
+$('resetWeights').onclick=()=>{
+  for(const k of ['l','c','s']){st.w[k]=1;$('w'+k).value=1;$('w'+k+'o').textContent=1}
+  save();render();
+};
+$('updgo').onclick=updateNow;
+$('upddis').onclick=()=>{try{localStorage.setItem('upd-dismissed',(live.upd||{}).latest||'')}catch(e){}renderUpdate()};
+$('pq').oninput=updatePool;
+$('poolOnly').checked=st.poolOnly;
+$('poolOnly').onchange=e=>{st.poolOnly=e.target.checked;st.sel=null;save();render()};
+for(const k of ['l','c','s']){
+  const input=$('w'+k),output=$('w'+k+'o');
+  input.value=output.textContent=st.w[k];
+  input.oninput=()=>{st.w[k]=+input.value;output.textContent=input.value;save();render()};
+}
+document.addEventListener('click',e=>{
+  const pool=e.target.closest('[data-c]');
+  if(pool){
+    const selected=new Set(poolList()),n=pool.dataset.c;
+    if(selected.has(n))selected.delete(n);else selected.add(n);
+    st.pool=[...selected].join(', ');save();render();return;
+  }
+  const chip=e.target.closest('[data-role]');
+  if(chip){pickRole=chip.dataset.role;updatePool();return}
+  const suggestion=e.target.closest('.pick[data-n],tr[data-n]');
+  if(suggestion||e.target.id==='back'){
+    st.sel=suggestion?.dataset.n||null;render();$('hero').scrollIntoView({block:'nearest'});
+  }
+});
+buildPool();render();poll();
+fetch('stats.json').then(r=>r.ok?r.json():null).then(s=>{
+  if(!s?.games)return;
+  setStats(s);
+  $('dstat').textContent=`Патч ${s.patch} · ${s.games.toLocaleString('ru')} матчей Platinum+`;
+  render();
+}).catch(()=>{});
 }
 }
 </script>

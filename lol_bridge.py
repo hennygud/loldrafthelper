@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Мост «Клиент LoL → Помощник драфта».
+Мост «Клиент LoL → MLK Helper».
 
 Что делает: раз в секунду смотрит в клиент League of Legends, кто кого
 пикнул и забанил, и отдаёт это странице помощника драфта.
 
-Как запустить: дважды кликните по LoLDraftHelper.exe — откроется окно помощника.
+Как запустить: дважды кликните по mlkdrafthelper.exe — откроется окно помощника.
 Закрыли окно — программа выключилась. Из исходников: python lol_bridge.py
 (без пакета pywebview страница откроется в окне Edge или в браузере).
 Флаги: --headless (только мост, без окна), --selftest ФАЙЛ (проверка сборки).
 
 Безопасность:
-  * читает только экран выбора чемпионов (как U.GG, Porofessor и др.);
+  * после подтверждения своего пика применяет рекомендацию клиента по рунам и заклинаниям;
   * ничего не нажимает в клиенте и не лезет в память игры;
   * слушает только ваш компьютер (127.0.0.1), снаружи к нему не подключиться.
 
@@ -61,7 +61,9 @@ SELF_PATH = sys.executable if IS_FROZEN else ""      # путь к самому 
 ALLOWED_URL_PREFIX = "https://github.com/"           # качаем обновления только отсюда
 MIN_EXE_SIZE = 1_000_000                             # меньше этого точно не наш exe
 ORIGINS_OK = (f"http://127.0.0.1:{PORT}", "https://hennygud.github.io")
-APP_DIR = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser("~"), "LoLDraftHelper")
+_DATA_DIR = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+_OLD_DIR = os.path.join(_DATA_DIR, "LoLDraftHelper")
+APP_DIR = _OLD_DIR if os.path.isdir(_OLD_DIR) else os.path.join(_DATA_DIR, "mlkdrafthelper")
 LOG_PATH = os.path.join(APP_DIR, "log.txt")
 NO_CONSOLE = sys.stdout is None                      # собрано как оконное приложение: печатать некуда
 STATS_URL = os.environ.get("LOL_STATS_URL", f"https://raw.githubusercontent.com/{REPO}/main/stats.json")
@@ -117,7 +119,7 @@ def stats_stamp():
 def fetch_stats():
     """Подтягивает свежие данные матчей из репозитория (без нового релиза). Ошибки сети молча игнорируются."""
     try:
-        req = urllib.request.Request(STATS_URL, headers={"User-Agent": "LoLDraftHelper"})
+        req = urllib.request.Request(STATS_URL, headers={"User-Agent": "mlkdrafthelper"})
         with urllib.request.urlopen(req, timeout=20) as r:
             raw = r.read(STATS_MAX + 1)
         if len(raw) > STATS_MAX or not stats_ok(raw):
@@ -140,8 +142,7 @@ def load_page():
     if not p:
         return None
     with open(p, encoding="utf-8") as f:
-        # из .exe иконки берём только с Data Dragon: папки icons/ рядом нет
-        return f.read().replace("const LOCAL_ICONS=true;", "const LOCAL_ICONS=false;").encode("utf-8")
+        return f.read().encode("utf-8")
 POLL_SECONDS = 1.0
 
 LOCKFILES = [
@@ -232,14 +233,20 @@ class Client:
         return True
 
     def get(self, path):
+        return self.request("GET", path)
+
+    def request(self, method, path, data=None):
         if not self.base and not self.connect():
             raise ConnectionError("no client")
-        req = urllib.request.Request(self.base + path, headers=self.hdr)
+        body = None if data is None else json.dumps(data).encode("utf-8")
+        req = urllib.request.Request(self.base + path, data=body, method=method,
+                                     headers={**self.hdr, "Content-Type": "application/json"})
         try:
             with urllib.request.urlopen(req, timeout=3, context=_CTX) as r:
-                return json.loads(r.read().decode("utf-8"))
+                body = r.read()
+                return json.loads(body) if body else None
         except urllib.error.HTTPError as e:
-            if e.code == 404:
+            if e.code == 404 and method == "GET":
                 return None  # например, мы сейчас не в выборе чемпионов
             raise
         except (urllib.error.URLError, OSError):
@@ -259,7 +266,37 @@ class Client:
 
 # ─────────────── чтение выбора чемпионов ───────────────
 
-def read_state(cl):
+SESSION = "/lol-champ-select/v1/session"
+
+
+def player_pick(session, member, ally):
+    """Во время выбора championId может быть уже заполнен. После обмена в нём актуальный пик."""
+    cell = member["cellId"]
+    picks = [a for group in session.get("actions", []) for a in group
+             if a.get("type") == "pick" and a.get("actorCellId") == cell]
+    roster = member.get("championId") or 0
+    completed = next((a for a in reversed(picks) if a.get("completed") and a.get("championId", 0) > 0), None)
+    if completed:
+        return roster or completed["championId"], "locked"
+    if roster > 0 and (not picks or (session.get("timer") or {}).get("phase") == "FINALIZATION"):
+        return roster, "locked"
+    pending = next((a["championId"] for a in picks if a.get("isInProgress") and a.get("championId", 0) > 0), 0)
+    cid = pending or roster or (member.get("championPickIntent") if ally else 0)
+    return (cid, "hover") if cid and cid > 0 else (0, "empty")
+
+
+def loadout_target(session):
+    if session and not session.get("isSpectating"):
+        for member in session.get("myTeam", []):
+            if member["cellId"] == session.get("localPlayerCellId"):
+                cid, status = player_pick(session, member, True)
+                if status == "locked":
+                    return (session.get("gameId") or session.get("id"), cid,
+                            (member.get("assignedPosition") or "").upper())
+    return None
+
+
+def read_state(cl, loadout=None):
     st = {"bridge": 1, "client": False, "phase": None, "phaseName": "", "champSelect": False,
           "me": "", "ally": [], "enemy": [], "bans": {"ally": [], "enemy": []},
           "timer": None, "timerPhase": "", "updated": time.time()}
@@ -272,52 +309,140 @@ def read_state(cl):
     st["phaseName"] = PHASES.get(phase, str(phase))
     if phase != "ChampSelect":
         return st
-    s = cl.get("/lol-champ-select/v1/session")
+    s = cl.get(SESSION)
     if not s:
         return st
     st["champSelect"] = True
     me_cell = s.get("localPlayerCellId")
     my_cells = {m.get("cellId") for m in s.get("myTeam", [])}
 
-    def player(m, hover_ok):
-        cid = m.get("championId") or 0
-        hover = False
-        if cid <= 0 and hover_ok:
-            cid, hover = m.get("championPickIntent") or 0, True
+    def player(m, ally):
+        cid, status = player_pick(s, m, ally)
         c = cl.champ(cid)
         return {"cell": m.get("cellId"), "pos": (m.get("assignedPosition") or "").lower(),
                 "alias": c["alias"] if c else "", "name": c["name"] if c else "",
-                "hover": bool(c) and hover, "me": m.get("cellId") == me_cell}
+                "championId": cid, "status": status, "hover": status == "hover",
+                "me": ally and m.get("cellId") == me_cell}
 
     st["ally"] = [player(m, True) for m in s.get("myTeam", [])]
     st["enemy"] = [player(m, False) for m in s.get("theirTeam", [])]
     me = next((p for p in st["ally"] if p["me"]), None)
     st["me"] = me["pos"] if me else ""
 
-    seen = set()
+    ban_ids = {"ally": [], "enemy": []}
     for group in s.get("actions", []):
-        for a in group:
-            if a.get("type") == "ban" and a.get("completed") and (a.get("championId") or 0) > 0:
-                if a.get("id") in seen:
-                    continue
-                seen.add(a.get("id"))
-                c = cl.champ(a["championId"])
-                if c:
-                    side = "ally" if a.get("actorCellId") in my_cells else "enemy"
-                    st["bans"][side].append(c["alias"])
-    if not st["bans"]["ally"] and not st["bans"]["enemy"]:  # запасной путь для старых клиентов
-        b = s.get("bans") or {}
-        for side, key in (("ally", "myTeamBans"), ("enemy", "theirTeamBans")):
-            for cid in b.get(key, []) or []:
-                c = cl.champ(cid)
-                if c:
-                    st["bans"][side].append(c["alias"])
+        for action in group:
+            if action.get("type") == "ban" and action.get("completed"):
+                side = "ally" if action.get("actorCellId") in my_cells else "enemy"
+                ban_ids[side].append(action.get("championId"))
+    for side, key in (("ally", "myTeamBans"), ("enemy", "theirTeamBans")):
+        ban_ids[side].extend((s.get("bans") or {}).get(key) or [])
+        for cid in dict.fromkeys(ban_ids[side]):
+            if cid and cid > 0:
+                c = cl.champ(cid) or {}
+                st["bans"][side].append(c.get("alias") or c.get("name") or f"#{cid}")
 
     t = s.get("timer") or {}
     if t.get("adjustedTimeLeftInPhase") is not None:
         st["timer"] = max(0, int(t["adjustedTimeLeftInPhase"] / 1000))
         st["timerPhase"] = t.get("phase", "")
+    if loadout is not None:
+        st["loadout"] = loadout.sync(cl, s)
     return st
+
+
+class Loadout:
+    page_name = "MLK Helper"
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.target = None
+        self.done = set()
+        self.message = ""
+        self.retry_at = 0
+
+    def check_pick(self, cl):
+        if loadout_target(cl.get(SESSION)) != self.target:
+            raise ValueError("Пик изменился.")
+
+    def recommendation(self, cl):
+        _, cid, position = self.target
+        flow = cl.get("/lol-gameflow/v1/session") or {}
+        map_id = (flow.get("map") or {}).get("id")
+        if position not in {"TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"}:
+            position = cl.get(f"/lol-perks/v1/recommended-pages-position/champion/{cid}") or "NONE"
+        if map_id:
+            pages = cl.get(f"/lol-perks/v1/recommended-pages/champion/{cid}/position/{position}/map/{map_id}")
+            if pages:
+                return pages[0]
+        raise ValueError("Для этого чемпиона и карты пока нет рекомендации клиента.")
+
+    def runes(self, cl, rec):
+        path = "/lol-perks/v1/pages"
+        perks = [p["id"] for p in rec.get("perks", [])]
+        if len(perks) != 9 or not all(perks) or not all(rec.get(k) for k in ("primaryPerkStyleId", "secondaryPerkStyleId")):
+            raise ValueError("Клиент прислал неполную страницу рун.")
+        page = {"name": self.page_name, "primaryStyleId": rec["primaryPerkStyleId"],
+                "subStyleId": rec["secondaryPerkStyleId"], "selectedPerkIds": perks}
+        pages = cl.get(path)
+        if pages is None:
+            raise ValueError("Страницы рун недоступны.")
+        own = next((p for p in pages if p.get("name") in (self.page_name, "LoL Draft Helper") and p.get("isEditable")), None)
+        if own:
+            page_id = own["id"]
+            if any(own.get(k) != v for k, v in page.items()):
+                self.check_pick(cl)
+                cl.request("PUT", f"{path}/{page_id}", dict(page, id=page_id))
+        else:
+            inventory = cl.get("/lol-perks/v1/inventory") or {}
+            if inventory.get("canAddCustomPage") is False:
+                raise ValueError("Для страницы MLK Helper нужен свободный слот.")
+            self.check_pick(cl)
+            page_id = cl.request("POST", path, page)["id"]
+        self.check_pick(cl)
+        cl.request("PUT", "/lol-perks/v1/currentpage", page_id)
+
+    def spells(self, cl, rec):
+        ids = rec.get("summonerSpellIds") or []
+        if len(ids) != 2 or len(set(ids)) != 2 or not all(ids):
+            raise ValueError("Клиент не предложил два заклинания.")
+        path = SESSION + "/my-selection"
+        current = cl.get(path) or {}
+        first, second = current.get("spell1Id"), current.get("spell2Id")
+        if {first, second} == set(ids):
+            return
+        # Сохраняем привычную клавишу заклинания, которое есть в обоих наборах.
+        if ids[1] == first or ids[0] == second:
+            ids = ids[::-1]
+        self.check_pick(cl)
+        cl.request("PATCH", path, {"spell1Id": ids[0], "spell2Id": ids[1]})
+
+    def sync(self, cl, session):
+        target = loadout_target(session)
+        if target != self.target:
+            self.reset()
+            self.target = target
+        if not target or len(self.done) == 2 or time.monotonic() < self.retry_at:
+            return self.message
+        self.retry_at = time.monotonic() + 10
+        try:
+            rec = self.recommendation(cl)
+        except (ConnectionError, urllib.error.HTTPError, ValueError) as err:
+            self.message = f"Подбор рун и заклинаний: {err}"
+            return self.message
+        messages = []
+        for label, apply in (("Руны", self.runes), ("Заклинания", self.spells)):
+            try:
+                if label not in self.done:
+                    apply(cl, rec)
+                    self.done.add(label)
+                messages.append(label + " применены.")
+            except (ConnectionError, urllib.error.HTTPError, ValueError, KeyError, TypeError) as err:
+                messages.append(f"{label}: {err}")
+        self.message = " ".join(messages)
+        return self.message
 
 
 def vtuple(s):
@@ -329,7 +454,7 @@ def check_update():
     """Спрашивает у GitHub, нет ли версии новее. Любая ошибка (нет интернета, лимит) просто игнорируется."""
     info = {"current": VERSION, "available": False}
     try:
-        req = urllib.request.Request(UPDATE_URL, headers={"User-Agent": "LoLDraftHelper", "Accept": "application/vnd.github+json"})
+        req = urllib.request.Request(UPDATE_URL, headers={"User-Agent": "mlkdrafthelper", "Accept": "application/vnd.github+json"})
         with urllib.request.urlopen(req, timeout=8) as r:
             d = json.loads(r.read().decode("utf-8"))
         tag = str(d.get("tag_name", ""))
@@ -360,7 +485,7 @@ def update_loop():
 # ─────────────── обновление на месте: скачать → проверить → заменить себя → удалить старую версию ───────────────
 
 def _download(url, dest):
-    req = urllib.request.Request(url, headers={"User-Agent": "LoLDraftHelper"})
+    req = urllib.request.Request(url, headers={"User-Agent": "mlkdrafthelper"})
     with urllib.request.urlopen(req, timeout=90) as r, open(dest, "wb") as f:
         while True:
             chunk = r.read(1 << 16)
@@ -466,11 +591,14 @@ LOCK = threading.Lock()
 
 def poll_loop(cl):
     last = None
+    loadout = Loadout()
     while True:
         try:
-            s = read_state(cl)
+            s = read_state(cl, loadout)
+            if not s["champSelect"]:
+                loadout.reset()
         except Exception as e:  # мост не должен падать ни при каких ответах клиента
-            s = dict(STATE, error=str(e))
+            s = {"bridge": 1, "client": False, "champSelect": False, "error": str(e)}
         with LOCK:
             STATE.clear()
             STATE.update(s)
@@ -492,7 +620,7 @@ STATUS_PAGE = """<!DOCTYPE html><html lang="ru"><meta charset="utf-8"><title>М�
 .c{border:2px solid #c8aa6e;padding:28px 34px;max-width:440px;background:#0b1a2e}h1{font:400 28px Georgia,serif;color:#c8aa6e;margin:0 0 10px}
 .s{font-size:20px;margin:6px 0}.ok{color:#0ac8b9}.wait{color:#f0b35a}small{color:#a09b8c}</style>
 <div class="c"><h1>Мост работает</h1><p class="s" id="s">…</p>
-<small>Окно можно не трогать. Откройте помощник драфта и нажмите «Подключить клиент».</small></div>
+<small>Окно можно не трогать. Откройте помощник драфта и зайдите в выбор чемпионов.</small></div>
 <script>async function u(){try{const d=await(await fetch('/state')).json();const e=document.getElementById('s');
 e.className='s '+(d.client?'ok':'wait');e.textContent=d.client?('Клиент на связи · '+d.phaseName):'Жду клиент League of Legends…'}catch(_){}}
 u();setInterval(u,1500)</script>"""
@@ -524,6 +652,16 @@ class Handler(BaseHTTPRequestHandler):
                 data = dict(STATE, version=VERSION, stats=stats_stamp(), update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
                 body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             ctype = "application/json; charset=utf-8"
+        elif re.fullmatch(r"/assets/[a-zA-Z0-9_-]+\.(?:css|png|jpg|ico)", self.path):
+            page = find_page()
+            path = os.path.join(os.path.dirname(page), self.path[1:]) if page else ""
+            if not os.path.isfile(path):
+                self.send_error(404)
+                return
+            with open(path, "rb") as f:
+                body = f.read()
+            ctype = {".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg",
+                     ".ico": "image/x-icon"}[os.path.splitext(path)[1]]
         elif self.path.startswith("/stats.json"):
             body = load_stats()
             if body is None:
@@ -574,6 +712,17 @@ class Handler(BaseHTTPRequestHandler):
 
 # ─────────────── окно приложения ───────────────
 
+class WindowControls:
+    def toggle_fullscreen(self):
+        self._window.toggle_fullscreen()
+
+    def minimize(self):
+        self._window.minimize()
+
+    def close(self):
+        self._window.destroy()
+
+
 def open_window(url):
     """Своё окно (Edge WebView2 через pywebview). Возвращает True, когда окно закрыли; False — если открыть не вышло."""
     try:
@@ -584,8 +733,10 @@ def open_window(url):
     try:
         store = os.path.join(APP_DIR, "webview")
         os.makedirs(store, exist_ok=True)
-        webview.create_window(f"Помощник драфта · {VERSION}", url, width=1380, height=920,
-                              min_size=(960, 640), background_color="#0d1117")
+        controls = WindowControls()
+        controls._window = webview.create_window(
+            f"MLK Helper · {VERSION}", url, width=1380, height=920, min_size=(960, 640),
+            frameless=True, easy_drag=False, js_api=controls, background_color="#0b0d14")
         webview.start(private_mode=False, storage_path=store)  # private_mode=False: пул и настройки сохраняются
         return True
     except Exception as e:
@@ -634,7 +785,7 @@ def main():
         selftest(sys.argv[sys.argv.index("--selftest") + 1])
     headless = "--headless" in sys.argv
     url = f"http://127.0.0.1:{PORT}/"
-    say(f"Помощник драфта {VERSION}: мост на {url} (только ваш компьютер)")
+    say(f"MLK Helper {VERSION}: мост на {url} (только ваш компьютер)")
     srv = None
     for _ in range(40 if "--after-update" in sys.argv else 1):  # после обновления старый мост ещё закрывается
         try:
