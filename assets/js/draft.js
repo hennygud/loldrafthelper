@@ -252,7 +252,7 @@ function setStats(s){
     const tot=Object.values(rr).reduce((x,y)=>x+y.games,0);
     for(const[r,v]of Object.entries(rr))if(v.games>=30&&v.games/tot>=.08&&!c.roles.includes(r)){c.roles+=r;D.roles.push(c.n+' +'+r)}}
   for(const[name,v]of Object.entries(s.scaling||{})){const c=find(name);if(!c||!v.sc)continue;
-    const n=v.n.reduce((x,y)=>x+y,0);if(n<100)continue;
+    const n=v.n.reduce((x,y)=>x+y,0);if(n<1000)continue; /* по проверке половинами скейлинг надёжен только на больших выборках */
     if(c.sc0===undefined)c.sc0=c.sc;c.sc=v.sc;D.sc[c.n]=v}
   D.on=true}
 function blend(rule,e,cap){
@@ -263,7 +263,8 @@ function blend(rule,e,cap){
   const se=50/Math.sqrt(e.n),r=rule/PT,tau=rule?3:2;
   const pm=(r/(tau*tau)+e.delta/(se*se))/(1/(tau*tau)+1/(se*se));
   const v=Math.max(-cap,Math.min(cap,pm*PT)),z=Math.abs(e.delta)/se,same=Math.sign(e.delta)===Math.sign(rule);
-  const tag=rule?(z>=2?(same?'подтверждено данными':'данные не согласны'):e.n>=200?'данные не подтверждают':''):(z>=2.5?'по данным':'');
+  /* Пометки строже, чем само смешивание: пар тысячи, и при z≥2 случайные «подтверждения» и «опровержения» были бы на каждом шагу. */
+  const tag=rule?(z>=2.5?(same?'подтверждено данными':'данные не согласны'):e.n>=300&&z<1?'данные не подтверждают':''):(z>=3&&e.n>=150?'по данным':'');
   return{v,note:tag?` · ${tag}: ${Math.round(e.wr)}%, ${e.n} игр`:''}}
 
 function lane(c,me,en){
