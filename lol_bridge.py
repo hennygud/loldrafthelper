@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Мост «Клиент LoL → MLK Helper».
+Мост «Клиент LoL → MLK.gg».
 
 Что делает: раз в секунду смотрит в клиент League of Legends, кто кого
 пикнул и забанил, и отдаёт это странице помощника драфта.
 
-Как запустить: откройте ярлык MLK Helper или файл MLK Helper.exe — откроется окно помощника.
+Как запустить: откройте ярлык MLK.gg или файл MLK.gg.exe — откроется окно помощника.
 Закрыли окно — программа выключилась. Из исходников: python lol_bridge.py
 (без пакета pywebview страница откроется в окне Edge или в браузере).
 Флаги: --headless (только мост, без окна), --selftest ФАЙЛ (проверка сборки).
@@ -393,7 +393,7 @@ def preview_loadout(cl, cid, position):
 
 
 class Loadout:
-    page_name = "MLK Helper"
+    page_name = "MLK.gg"
 
     def __init__(self):
         self.reset()
@@ -426,7 +426,7 @@ class Loadout:
         pages = cl.get(path)
         if pages is None:
             raise ValueError("Страницы рун недоступны.")
-        own = next((p for p in pages if p.get("name") in (self.page_name, "LoL Draft Helper") and p.get("isEditable")), None)
+        own = next((p for p in pages if p.get("name") in (self.page_name, "MLK Helper", "LoL Draft Helper") and p.get("isEditable")), None)
         if own:
             page_id = own["id"]
             if any(own.get(k) != v for k, v in page.items()):
@@ -435,7 +435,7 @@ class Loadout:
         else:
             inventory = cl.get("/lol-perks/v1/inventory") or {}
             if inventory.get("canAddCustomPage") is False:
-                raise ValueError("Для страницы MLK Helper нужен свободный слот.")
+                raise ValueError("Для страницы MLK.gg нужен свободный слот.")
             self.check_pick(cl)
             page_id = cl.request("POST", path, page)["id"]
         self.check_pick(cl)
@@ -801,7 +801,7 @@ def open_window(url):
         os.makedirs(store, exist_ok=True)
         controls = WindowControls()
         controls._window = webview.create_window(
-            "MLK Helper", url, width=1380, height=920, min_size=(960, 640),
+            "MLK.gg", url, width=1380, height=920, min_size=(960, 640),
             frameless=True, easy_drag=False, js_api=controls, background_color="#0b0d14")
         page = find_page()
         icon_name = "mlkdrafthelper.ico" if sys.platform == "win32" else "mlk-helper.png"
@@ -854,7 +854,7 @@ def main():
         selftest(sys.argv[sys.argv.index("--selftest") + 1])
     headless = "--headless" in sys.argv
     url = f"http://127.0.0.1:{PORT}/"
-    say(f"MLK Helper {VERSION}: мост на {url} (только ваш компьютер)")
+    say(f"MLK.gg {VERSION}: мост на {url} (только ваш компьютер)")
     srv = None
     for _ in range(40 if "--after-update" in sys.argv else 1):  # после обновления старый мост ещё закрывается
         try:

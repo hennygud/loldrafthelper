@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MLK Helper</title>
+<title>MLK.gg</title>
 <link rel="icon" type="image/png" href="assets/mlk-helper.png">
 <link rel="stylesheet" href="assets/draft.css">
 <link rel="stylesheet" href="assets/portraits.css">
@@ -11,7 +11,7 @@
 </head>
 <body>
 <header class="windowbar" id="windowbar">
-  <a class="brand" href="#overview" aria-label="MLK Helper — к обзору"><span class="brand-mark"><img src="assets/mlk-helper.png" alt=""></span><strong>MLK <span>Helper</span></strong></a>
+  <a class="brand" href="#overview" aria-label="MLK.gg — к обзору"><span class="brand-mark"><img src="assets/mlk-helper.png" alt=""></span><strong>MLK<span>.gg</span></strong></a>
   <span class="pywebview-drag-region"></span>
   <div class="languages" role="group" aria-label="Язык интерфейса">
     <button data-lang="ru" lang="ru" title="Русский" aria-label="Русский"><svg viewBox="0 0 30 20" aria-hidden="true"><path fill="#fff" d="M0 0h30v20H0z"/><path fill="#2456b5" d="M0 7h30v7H0z"/><path fill="#df3845" d="M0 14h30v6H0z"/></svg></button>
@@ -751,7 +751,7 @@ function renderUpdate(){
 function renderLive(d){
   $('livebar').dataset.s=live.s;
   const messages={connecting:'Подключение…',nobridge:'Мост отключён',noclient:'Ожидание клиента',idle:d.phaseName||'Клиент подключён',live:'Драфт идёт'};
-  const descriptions={connecting:'Подключаемся к клиенту League of Legends…',nobridge:'Откройте MLK Helper на компьютере, чтобы подключить клиент.',
+  const descriptions={connecting:'Подключаемся к клиенту League of Legends…',nobridge:'Откройте MLK.gg на компьютере, чтобы подключить клиент.',
     noclient:'Запустите League of Legends. Составы и рекомендации появятся при выборе чемпионов.',
     idle:'Клиент подключён. Когда начнётся выбор чемпионов, здесь появятся пики и баны.',
     live:'Пики, баны и рекомендации обновляются из клиента.'};

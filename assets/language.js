@@ -1,6 +1,6 @@
 // Russian is the source language for the draft engine and bridge messages.
 const english = {
-  "MLK Helper — к обзору": "MLK Helper home",
+  "MLK.gg — к обзору": "MLK.gg home",
   "Язык интерфейса": "Interface language",
   "Свернуть": "Minimize",
   "Свернуть окно": "Minimize window",
@@ -130,7 +130,7 @@ const english = {
   "Ожидание клиента": "Waiting for client",
   "Клиент подключён": "Client connected",
   "Драфт идёт": "Draft in progress",
-  "Откройте MLK Helper на компьютере, чтобы подключить клиент.": "Open MLK Helper on your computer to connect to the client.",
+  "Откройте MLK.gg на компьютере, чтобы подключить клиент.": "Open MLK.gg on your computer to connect to the client.",
   "Запустите League of Legends. Составы и рекомендации появятся при выборе чемпионов.": "Open League of Legends. Teams and recommendations will appear in champion select.",
   "Клиент подключён. Когда начнётся выбор чемпионов, здесь появятся пики и баны.": "Client connected. Picks and bans will appear when champion select begins.",
   "Пики, баны и рекомендации обновляются из клиента.": "Picks, bans and recommendations update live from the client.",
@@ -153,7 +153,7 @@ const english = {
   "Для этого чемпиона и карты пока нет рекомендации клиента.": "The client has no recommendation for this champion and map yet.",
   "Клиент прислал неполную страницу рун.": "The client returned an incomplete rune page.",
   "Страницы рун недоступны.": "Rune pages are unavailable.",
-  "Для страницы MLK Helper нужен свободный слот.": "Free a rune page slot for MLK Helper.",
+  "Для страницы MLK.gg нужен свободный слот.": "Free a rune page slot for MLK.gg.",
   "Клиент не предложил два заклинания.": "The client did not recommend two spells.",
   "подтверждено данными": "confirmed by match data",
   "данные не согласны": "match data disagrees",
