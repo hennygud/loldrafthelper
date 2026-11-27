@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MLK.gg · Анализ игр</title>
+<link rel="icon" type="image/png" href="assets/img/logo.png">
+<link rel="stylesheet" href="assets/css/draft.css">
+<link rel="stylesheet" href="assets/css/portraits.css">
+<link rel="stylesheet" href="assets/css/analysis.css">
+</head>
+<body class="analysis-page">
+<header class="windowbar" id="windowbar">
+  <span class="brand"><span class="brand-mark"><img src="assets/img/logo.png" alt=""></span><strong>MLK<span>.gg</span></strong></span>
+  <span class="page-label">Анализ игр</span>
+  <span class="pywebview-drag-region"></span>
+  <button class="nav-analysis" id="reload" type="button" title="Заново загрузить игры из клиента"><span aria-hidden="true">↻</span> Загрузить заново</button>
+  <div class="languages" role="group" aria-label="Язык интерфейса">
+    <button data-lang="ru" lang="ru" title="Русский" aria-label="Русский"><svg viewBox="0 0 30 20" aria-hidden="true"><path fill="#fff" d="M0 0h30v20H0z"/><path fill="#2456b5" d="M0 7h30v7H0z"/><path fill="#df3845" d="M0 14h30v6H0z"/></svg></button>
+    <button data-lang="en" lang="en" title="English" aria-label="English"><svg viewBox="0 0 60 40" aria-hidden="true"><path fill="#19366b" d="M0 0h60v40H0z"/><path stroke="#fff" stroke-width="8" d="m0 0 60 40m0-40L0 40"/><path stroke="#cd3544" stroke-width="3" d="m0 1 30 20m30 18L30 19m0 2L60 1M0 39l30-20"/><path stroke="#fff" stroke-width="13" d="M30 0v40M0 20h60"/><path stroke="#cd3544" stroke-width="7" d="M30 0v40M0 20h60"/></svg></button>
+  </div>
+  <div class="window-actions"><button id="minimize" title="Свернуть" aria-label="Свернуть окно" hidden>−</button><button id="fullscreen" title="На весь экран" aria-label="На весь экран" aria-pressed="false" hidden><span aria-hidden="true">⛶</span></button><button id="close" title="Закрыть" aria-label="Закрыть окно" hidden>×</button></div>
+</header>
+<main id="games">
+  <section class="ga-head">
+    <div class="game"><i></i> <span id="gaKicker">Последние 20 игр</span></div>
+    <h1 id="gaTitle">Анализ игр</h1>
+    <p id="gaSub">Каждый драфт разобран моделью MLK.gg: насколько удачен был ваш пик против линии, против состава соперника и вместе с командой.</p>
+  </section>
+  <div id="gaStatus" class="loadout" role="status">Загружаю последние игры из клиента…</div>
+  <section id="gaSummary" class="ga-summary" hidden aria-label="Итоги"></section>
+  <section id="gaInsights" class="panel ga-insights" hidden aria-labelledby="gaInsightsTitle"></section>
+  <section id="gaChartBox" class="panel ga-chartbox" hidden aria-labelledby="gaChartTitle">
+    <div class="heading"><h2 id="gaChartTitle">Оценка вашего пика по играм</h2><span class="ga-legend"><i class="w"></i>победа <i class="l"></i>поражение</span></div>
+    <div id="gaChart" class="ga-chart"></div>
+  </section>
+  <div class="ga-layout" id="gaLayout" hidden>
+    <nav class="panel ga-list" aria-labelledby="gaListTitle"><h2 id="gaListTitle">Игры</h2><ol id="gaList"></ol></nav>
+    <section class="panel ga-detail" id="gaDetail" aria-live="polite"></section>
+  </div>
+  <details class="ga-notes">
+    <summary>Как читать анализ</summary>
+    <p><b>Оценка пика</b> — та же модель, что подсказывает в драфте: линия, игра против состава соперника и синергия с командой. Плюс — модель считает пик удачным, минус — неудачным.</p>
+    <p><b>Место в рейтинге</b> — каким по счёту ваш чемпион оказался среди всех вариантов для вашей роли в этом драфте (без забаненных и уже взятых чемпионов).</p>
+    <p><b>Драфт команд</b> — сумма оценок пяти пиков каждой команды. Положительная разница значит, что по модели составы были в вашу пользу.</p>
+    <p>Модель видит итоговые составы, а в самом драфте часть пиков соперника была ещё неизвестна. Роли соперников клиент не сообщает, поэтому они определяются по подсказкам клиента, Смайту и обычным ролям чемпионов. 20 игр — маленькая выборка: цифры показывают тенденции, а не доказательства.</p>
+  </details>
+</main>
+<script>window.MLK_MODEL_ONLY=true</script>
+<script src="assets/js/game-data.js"></script>
+<script src="assets/js/language.js"></script>
+<script src="assets/js/draft.js"></script>
+<script src="assets/js/analysis.js"></script>
+</body>
+</html>

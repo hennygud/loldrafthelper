@@ -1,0 +1,106 @@
+/* Окно «Анализ игр». Базовые цвета, кнопки и шапка окна — из draft.css. */
+.page-label { margin-left: 6px; padding-left: 14px; border-left: 1px solid var(--line); color: var(--mute); font-size: 14px; font-weight: 650; white-space: nowrap }
+.analysis-page .nav-analysis { margin: 0 4px 0 0 }
+.analysis-page .nav-analysis:disabled { opacity: .55; cursor: progress }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px }
+.sub { color: var(--mute) }
+
+.ga-head { padding: 6px 0 4px }
+.ga-head h1 { font-size: clamp(30px,3.6vw,48px); overflow-wrap: anywhere }
+.ga-head p { max-width: 70ch; color: #c1cbd5 }
+#gaStatus { margin: 16px 0 0 }
+
+.ga-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 12px; margin-top: 20px }
+.ga-card { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 14px 16px; border: 1px solid #38434e; border-radius: 12px; background: #16202a }
+.ga-card > small { color: var(--mute); font-size: 12.5px }
+.ga-card > strong { font-size: 30px; line-height: 1.1; letter-spacing: -.04em }
+.ga-rate { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: 10px; align-items: baseline }
+.ga-rate + .ga-rate { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--line) }
+.ga-rate span { color: var(--mute); font-size: 12.5px }
+.ga-rate strong { font-size: 21px; letter-spacing: -.03em; font-variant-numeric: tabular-nums }
+.ga-rate small { grid-column: 1 / -1; color: #7f8b9a; font-size: 11.5px }
+
+.ga-insights, .ga-chartbox, .ga-layout { margin-top: 18px }
+.ga-notes-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 8px 22px }
+.ga-notes-list li { display: grid; gap: 2px; padding-left: 12px; border-left: 3px solid var(--blue) }
+.ga-notes-list li.neg { border-color: var(--bad) }
+.ga-notes-list b { font-size: 14px }
+.ga-notes-list span { color: #c1cbd5; font-size: 13px }
+
+.ga-chartbox .heading { justify-content: space-between; gap: 12px; flex-wrap: wrap }
+.ga-legend { display: flex; align-items: center; gap: 6px; color: var(--mute); font-size: 12px }
+.ga-legend i { width: 10px; height: 10px; border-radius: 2px; margin-left: 8px }
+.ga-legend .w, .ga-bar.w .ga-track i { background: var(--good) }
+.ga-legend .l, .ga-bar.l .ga-track i { background: var(--bad) }
+.ga-chart { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0,1fr); gap: 6px; height: 170px; margin-top: 12px }
+.ga-bar { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 4px 0; border: 1px solid transparent; border-radius: 6px; background: transparent }
+.ga-track { position: relative; flex: 1; width: 100%; background: linear-gradient(#3a4555,#3a4555) 0 50% / 100% 1px no-repeat }
+.ga-track i { position: absolute; left: 22%; width: 56%; border-radius: 3px; opacity: .85 }
+.ga-bar:hover, .ga-bar.on { border-color: #758395; background-color: #1b2431 }
+.ga-bar.on { border-color: var(--lime) }
+.ga-bar .port.xs { width: 22px; max-width: 90% }
+.ga-bar .portrait { aspect-ratio: 1; height: auto; border-radius: 4px }
+
+.ga-layout { display: grid; grid-template-columns: minmax(280px,.8fr) minmax(0,1.6fr); gap: 18px; align-items: start }
+.ga-list { padding: 14px; position: sticky; top: 76px; max-height: calc(100vh - 96px); overflow: auto }
+.ga-list h2 { padding: 2px 6px 10px }
+.ga-list ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px }
+.ga-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 7px 9px; text-align: left; border-color: #303a48; background: var(--well) }
+.ga-row.on { border-color: var(--lime); background: #18232e }
+.ga-row.skipped { opacity: .6 }
+.ga-row .port.s { width: 36px }
+.ga-row .portrait { aspect-ratio: 1; height: auto; border-radius: 5px }
+.ga-row-main { display: grid; min-width: 0; flex: 1 }
+.ga-row-main b { font-size: 13.5px }
+.ga-row[data-result=win] .ga-row-main b { color: #b6e990 }
+.ga-row[data-result=loss] .ga-row-main b { color: #ffb3ac }
+.ga-row small { color: var(--mute); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
+.ga-row-side { display: grid; justify-items: end; gap: 1px; font-variant-numeric: tabular-nums }
+.ga-row-side > :first-child { display: flex; gap: 6px; align-items: center }
+.ga-row-side strong { font-size: 14px }
+.ga-row-side .tier + strong { min-width: 34px; text-align: right }
+.ga-row-side:has(.tier) { grid-template-columns: auto auto; column-gap: 6px; align-items: center }
+.ga-row-side:has(.tier) small { grid-column: 1 / -1 }
+.ga-skip { color: var(--mute); font-size: 11.5px; max-width: 110px; text-align: right; line-height: 1.2 }
+
+.ga-detail { min-width: 0 }
+.ga-detail-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap }
+.ga-detail-head > .port { width: 54px }
+.ga-detail-head .portrait { aspect-ratio: 1; height: auto; border-radius: 8px }
+.ga-detail-head .total { margin-left: auto; text-align: right }
+.ga-verdict { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 14px; padding: 9px 12px; border-radius: 9px; background: var(--well); font-size: 14px }
+.ga-dot { color: #5d6878 }
+.ga-skipnote { margin-top: 14px }
+.ga-sub { margin: 20px 0 8px; font-size: 15px }
+.ga-alts { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 8px }
+.ga-alt { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--well); min-width: 0 }
+.ga-alt > div { display: grid; min-width: 0; flex: 1 }
+.ga-alt small { color: var(--mute); font-size: 12px; line-height: 1.3 }
+.ga-alt em, .ga-pick em { font-style: normal; font-size: 11px; color: var(--lime); font-weight: 650; margin-left: 4px }
+.ga-alt .portrait, .ga-pick .portrait, .ga-bans .portrait { aspect-ratio: 1; height: auto; border-radius: 4px }
+.ga-draft { display: grid; gap: 5px }
+.ga-draft-head, .ga-draft-row { display: grid; grid-template-columns: 70px minmax(0,1fr) minmax(0,1fr); gap: 8px; align-items: center }
+.ga-draft-head { color: var(--mute); font-size: 12.5px; font-weight: 650 }
+.ga-role { color: var(--mute); font-size: 12.5px }
+.ga-pick { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 5px 9px; border: 1px solid var(--line); border-radius: 8px; background: var(--well); font-size: 13.5px }
+.ga-pick span:not(.port):not(.portrait) { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.ga-pick b { font-variant-numeric: tabular-nums; font-size: 13px }
+.ga-pick.me { border-color: var(--lime); background: #1a2619 }
+.ga-pick .port.s { width: 26px }
+.ga-bans { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 12px; color: var(--mute); font-size: 12.5px }
+.ga-bans > span { display: flex; gap: 4px; align-items: center }
+.ga-bans .port.xs { width: 22px; filter: saturate(.45) }
+.ga-notes { margin-top: 22px; color: #c1cbd5; font-size: 13.5px }
+.ga-notes summary { color: var(--ink); font-weight: 650 }
+.ga-notes p { margin-top: 8px; max-width: 95ch }
+
+@media (max-width: 900px) {
+  .ga-layout { grid-template-columns: 1fr }
+  .ga-list { position: static; max-height: 360px }
+  .page-label { display: none }
+}
+@media (max-width: 560px) {
+  .ga-chart { gap: 3px; height: 130px }
+  .ga-draft-head, .ga-draft-row { grid-template-columns: 48px minmax(0,1fr) minmax(0,1fr) }
+  .analysis-page .nav-analysis { padding: 5px 8px }
+}

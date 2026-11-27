@@ -31,10 +31,14 @@ function createProfileBanner(base, displayName, esc) {
     if (expanded && count(match.duration)) {
       details.push(Math.floor(match.duration/60) + ':' + String(match.duration%60).padStart(2,'0'));
     }
-    return `<li class="profile-match" data-result="${outcome ? match.result : ''}">
-      <i class="portrait ${alias ? 'icon-'+alias : ''}" aria-hidden="true"></i>
+    const body = `<i class="portrait ${alias ? 'icon-'+alias : ''}" aria-hidden="true"></i>
       <div><b>${outcome ? tr(outcome) : '—'}</b><small>${esc(name)} · ${kda}</small>
-      ${details.length ? '<small>'+esc(details.join(' · '))+'</small>' : ''}</div></li>`;
+      ${details.length ? '<small>'+esc(details.join(' · '))+'</small>' : ''}</div>`;
+    const result = outcome ? match.result : '';
+    // Игра с номером открывает её разбор в окне анализа.
+    return Number.isInteger(match.game) && match.game > 0
+      ? `<li><button type="button" class="profile-match" data-game="${match.game}" data-result="${result}" title="${esc(tr('Открыть анализ игры'))}">${body}</button></li>`
+      : `<li class="profile-match" data-result="${result}">${body}</li>`;
   }
 
   function render() {

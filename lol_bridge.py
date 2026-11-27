@@ -49,10 +49,11 @@ import urllib.error
 import urllib.request
 import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from player_profile import read_profile
+from player_profile import read_profile, read_recent_games
 
 PORT = 27500
 PAGE_NAME = "index.html"
+ANALYSIS_PAGE = "analysis.html"                      # отдельное окно: анализ последних игр по модели
 VERSION = "1.0.1"  # при выпуске через GitHub Actions подставляется из тега автоматически
 REPO = "hennygud/loldrafthelper"
 UPDATE_URL = os.environ.get("LOL_UPDATE_URL", f"https://api.github.com/repos/{REPO}/releases/latest")
@@ -139,11 +140,14 @@ def fetch_stats():
         pass
 
 
-def load_page():
+def load_page(name=PAGE_NAME):
     p = find_page()
     if not p:
         return None
-    with open(p, encoding="utf-8") as f:
+    path = os.path.join(os.path.dirname(p), name)
+    if not os.path.isfile(path):
+        return None
+    with open(path, encoding="utf-8") as f:
         return f.read().encode("utf-8")
 POLL_SECONDS = 1.0
 
@@ -234,17 +238,24 @@ class Client:
         self.champs = {}
         return True
 
-    def get(self, path):
-        return self.request("GET", path)
+    def clone(self):
+        """Копия с теми же адресом и паролем: для параллельных запросов без общего состояния."""
+        other = Client(self.lockfile)
+        if self.base or self.connect():
+            other.base, other.hdr = self.base, dict(self.hdr)
+        return other
 
-    def request(self, method, path, data=None, *, binary=False):
+    def get(self, path, timeout=3):
+        return self.request("GET", path, timeout=timeout)
+
+    def request(self, method, path, data=None, *, binary=False, timeout=3):
         if not self.base and not self.connect():
             raise ConnectionError("no client")
         body = None if data is None else json.dumps(data).encode("utf-8")
         req = urllib.request.Request(self.base + path, data=body, method=method,
                                      headers={**self.hdr, "Content-Type": "application/json"})
         try:
-            with urllib.request.urlopen(req, timeout=3, context=_CTX) as r:
+            with urllib.request.urlopen(req, timeout=timeout, context=_CTX) as r:
                 body = r.read()
                 if binary:
                     return body
@@ -712,7 +723,7 @@ class Handler(BaseHTTPRequestHandler):
                 data = dict(STATE, version=VERSION, stats=stats_stamp(), update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
                 body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             ctype = "application/json; charset=utf-8"
-        elif self.path == "/profile":
+        elif self.path in ("/profile", "/games"):
             if self.headers.get("Origin") and self.headers["Origin"] not in ORIGINS_OK:
                 self.send_error(403)
                 return
@@ -720,7 +731,8 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_error(403)
                 return
             client = Client(getattr(self.server, "lockfile", None))
-            body = json.dumps(read_profile(client), ensure_ascii=False).encode()
+            read = read_profile if self.path == "/profile" else read_recent_games
+            body = json.dumps(read(client), ensure_ascii=False).encode()
             ctype = "application/json; charset=utf-8"
         elif (icon := re.fullmatch(r"/profile-icon/([0-9]{1,6})\.jpg", self.path)):
             client = Client(getattr(self.server, "lockfile", None))
@@ -756,6 +768,8 @@ class Handler(BaseHTTPRequestHandler):
             ctype = "application/json; charset=utf-8"
         elif self.path in ("/", "/index.html", "/lol_draft_helper.html"):
             body, ctype = (load_page() or STATUS_PAGE.encode("utf-8")), "text/html; charset=utf-8"
+        elif self.path.split("?")[0] == "/" + ANALYSIS_PAGE and (page := load_page(ANALYSIS_PAGE)):
+            body, ctype = page, "text/html; charset=utf-8"
         else:
             self.send_response(404)
             self._cors()
@@ -837,6 +851,61 @@ class WindowControls:
     def close(self):
         self._window.destroy()
 
+    def open_analysis(self, game_id=""):
+        return open_analysis_window(game_id)
+
+
+class AnalysisControls(WindowControls):
+    """Кнопки окна анализа. Открыть ещё одно окно анализа из него нельзя: игры выбираются в нём самом."""
+    def open_analysis(self, game_id=""):
+        return False
+
+
+ANALYSIS = {"window": None}
+ANALYSIS_LOCK = threading.Lock()
+
+
+def open_analysis_window(game_id=""):
+    """Второе окно с анализом последних игр. Если оно уже открыто, переключает его на нужную игру."""
+    import webview
+    game = str(game_id or "")
+    if game and not game.isdigit():
+        return False
+    url = f"http://127.0.0.1:{PORT}/{ANALYSIS_PAGE}" + (f"#game={game}" if game else "")
+    with ANALYSIS_LOCK:
+        win = ANALYSIS["window"]
+        if win is not None:
+            try:
+                if game:
+                    win.evaluate_js(f"window.mlkOpenGame&&window.mlkOpenGame('{game}')")
+                win.restore()
+                win.show()
+                return True
+            except Exception:
+                ANALYSIS["window"] = None
+        controls = AnalysisControls()
+        win = webview.create_window("MLK.gg · Анализ игр", url, width=1320, height=900, min_size=(900, 600),
+                                    frameless=True, easy_drag=False, js_api=controls, background_color="#0b0d14")
+        controls._window = win
+
+        def closed():
+            with ANALYSIS_LOCK:
+                if ANALYSIS["window"] is win:
+                    ANALYSIS["window"] = None
+        win.events.closed += closed
+        ANALYSIS["window"] = win
+    return True
+
+
+def close_analysis_window():
+    with ANALYSIS_LOCK:
+        win, ANALYSIS["window"] = ANALYSIS["window"], None
+    if win is not None:
+        try:
+            win.destroy()
+        except Exception:
+            pass
+
 
 def open_window(url):
     """Своё окно (Edge WebView2 через pywebview). Возвращает True, когда окно закрыли; False — если открыть не вышло."""
@@ -852,6 +921,7 @@ def open_window(url):
         controls._window = webview.create_window(
             "MLK.gg", url, width=1380, height=920, min_size=(960, 640),
             frameless=True, easy_drag=False, js_api=controls, background_color="#0b0d14")
+        controls._window.events.closed += close_analysis_window  # закрыли главное окно — закрываем и анализ
         page = find_page()
         icon_name = "logo.ico" if sys.platform == "win32" else "logo.png"
         icon = os.path.join(os.path.dirname(page), "assets", "img", icon_name) if page else None
@@ -884,6 +954,7 @@ def selftest(out):
     lines = []
     try:
         assert find_page(), "страница не упакована"
+        assert load_page(ANALYSIS_PAGE), "окно анализа игр не упаковано"
         import webview  # noqa: F401
         from webview.platforms import winforms  # подгружает .NET и библиотеки WebView2
         lines = ["ok", f"version {VERSION}", f"renderer {getattr(winforms, 'renderer', '?')}"]

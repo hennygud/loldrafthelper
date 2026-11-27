@@ -368,7 +368,12 @@ function evaluate(st,selected=null){
   return cands.map(c=>{const l=lane(c,me,en),k=comp(c,E,laneOpp,me),s=syn(c,A);
     return{c,l,k,s,t:st.w.l*l.v+st.w.c*k.v+st.w.s*s.v}}).sort((a,b)=>b.t-a.t||b.s.v-a.s.v);
 }
-if(typeof module!=='undefined'){module.exports={CH,COUNTERS,PAIRS,find,evaluate,ROLES,setStats,D};}
+const ICON_ID={"Cho'Gath":'Chogath',"Kai'Sa":'Kaisa',"Kha'Zix":'Khazix',"Vel'Koz":'Velkoz',"Bel'Veth":'Belveth',LeBlanc:'Leblanc',Wukong:'MonkeyKing','Nunu & Willump':'Nunu','Renata Glasc':'Renata'};
+const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z0-9]/g,'');
+/* Модель отдельно от интерфейса: её же использует окно анализа игр (analysis.html). */
+const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,ROLES,ROLE_FULL,setStats,D,norm,iconId,R1};
+if(typeof module!=='undefined'){module.exports=MODEL;}
+else if(typeof window!=='undefined'&&(window.MLK_MODEL=MODEL,window.MLK_MODEL_ONLY)){/* окно анализа: интерфейс драфта не нужен */}
 else{
 /* ---------- интерфейс ---------- */
 const $=id=>document.getElementById(id);
@@ -379,8 +384,6 @@ const st={me:'',ally:blank(),enemy:blank(),bans:'',sel:null,pool:typeof prefs.po
   poolOnly:!!prefs.poolOnly,w:{l:1,c:1,s:1,...prefs.w}};
 function save(){try{localStorage.setItem('draft-helper',JSON.stringify({pool:st.pool,poolOnly:st.poolOnly,w:st.w}))}catch(e){}}
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-const ICON_ID={"Cho'Gath":'Chogath',"Kai'Sa":'Kaisa',"Kha'Zix":'Khazix',"Vel'Koz":'Velkoz',"Bel'Veth":'Belveth',LeBlanc:'Leblanc',Wukong:'MonkeyKing','Nunu & Willump':'Nunu','Renata Glasc':'Renata'};
-const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z0-9]/g,'');
 const portrait=n=>`<span class="portrait icon-${iconId(n)}" aria-hidden="true"></span>`;
 const badge=(n,cls='')=>`<span class="port ${cls}">${portrait(n)}</span>`;
 const TIERS=[[6,'S+','Sp'],[4,'S','S'],[2.5,'A','A'],[1,'B','B'],[-0.5,'C','C'],[-1e9,'D','D']];
@@ -699,6 +702,14 @@ function screenLabel(full){
   screenButton.title=tr(label);screenButton.setAttribute('aria-label',tr(label));
   screenButton.setAttribute('aria-pressed',String(full));
 }
+/* Окно анализа последних игр: в приложении — отдельное окно, в браузере — отдельная вкладка. */
+function openAnalysis(game){
+  const id=/^\d+$/.test(String(game||''))?String(game):'';
+  const api=window.pywebview?.api;
+  if(api?.open_analysis){api.open_analysis(id);return}
+  window.open((SERVED?'/analysis.html':'analysis.html')+(id?'#game='+id:''),'mlk-analysis');
+}
+$('openAnalysis').onclick=()=>openAnalysis('');
 function bindWindow(){
   const api=window.pywebview?.api;
   $('minimize').hidden=!api?.minimize;$('close').hidden=!api?.close;
@@ -751,6 +762,8 @@ $('pq').oninput=updatePool;
 $('poolOnly').checked=st.poolOnly;
 $('poolOnly').onchange=e=>{st.poolOnly=e.target.checked;st.sel=null;save();render()};
 document.addEventListener('click',e=>{
+  const played=e.target.closest('[data-game]');
+  if(played){openAnalysis(played.dataset.game);return}
   const favorite=e.target.closest('[data-inspect]');
   if(favorite){prepName=favorite.dataset.inspect;prepRole=pickRole;updatePool();return}
   const pool=e.target.closest('[data-c]');
