@@ -322,24 +322,7 @@ const english = {
   "Перейти к драфту": "Back to draft",
   "Вернуться к драфту": "Return to the draft",
   "Драфт": "Draft",
-  "Разделы": "Sections",
-  "Сила на патче": "Patch strength",
-  "Патч": "Patch",
-  "По силе на патче": "By patch strength",
-  "мало игр в этой роли на патче": "too few games in this role on the patch",
-  "{0}% побед в этой роли на патче {1}, {2} игр": "{0}% win rate in this role on patch {1}, {2} games",
-  "моя оценка, данных нет": "my estimate, no data",
-  "моя оценка, данных мало": "my estimate, too little data",
-  "моя оценка, данные неоднозначны": "my estimate, data inconclusive",
-  "моя оценка, данные неоднозначны: {0}%, {1} игр": "my estimate, data inconclusive: {0}%, {1} games",
-  "подтверждено данными: {0}%, {1} игр": "confirmed by data: {0}%, {1} games",
-  "подтверждено данными, {0} игр": "confirmed by data, {0} games",
-  "данные опровергают мою оценку: {0}%, {1} игр": "data contradicts my estimate: {0}%, {1} games",
-  "по данным: {0}%, {1} игр": "from data: {0}%, {1} games",
-  "по данным, неоднозначно: {0}%, {1} игр": "from data, inconclusive: {0}%, {1} games",
-  "Винрейт": "Win rate",
-  "По винрейту на патче": "By patch win rate",
-  "Реальный винрейт на этой роли по данным матчей": "Actual win rate in this role from match data"
+  "Разделы": "Sections"
 };
 let interfaceLanguage='ru';
 try { if(localStorage.getItem('mlk-language')==='en')interfaceLanguage='en' } catch {}
@@ -347,7 +330,6 @@ document.documentElement.lang=interfaceLanguage;
 
 const phrasePatterns=Object.entries(english)
   .filter(([source])=>source.includes('{0}'))
-  .sort((a,b)=>b[0].replace(/\{\d+\}/g,'').length-a[0].replace(/\{\d+\}/g,'').length) /* сначала самые конкретные шаблоны */
   .map(([source,target])=>{
     const parts=source.split(/\{\d+\}/).map(part=>part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
     return [new RegExp('^'+parts.join('(.+?)')+'$'),target];

@@ -2,174 +2,174 @@
 const RAW=`Aatrox|TJ|P|222011322|khs
 Ahri|M|M|012123132|ra
 Akali|MT|M|010003232|a
-Akshan|MT|P|000012222|ra
+Akshan|MB|P|000012222|ra
 Alistar|S|M|333300022|ke
 Ambessa|TJ|P|221002232|s
 Amumu|JS|M|333101212|t
-Anivia|MTS|M|113211303|r
+Anivia|M|M|113211303|r
 Annie|MS|M|023113102|r
 Aphelios|B|P|001011303|rc
 Ashe|BS|P|023120202|rg
-Aurelion Sol|MBT|M|011021323|r
+Aurelion Sol|MB|M|011021323|r
 Aurora|MT|M|012113132|ra
-Azir|MT|M|022211323|rc
+Azir|M|M|022211323|rc
 Bard|S|M|023221122|re
 Bel'Veth|J|P|111001333|s
 Blitzcrank|S|M|233201011|k
-Brand|SBMJ|M|012023302|rt
+Brand|SMJ|M|012023302|rt
 Braum|S|M|313300012|ke
 Briar|J|P|132002322|h
 Caitlyn|B|P|001031212|r
-Camille|TS|P|122003232|sat
-Cassiopeia|MT|M|003112303|rtd
-Cho'Gath|JT|M|323211103|kh
-Corki|BM|X|000032222|r
-Darius|TJ|P|212002312|ht
+Camille|T|P|122003232|sat
+Cassiopeia|M|M|003112303|rtd
+Cho'Gath|TJ|M|323211103|kh
+Corki|MB|X|000032222|r
+Darius|T|P|212002312|ht
 Diana|JM|M|132003232|a
 Dr. Mundo|TJ|M|301010313|ht
 Draven|B|P|001003311|r
-Ekko|MJ|M|012013232|a
-Elise|JS|M|022013121|rat
+Ekko|JM|M|012013232|a
+Elise|J|M|022013121|rat
 Evelynn|J|M|011003122|a
-Ezreal|BM|X|000032232|r
-Fiddlesticks|JST|M|033003212|
+Ezreal|B|X|000032232|r
+Fiddlesticks|J|M|033003212|
 Fiora|T|P|101002323|sth
 Fizz|M|M|011003132|a
-Galio|MST|M|333212122|kg
-Gangplank|TM|X|101023213|sg
+Galio|MS|M|333212122|kg
+Gangplank|T|X|101023213|sg
 Garen|T|P|201002212|sh
 Gnar|T|P|233121222|r
-Gragas|TMJ|M|233212122|k
+Gragas|JTS|M|233212122|k
 Graves|J|P|110003322|r
-Gwen|TJ|M|110002323|tsh
+Gwen|T|M|110002323|tsh
 Hecarim|J|P|232002232|h
-Heimerdinger|TMBS|M|002231302|r
-Hwei|MBS|M|013232203|r
+Heimerdinger|MTS|M|002231302|r
+Hwei|MS|M|013232203|r
 Illaoi|T|P|201012302|hs
 Irelia|TM|P|122002332|s
-Ivern|JTS|M|112300012|e
+Ivern|J|M|112300012|e
 Janna|S|M|003310012|rek
 Jarvan IV|J|P|233102121|k
 Jax|TJ|X|212002323|s
-Jayce|TJM|P|001033111|r
+Jayce|TM|P|001033111|r
 Jhin|B|P|002033102|r
 Jinx|B|P|002021313|rc
 K'Sante|T|P|333201122|k
 Kai'Sa|B|X|010013323|rct
 Kalista|B|P|011101331|rk
 Karma|SM|M|012231111|re
-Karthus|JBM|M|001023303|rg
+Karthus|JMB|M|001023303|rg
 Kassadin|M|M|011003133|a
-Katarina|MB|M|010003232|a
-Kayle|TM|X|001111313|rce
+Katarina|M|M|010003232|a
+Kayle|T|X|001111313|rce
 Kayn|J|P|111003232|ah
 Kennen|TM|M|033012222|r
 Kha'Zix|J|P|010013132|a
 Kindred|J|P|001202323|rt
 Kled|T|P|231002221|
-Kog'Maw|BM|X|001021303|rct
-LeBlanc|MS|M|011013131|ra
+Kog'Maw|B|X|001021303|rct
+LeBlanc|M|M|011013131|ra
 Lee Sin|J|P|122102131|k
 Leona|S|M|333201011|
 Lillia|J|M|112012322|
-Lissandra|MT|M|133202112|
+Lissandra|M|M|133202112|
 Lucian|BM|P|000013321|r
 Lulu|S|M|002310012|rek
-Lux|MSB|M|012233002|re
-Malphite|T|M|333112012|k
-Malzahar|MT|M|003112302|r
-Maokai|STJ|M|333200112|h
+Lux|SM|M|012233002|re
+Malphite|TS|M|333112012|k
+Malzahar|M|M|003112302|r
+Maokai|TJS|M|333200112|h
 Master Yi|J|P|000002323|cth
-Mel|MBS|M|002233112|r
+Mel|M|M|002233112|r
 Milio|S|M|002300012|re
 Miss Fortune|B|P|001023112|r
 Mordekaiser|T|M|201002302|h
 Morgana|SM|M|013311102|re
-Naafiri|JM|P|010003132|a
+Naafiri|MJ|P|010003132|a
 Nami|S|M|013211002|rek
-Nasus|TM|P|201001303|sh
+Nasus|T|P|201001303|sh
 Nautilus|S|M|333201011|k
-Neeko|SM|M|033113012|r
-Nidalee|JS|M|000033131|ra
+Neeko|MS|M|033113012|r
+Nidalee|J|M|000033131|ra
 Nilah|B|P|011102323|h
 Nocturne|J|P|131002222|g
 Nunu & Willump|J|M|232002122|h
-Olaf|TJ|P|211002321|ht
+Olaf|JT|P|211002321|ht
 Orianna|M|M|023322202|re
 Ornn|T|M|333201113|k
-Pantheon|TSMJ|P|122113111|g
-Poppy|STJ|P|323301112|d
+Pantheon|STM|P|122113111|g
+Poppy|TJS|P|323301112|d
 Pyke|S|P|023003031|a
 Qiyana|JM|P|022003132|a
-Quinn|TJ|P|001012221|rsg
+Quinn|T|P|001012221|rsg
 Rakan|S|M|133200032|ek
 Rammus|J|M|333100122|
-Rek'Sai|JT|P|122002121|k
+Rek'Sai|J|P|122002121|k
 Rell|S|M|333200012|
 Renata Glasc|S|M|003310002|re
 Renekton|T|P|222002221|h
 Rengar|J|P|011003132|a
 Riven|TM|P|122003232|k
 Rumble|TM|M|121012312|
-Ryze|MT|M|001012313|r
+Ryze|M|M|001012313|r
 Samira|B|P|020003322|a
 Sejuani|J|M|333100112|
 Senna|SB|P|001221203|reg
-Seraphine|SB|M|013221102|re
+Seraphine|SM|M|013221102|re
 Sett|T|P|222002212|h
-Shaco|JS|P|001003131|a
+Shaco|J|P|001003131|a
 Shen|T|P|222300112|ge
 Shyvana|J|X|211011312|
 Singed|T|M|212100212|s
-Sion|TJM|P|333101113|ks
+Sion|T|P|333101113|ks
 Sivir|B|P|000111313|r
-Skarner|JT|P|333101122|
+Skarner|J|P|333101122|
 Smolder|B|X|000031313|rc
 Sona|S|M|002221103|re
 Soraka|S|M|002310002|reg
-Swain|SBTM|M|213111302|rh
-Sylas|JMT|M|122003222|h
-Syndra|MB|M|003123102|r
-Tahm Kench|TSB|M|313301112|ht
-Taliyah|MJ|M|022022222|rk
-Talon|JM|P|000003131|a
+Swain|MS|M|213111302|rh
+Sylas|MJ|M|122003222|h
+Syndra|M|M|003123102|r
+Tahm Kench|ST|M|313301112|ht
+Taliyah|JM|M|022022222|rk
+Talon|MJ|P|000003131|a
 Taric|S|M|213300002|e
 Teemo|T|M|001031212|rs
 Thresh|S|M|222300012|e
 Tristana|BM|P|001103323|rc
-Trundle|TJ|P|212001312|ths
+Trundle|JT|P|212001312|ths
 Tryndamere|T|P|000002323|sh
 Twisted Fate|M|M|012022112|rg
 Twitch|B|P|010012313|rca
-Udyr|JT|X|222001322|h
+Udyr|J|X|222001322|h
 Urgot|T|P|212002302|th
-Varus|BTM|P|012033102|rt
+Varus|BM|P|012033102|rt
 Vayne|BT|P|001102323|rct
-Veigar|MB|M|013113103|r
-Vel'Koz|SBM|M|002033202|rt
+Veigar|M|M|013113103|r
+Vel'Koz|SMB|M|002033202|rt
 Vex|M|M|022113112|rd
 Vi|J|P|132003121|kt
 Viego|J|P|111002322|ht
-Viktor|MB|M|002122303|r
-Vladimir|MTB|M|000012313|h
-Volibear|TJ|X|232002212|h
+Viktor|M|M|002122303|r
+Vladimir|MT|M|000012313|h
+Volibear|JT|X|232002212|h
 Warwick|JT|X|222001311|h
 Wukong|JT|P|232002222|k
 Xayah|B|P|002102313|rc
-Xerath|MSB|M|001033102|r
+Xerath|MS|M|001033102|r
 Xin Zhao|J|P|222002221|kh
 Yasuo|MTB|P|012002332|s
-Yone|TM|X|122003332|k
+Yone|MT|X|122003332|k
 Yorick|T|P|201001303|s
 Yunara|B|P|000002323|rc
 Yuumi|S|M|001310002|re
 Zac|JTS|M|333101132|kh
-Zed|MJT|P|000013132|a
+Zed|M|P|000013132|a
 Zeri|B|P|001011333|rc
-Ziggs|BM|M|001032212|r
+Ziggs|MB|M|001032212|r
 Zilean|SM|M|003321012|re
-Zoe|MST|M|002033012|ra
-Zyra|SJBM|M|003122302|r`;
+Zoe|MS|M|002033012|ra
+Zyra|SMJ|M|003122302|r`;
 
 /* кто хорош ПРОТИВ ключа на линии */
 const COUNTERS={
@@ -235,148 +235,81 @@ const names=a=>a.map(c=>c.n).join(', ');
 const R1=x=>Math.round(x*10)/10;
 const ROLE_FULL={T:'топ',J:'лес',M:'мид',B:'Бот',S:'саппорт'};
 
-/* ---------- данные матчей (необязательно): stats.json из analyze.py ----------
-   Пока данных нет, всё работает по моим оценкам, как раньше. Когда данные есть, каждая оценка смешивается с ними:
-   Отклонение в 1 п.п. от ожидаемого винрейта = 0,6 балла.
-   Подмешивание байесовское (см. blend): шум на малых выборках почти не двигает оценку, большие выборки говорят сами за себя. */
-const D={on:false,patch:'',games:0,ln:{},vs:{},sy:{},sc:{},wr:{},rules:{},roles:[]};
-const PT=.6,KW=200;
-function setStats(s){
-  Object.assign(D,{on:false,patch:s.patch,games:s.games,ln:{},vs:{},sy:{},sc:{},wr:{},rules:s.rules||{},roles:[]});
-  const nm=x=>{const c=find(x);return c&&c.n};
-  for(const e of s.counters||[]){const a=nm(e.c),b=nm(e.vs);if(a&&b)D.ln[a+'|'+b+'|'+e.r]=e}
-  for(const e of s.vs||[]){const a=nm(e.c),b=nm(e.vs);if(a&&b)D.vs[a+'|'+b+'|'+e.r]=e}
-  for(const e of s.synergy||[]){const a=nm(e.a),b=nm(e.b);if(!a||!b)continue;
-    for(const k of [a+'|'+b,b+'|'+a])if(!D.sy[k]||D.sy[k].n<e.n)D.sy[k]=e}
-  for(const[name,rr]of Object.entries(s.champs||{})){const c=find(name);if(!c)continue;
-    const tot=Object.values(rr).reduce((x,y)=>x+y.games,0);
-    for(const[r,v]of Object.entries(rr))D.wr[c.n+'|'+r]=v;
-    for(const[r,v]of Object.entries(rr))if(v.games>=30&&v.games/tot>=.08&&!c.roles.includes(r)){c.roles+=r;D.roles.push(c.n+' +'+r)}}
-  for(const[name,v]of Object.entries(s.scaling||{})){const c=find(name);if(!c||!v.sc)continue;
-    const n=v.n.reduce((x,y)=>x+y,0);if(n<1000)continue; /* по проверке половинами скейлинг надёжен только на больших выборках */
-    if(c.sc0===undefined)c.sc0=c.sc;c.sc=v.sc;D.sc[c.n]=v}
-  D.on=true}
-function blend(rule,e,cap){
-  /* Байесовское смешивание. Мой балл = «заранее известный» перекос (с неопределённостью 3 п.п.), данные = измеренный перекос
-     с ошибкой 50%/√игр. Если моей оценки нет, ожидаем перекос около нуля (неопределённость 2 п.п.): редкие пары почти не двигаются,
-     а пары с тысячами игр говорят сами за себя. Если данные уверенно (z≥2,5) говорят обратное, моя пара снимается
-     и остаётся только то, что показывают данные. */
-  if(!e||e.n<30)return{v:rule,note:rule?' · моя оценка, данных нет':''};
-  const se=50/Math.sqrt(e.n),z=Math.abs(e.delta)/se,same=Math.sign(e.delta)===Math.sign(rule);
-  const orig=rule;if(rule&&!same&&z>=2.5)rule=0;
-  /* Пары, которых нет в моих правилах, добавляются только при значимых данных: матчапы и синергии в данных в основном шум. */
-  if(!orig&&!(z>=3&&e.n>=150))return{v:0,note:''};
-  const r=rule/PT,tau=rule?3:2;
-  const pm=(r/(tau*tau)+e.delta/(se*se))/(1/(tau*tau)+1/(se*se));
-  const v=Math.max(-cap,Math.min(cap,pm*PT)),stat=`${Math.round(e.wr)}%, ${e.n} игр`;
-  const tag=rule?(z>=2.5?`подтверждено данными: ${stat}`:`моя оценка, данные неоднозначны: ${stat}`)
-    :orig?`данные опровергают мою оценку: ${stat}`:`по данным: ${stat}`;
-  return{v,note:tag?` · ${tag}`:''}}
-/* Правило модели («против состава», синергия, черты на линии) с весом, проверенным на играх (stats.json → rules).
-   k — во сколько раз реальный эффект больше или меньше моего балла; k = 0 значит, что данные правило опровергли. */
-function ruled(p,t,id){
-  if(!id||!D.on||!p)return[p,t,id];
-  const e=D.rules[id];
-  if(!e||e.n<200)return[p,t+' · моя оценка, данных мало',id];
-  if(e.k<.15)return null;   /* данные опровергли правило или показали, что эффекта почти нет */
-  const label=e.z>=2.5&&Math.sign(e.obs)===Math.sign(e.pred)?`подтверждено данными, ${e.n} игр`:'моя оценка, данные неоднозначны';
-  return[p*e.k,`${t} · ${label}`,id]}
-function meta(c,me){
-  if(!D.on)return{v:0,why:[]};
-  const e=D.wr[c.n+'|'+me];
-  if(!e||e.games<100)return{v:0,why:[[0,'мало игр в этой роли на патче']]};
-  const se=50/Math.sqrt(e.games),tau=1.4,pm=(e.wr-50)*tau*tau/(tau*tau+se*se);
-  const v=Math.max(-2,Math.min(2,pm*PT));
-  return{v,why:[[v,`${e.wr.toFixed(1)}% побед в этой роли на патче ${D.patch}, ${e.games} игр`]]};
-}
-/* Реальный винрейт на роли — рядом с тиром, чтобы было видно, где модель и данные расходятся. */
-function patchWR(c,me){const e=D.on&&D.wr[c.n+'|'+me];return e&&e.games>=100?e:null}
 function lane(c,me,en){
-  const why=[];let v=0;const add=(p,t,id)=>{const r=ruled(p,t,id);if(r){v+=r[0];why.push(r)}};
+  const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
   const opps=me==='B'?[[en.B,1],[en.S,.5]]:me==='S'?[[en.S,1],[en.B,.5]]:[[en[me],1]];
   const any=opps.filter(o=>o[0]);
   if(!any.length)return{v:0,why:[[0,'соперник по линии не указан']]};
   for(const[o,w]of any){
-    if(!D.on){
-      if(CT[o.n]&&CT[o.n].has(c.n))add(3*w,`контрпик к ${o.n}`);
-      if(CT[c.n]&&CT[c.n].has(o.n))add(-3*w,`${o.n} контрит ${c.n}`);
-    }else{
-      const r0=(CT[o.n]&&CT[o.n].has(c.n)?3:0)-(CT[c.n]&&CT[c.n].has(o.n)?3:0);
-      const b=blend(r0,D.ln[c.n+'|'+o.n+'|'+me]||D.vs[c.n+'|'+o.n+'|'+me],4);
-      if(Math.abs(b.v)>=(r0?.05:.3))add(b.v*w,(b.v>0?`контрпик к ${o.n}`:`${o.n} контрит ${c.n}`)+b.note);
-    }
+    if(CT[o.n]&&CT[o.n].has(c.n))add(3*w,`контрпик к ${o.n}`);
+    if(CT[c.n]&&CT[c.n].has(o.n))add(-3*w,`${o.n} контрит ${c.n}`);
     if(me==='T'||me==='M'){
-      if(has(c,'r')&&!has(o,'r'))add(.75,`дальний бой против ближнего ${o.n}`,'lane.ranged');
-      if(!has(c,'r')&&has(o,'r'))add(-.5,`ближний бой против дальнего ${o.n}`,'lane.melee');}
-    if(c.sc===1&&o.sc===3)add(.75*w,`давит рано, пока ${o.n} не раскачался`,'lane.early_vs_late');
-    if(c.sc===3&&o.sc===1)add(-.5*w,`${o.n} сильнее в ранней фазе`,'lane.late_vs_early');
-    if(o.mo===3&&has(c,'d'))add(1*w,`гасит рывки ${o.n}`,'lane.dash_block');
+      if(has(c,'r')&&!has(o,'r'))add(.75,`дальний бой против ближнего ${o.n}`);
+      if(!has(c,'r')&&has(o,'r'))add(-.5,`ближний бой против дальнего ${o.n}`);}
+    if(c.sc===1&&o.sc===3)add(.75*w,`давит рано, пока ${o.n} не раскачался`);
+    if(c.sc===3&&o.sc===1)add(-.5*w,`${o.n} сильнее в ранней фазе`);
+    if(o.mo===3&&has(c,'d'))add(1*w,`гасит рывки ${o.n}`);
   }
   return{v,why}}
 
 function comp(c,E,laneOpp,me){
-  const why=[];let v=0;const add=(p,t,id)=>{const r=ruled(p,t,id);if(r){v+=r[0];why.push(r)}};
+  const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
   const n=E.length;if(!n)return{v:0,why:[[0,'вражеский состав не указан']]};
   const phys=E.reduce((s,e)=>s+(e.dmg==='P'?1:e.dmg==='X'?.5:0),0),mag=n-phys;
-  if(n>=3&&phys/n>=.7&&c.fr>=2)add(1,'враги почти полностью на физ. уроне — броня окупится','comp.armor');
-  if(n>=3&&mag/n>=.7&&c.fr>=2)add(.75,'враги почти полностью на маг. уроне — сопротивление магии окупится','comp.mr');
-  if(n>=3&&mag/n>=.7&&(c.n==='Galio'||c.n==='Kassadin'))add(1,'антимаг против AP-состава','comp.antimage');
+  if(n>=3&&phys/n>=.7&&c.fr>=2)add(1,'враги почти полностью на физ. уроне — броня окупится');
+  if(n>=3&&mag/n>=.7&&c.fr>=2)add(.75,'враги почти полностью на маг. уроне — сопротивление магии окупится');
+  if(n>=3&&mag/n>=.7&&(c.n==='Galio'||c.n==='Kassadin'))add(1,'антимаг против AP-состава');
   const tanks=E.filter(e=>e.fr>=2),tw=E.reduce((s,e)=>s+(e.fr===3?1:e.fr===2?.6:0),0);
-  if(tw>=1.6&&has(c,'t'))add(2,`урон от % здоровья против ${names(tanks)}`,'comp.percent_hp');
-  if(tw>=1.6&&has(c,'a')&&!has(c,'t'))add(-1,`ассасину тяжело против танков (${names(tanks)})`,'comp.assassin_vs_tanks');
-  if(n>=3&&tw<=.6&&(has(c,'a')||c.bu===3))add(1.5,'у врагов почти нет фронтлайна — бурст убивает','comp.burst_no_front');
+  if(tw>=1.6&&has(c,'t'))add(2,`урон от % здоровья против ${names(tanks)}`);
+  if(tw>=1.6&&has(c,'a')&&!has(c,'t'))add(-1,`ассасину тяжело против танков (${names(tanks)})`);
+  if(n>=3&&tw<=.6&&(has(c,'a')||c.bu===3))add(1.5,'у врагов почти нет фронтлайна — бурст убивает');
   const mob=E.filter(e=>e.mo===3);
-  if(mob.length>=2&&has(c,'d'))add(2,`блокирует рывки: ${names(mob)}`,'comp.dash_block');
-  else if(mob.length>=2&&c.cc>=3)add(.5,`много контроля против мобильных: ${names(mob)}`,'comp.cc_vs_mobile');
+  if(mob.length>=2&&has(c,'d'))add(2,`блокирует рывки: ${names(mob)}`);
+  else if(mob.length>=2&&c.cc>=3)add(.5,`много контроля против мобильных: ${names(mob)}`);
   const divers=E.filter(e=>has(e,'a')||(e.en===3&&e.mo>=2));
-  if(divers.length>=2&&c.pe>=3)add(1.5,`защитит своих от дайва: ${names(divers)}`,'comp.peel_vs_dive');
-  if(divers.length>=2&&has(c,'c')&&c.mo<=1)add(-1,`уязвим к дайву: ${names(divers)}`,'comp.carry_vs_dive');
+  if(divers.length>=2&&c.pe>=3)add(1.5,`защитит своих от дайва: ${names(divers)}`);
+  if(divers.length>=2&&has(c,'c')&&c.mo<=1)add(-1,`уязвим к дайву: ${names(divers)}`);
   const poke=E.filter(e=>e.po===3);
-  if(poke.length>=2&&c.en===3)add(1.5,`жёсткий engage против поука (${names(poke)})`,'comp.engage_vs_poke');
-  if(poke.length>=2&&has(c,'h'))add(.5,'отхил помогает пережить поук','comp.heal_vs_poke');
+  if(poke.length>=2&&c.en===3)add(1.5,`жёсткий engage против поука (${names(poke)})`);
+  if(poke.length>=2&&has(c,'h'))add(.5,'отхил помогает пережить поук');
   const immob=E.filter(e=>has(e,'r')&&e.mo<=1&&(has(e,'c')||e.bu>=3||e.dp>=3));
-  if(immob.length&&has(c,'a'))add(1,`ловит неподвижных керри: ${names(immob)}`,'comp.catch_assassin');
-  else if(immob.length&&c.en===3)add(.75,`может поймать ${names(immob)}`,'comp.catch_engage');
+  if(immob.length&&has(c,'a'))add(1,`ловит неподвижных керри: ${names(immob)}`);
+  else if(immob.length&&c.en===3)add(.75,`может поймать ${names(immob)}`);
   const eng=E.filter(e=>e.en===3);
-  if(eng.length>=2&&has(c,'e')&&c.pe>=3)add(1.5,`отбивает инициацию: ${names(eng)}`,'comp.disengage');
+  if(eng.length>=2&&has(c,'e')&&c.pe>=3)add(1.5,`отбивает инициацию: ${names(eng)}`);
   const sc=E.reduce((s,e)=>s+e.sc,0)/n;
-  if(n>=3&&sc>=2.5&&c.sc===1)add(1,'враги раскачиваются поздно — их можно наказать рано','comp.early_vs_late');
-  if(n>=3&&sc<=1.6&&c.sc===3)add(-.75,'враги сильнее в ранней игре','comp.late_vs_early');
-  let cross=0;for(const e of E){if(e===laneOpp)continue;if(CT[e.n]&&CT[e.n].has(c.n)&&cross<1){cross+=.5;add(.5,`неудобен для ${e.n}`,'comp.cross_counter')}}
-  if(D.on&&me){let dv=0;for(const e of E){if(e===laneOpp)continue;const x=D.vs[c.n+'|'+e.n+'|'+me];if(!x||x.n<100)continue;
-    const b=blend(0,x,2);if(Math.abs(b.v)>=.3){dv+=b.v*.5;why.push([R1(b.v*.5),`${b.v>0?'удобен против':'неудобен против'} ${e.n}${b.note}`])}}
-    dv=Math.max(-1.5,Math.min(1.5,dv));v+=dv}
+  if(n>=3&&sc>=2.5&&c.sc===1)add(1,'враги раскачиваются поздно — их можно наказать рано');
+  if(n>=3&&sc<=1.6&&c.sc===3)add(-.75,'враги сильнее в ранней игре');
+  let cross=0;for(const e of E){if(e===laneOpp)continue;if(CT[e.n]&&CT[e.n].has(c.n)&&cross<1){cross+=.5;add(.5,`неудобен для ${e.n}`)}}
   return{v,why}}
 
 function syn(c,A){
-  const why=[];let v=0;const add=(p,t,id)=>{const r=ruled(p,t,id);if(r){v+=r[0];why.push(r)}};
+  const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
   const n=A.length;if(!n)return{v:0,why:[[0,'союзники не указаны']]};
   const phys=A.reduce((s,a)=>s+(a.dmg==='P'?1:a.dmg==='X'?.5:0),0),mag=n-phys,d=phys-mag;
-  if(n>=2&&d>=1.5){if(c.dmg==='M')add(2,'команде не хватает магического урона','syn.need_magic');else if(c.dmg==='P')add(-1,'в команде уже перебор физ. урона','syn.too_much_phys');else add(.75,'смешанный урон разбавит физ. состав','syn.mixed_vs_phys')}
-  if(n>=2&&d<=-1.5){if(c.dmg==='P')add(2,'команде не хватает физического урона','syn.need_phys');else if(c.dmg==='M')add(-1,'в команде уже перебор маг. урона','syn.too_much_magic');else add(.75,'смешанный урон разбавит маг. состав','syn.mixed_vs_magic')}
+  if(n>=2&&d>=1.5){if(c.dmg==='M')add(2,'команде не хватает магического урона');else if(c.dmg==='P')add(-1,'в команде уже перебор физ. урона');else add(.75,'смешанный урон разбавит физ. состав')}
+  if(n>=2&&d<=-1.5){if(c.dmg==='P')add(2,'команде не хватает физического урона');else if(c.dmg==='M')add(-1,'в команде уже перебор маг. урона');else add(.75,'смешанный урон разбавит маг. состав')}
   const fr=A.reduce((s,a)=>s+(a.fr===3?1:a.fr===2?.6:0),0);
-  if(fr<1&&c.fr>=2)add(c.fr===3?2.5:2,'в команде нет фронтлайна','syn.frontline');
-  if(fr<1&&c.fr===0&&n>=3)add(-.5,'команде нужен фронтлайн, а этот чемпион хрупкий','syn.fragile');
-  if(!A.some(a=>a.en===3)&&c.en===3)add(1.5,'в команде некому начинать драку','syn.engage');
-  if(n>=2&&A.reduce((s,a)=>s+a.cc,0)/n<1.6&&c.cc>=3)add(1,'мало контроля в составе','syn.cc');
+  if(fr<1&&c.fr>=2)add(c.fr===3?2.5:2,'в команде нет фронтлайна');
+  if(fr<1&&c.fr===0&&n>=3)add(-.5,'команде нужен фронтлайн, а этот чемпион хрупкий');
+  if(!A.some(a=>a.en===3)&&c.en===3)add(1.5,'в команде некому начинать драку');
+  if(n>=2&&A.reduce((s,a)=>s+a.cc,0)/n<1.6&&c.cc>=3)add(1,'мало контроля в составе');
   const hc=A.filter(a=>has(a,'c'));
-  if(hc.length&&(c.pe>=3||has(c,'e')))add(2,`защищает и усиливает ${names(hc)}`,'syn.protect_carry');
+  if(hc.length&&(c.pe>=3||has(c,'e')))add(2,`защищает и усиливает ${names(hc)}`);
   const ench=A.filter(a=>has(a,'e')&&a.pe>=3);
-  if(ench.length&&has(c,'c'))add(1.5,`${names(ench)} раскроет гиперкерри`,'syn.enchanter_carry');
+  if(ench.length&&has(c,'c'))add(1.5,`${names(ench)} раскроет гиперкерри`);
   const ys=A.filter(a=>a.n==='Yasuo'||a.n==='Yone');
-  if(ys.length&&has(c,'k'))add(1.5,`подбросы для ${names(ys)}`,'syn.knockup_for_yasuo');
-  if(c.n==='Yasuo'||c.n==='Yone'){const k=A.filter(a=>has(a,'k'));if(k.length)add(Math.min(3,.75*k.length),`подбросы союзников: ${names(k)}`,'syn.yasuo_knockups')}
+  if(ys.length&&has(c,'k'))add(1.5,`подбросы для ${names(ys)}`);
+  if(c.n==='Yasuo'||c.n==='Yone'){const k=A.filter(a=>has(a,'k'));if(k.length)add(Math.min(3,.75*k.length),`подбросы союзников: ${names(k)}`)}
   for(const a of A){
-    if(!D.on){if(PAIR.has(c.n+'+'+a.n))add(2.5,`известная связка с ${a.n}`);continue}
-    const r0=PAIR.has(c.n+'+'+a.n)?2.5:0,b=blend(r0,D.sy[c.n+'|'+a.n],3);
-    if(Math.abs(b.v)>=(r0?.05:.3))add(b.v,(b.v>0?(r0?'известная связка с ':'хорошо сочетается с '):'плохо сочетается с ')+a.n+b.note)}
-  if(A.filter(a=>a.po===3).length>=2&&c.po>=2)add(1,'поддерживает поук-состав','syn.poke');
+    if(PAIR.has(c.n+'+'+a.n))add(2.5,`известная связка с ${a.n}`);}
+  if(A.filter(a=>a.po===3).length>=2&&c.po>=2)add(1,'поддерживает поук-состав');
   const eng=A.filter(a=>a.en===3);
-  if(eng.length&&c.bu>=3&&c.mo>=2)add(.75,`заходит следом за ${names(eng)}`,'syn.follow_up');
+  if(eng.length&&c.bu>=3&&c.mo>=2)add(.75,`заходит следом за ${names(eng)}`);
   const sc=A.reduce((s,a)=>s+a.sc,0)/n;
-  if(n>=3&&sc>=2.6&&c.sc===1)add(.5,'даст позднему составу ранний темп','syn.early_tempo');
-  if(n>=3&&sc<=1.5&&c.sc===3)add(-.5,'команда хочет закончить рано, а он поздний','syn.late_vs_early');
-  if(n>=3&&!A.some(a=>has(a,'r'))&&has(c,'r'))add(.5,'в команде нет дальнего боя','syn.ranged');
+  if(n>=3&&sc>=2.6&&c.sc===1)add(.5,'даст позднему составу ранний темп');
+  if(n>=3&&sc<=1.5&&c.sc===3)add(-.5,'команда хочет закончить рано, а он поздний');
+  if(n>=3&&!A.some(a=>has(a,'r'))&&has(c,'r'))add(.5,'в команде нет дальнего боя');
   return{v,why}}
 
 function evaluate(st,selected=null){
@@ -390,13 +323,13 @@ function evaluate(st,selected=null){
   if(st.poolOnly&&pool.size)cands=cands.filter(c=>pool.has(c.n));
   if(selected)cands=[selected];
   const laneOpp=en[me];
-  return cands.map(c=>{const l=lane(c,me,en),k=comp(c,E,laneOpp,me),s=syn(c,A),m=meta(c,me);
-    return{c,l,k,s,m,t:st.w.l*l.v+st.w.c*k.v+st.w.s*s.v+(st.w.m??1)*m.v}}).sort((a,b)=>b.t-a.t||b.s.v-a.s.v);
+  return cands.map(c=>{const l=lane(c,me,en),k=comp(c,E,laneOpp,me),s=syn(c,A);
+    return{c,l,k,s,t:st.w.l*l.v+st.w.c*k.v+st.w.s*s.v}}).sort((a,b)=>b.t-a.t||b.s.v-a.s.v);
 }
 const ICON_ID={"Cho'Gath":'Chogath',"Kai'Sa":'Kaisa',"Kha'Zix":'Khazix',"Vel'Koz":'Velkoz',"Bel'Veth":'Belveth',LeBlanc:'Leblanc',Wukong:'MonkeyKing','Nunu & Willump':'Nunu','Renata Glasc':'Renata'};
 const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z0-9]/g,'');
 /* Модель отдельно от интерфейса: её же использует окно анализа игр (analysis.html). */
-const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,meta,patchWR,ROLES,ROLE_FULL,setStats,D,norm,iconId,R1};
+const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,ROLES,ROLE_FULL,norm,iconId,R1};
 if(typeof module!=='undefined'){module.exports=MODEL;}
 else if(typeof window!=='undefined'&&(window.MLK_MODEL=MODEL,window.MLK_MODEL_ONLY)){/* окно анализа: интерфейс драфта не нужен */}
 else{
@@ -448,7 +381,7 @@ function renderDraft(){
 }
 function reasons(x){
   const li=a=>a.length?a.map(([p,t])=>`<li><span class="${p>0?'pos':p<0?'neg':''}">${p?sgn(p):''}</span><span>${esc(t)}</span></li>`).join(''):'<li><span></span><span>ничего особенного</span></li>';
-  return`<div class="why"><div><h4>Линия</h4><ul>${li(x.l.why)}</ul></div><div><h4>Против состава</h4><ul>${li(x.k.why)}</ul></div><div><h4>Синергия</h4><ul>${li(x.s.why)}</ul></div><div><h4>Сила на патче</h4><ul>${li(x.m.why)}</ul></div></div>`}
+  return`<div class="why"><div><h4>Линия</h4><ul>${li(x.l.why)}</ul></div><div><h4>Против состава</h4><ul>${li(x.k.why)}</ul></div><div><h4>Синергия</h4><ul>${li(x.s.why)}</ul></div></div>`}
 function render(){
   $('banband').hidden=$('teams').hidden=live.s!=='live';
   renderDraft();
@@ -471,13 +404,13 @@ function render(){
     $('comp').innerHTML='';$('tops').innerHTML='';renderRanking('');localize($('hero'));return;
   }
   const mx=k=>Math.max(1,Math.abs(sel[k].v),...res.map(x=>Math.abs(x[k].v)));
-  const M={l:mx('l'),k:mx('k'),s:mx('s'),m:mx('m')};
+  const M={l:mx('l'),k:mx('k'),s:mx('s')};
   const bar=(lab,v,m,col)=>{const w=Math.abs(v)/m*50;return`<div class="bar"><span>${lab}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?col:'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
   const isBest=sel===res[0];
   const showBreakdown=$('hero').querySelector('details')?.open;
-  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${showingOwn?(mine.status==='locked'?'Ваш пик':'Ваш препик'):isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}${(w=>w?`<span class="wrchip" title="${esc(tr('Реальный винрейт на этой роли по данным матчей'))}">${w.wr.toFixed(1)}% · ${w.games} ${esc(tr('игр'))}</span>`:'')(patchWR(sel.c,st.me))}</div></div>
+  $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${showingOwn?(mine.status==='locked'?'Ваш пик':'Ваш препик'):isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}</div></div>
    <div class="total"><div class="kicker">Итог</div><div class="big ${sel.t<0?'neg':sel.t>0?'pos':''}">${sgn(sel.t)}</div></div></div>
-   <details class="breakdown" ${showBreakdown?"open":""}><summary>Почему этот пик</summary><div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}${bar('Сила на патче',sel.m.v,M.m,'var(--good)')}</div>
+   <details class="breakdown" ${showBreakdown?"open":""}><summary>Почему этот пик</summary><div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}</div>
    ${reasons(sel)}</details>${inspected?`<button class="btn" id="back">${own?'К моему чемпиону':'К лучшему пику'}</button>`:''}</div>`;
   const top=(title,key)=>{const l=[...res].sort((a,b)=>b[key].v-a[key].v||b.t-a.t).slice(0,5);
     return`<div class="top"><h3>${title}</h3>${l.map(x=>`<button class="pick${x===sel?' on':''}" data-n="${esc(x.c.n)}">${badge(x.c.n,'s')}<span>${esc(x.c.n)}</span><span class="${x[key].v>0?'pos':x[key].v<0?'neg':''}">${sgn(x[key].v)}</span></button>`).join('')}</div>`};
@@ -490,7 +423,7 @@ function renderRanking(selected){
   const q=norm($('rankSearch').value), sort=$('rankSort').value;
   const rows=ranking.filter(x=>matchesSearch(x.c.n,q));
   if(sort!=='total')rows.sort((a,b)=>b[sort].v-a[sort].v||b.t-a.t);
-  $('tbl').innerHTML=rows.map(x=>`<tr data-n="${esc(x.c.n)}" class="${x.c.n===selected?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td>${(w=>w?w.wr.toFixed(1)+'%':'—')(patchWR(x.c,st.me))}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
+  $('tbl').innerHTML=rows.map(x=>`<tr data-n="${esc(x.c.n)}" class="${x.c.n===selected?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
   $('rankEmpty').hidden=rows.length>0;
   localize($('tbl'));
 }
@@ -673,8 +606,6 @@ async function poll(){
     if(!response.ok)throw Error();
     d=await response.json();
     if(live.ver&&d.version&&d.version!==live.ver){location.reload();return}
-    if(SERVED&&live.stats!==undefined&&d.stats!==undefined&&d.stats!==live.stats){location.reload();return}
-    live.stats=d.stats;
     live.ver=d.version;live.upd=d.update;live.phase=d.phase;
     live.s=!d.client?'noclient':d.champSelect?'live':'idle';
     if(live.s==='live'&&live.was!=='live'&&gamesOpen)setView(false); /* начался выбор чемпионов — сразу к драфту */
@@ -831,10 +762,5 @@ for(const b of languageButtons)b.onclick=()=>{
 };
 markLanguage();
 buildPool();setCatalog(!poolList().length);render();localize(document.body);poll();
-fetch('stats.json').then(r=>r.ok?r.json():null).then(s=>{
-  if(!s?.games)return;
-  setStats(s);
-  render();
-}).catch(()=>{});
 }
 }

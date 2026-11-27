@@ -1,6 +1,6 @@
 // Экран «Анализ игр» в главном окне: последние 20 игр игрока, разобранные той же моделью, что работает в драфте.
 {
-const {CH,evaluate,setStats,D,norm,iconId,R1,patchWR}=window.MLK_MODEL;
+const {CH,evaluate,norm,iconId,R1}=window.MLK_MODEL;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500';
@@ -89,7 +89,7 @@ function analyse(g){
 }
 
 /* ---------- состояние окна ---------- */
-let data=null,list=[],selected='',stats=null;
+let data=null,list=[],selected='';
 
 function wins(arr){return arr.filter(a=>a.g.win===true).length}
 function rateLine(label,arr){
@@ -180,12 +180,12 @@ function renderList(){
 
 function reasons(x){
   const li=arr=>arr.length?arr.map(([p,t])=>`<li><span class="${cls(p)}">${p?sgn(p):''}</span><span>${esc(tr(t))}</span></li>`).join(''):`<li><span></span><span>${esc(tr('ничего особенного'))}</span></li>`;
-  return `<div class="why"><div><h4>${esc(tr('Линия'))}</h4><ul>${li(x.l.why)}</ul></div><div><h4>${esc(tr('Против состава'))}</h4><ul>${li(x.k.why)}</ul></div><div><h4>${esc(tr('Синергия'))}</h4><ul>${li(x.s.why)}</ul></div><div><h4>${esc(tr('Сила на патче'))}</h4><ul>${li(x.m.why)}</ul></div></div>`;
+  return `<div class="why"><div><h4>${esc(tr('Линия'))}</h4><ul>${li(x.l.why)}</ul></div><div><h4>${esc(tr('Против состава'))}</h4><ul>${li(x.k.why)}</ul></div><div><h4>${esc(tr('Синергия'))}</h4><ul>${li(x.s.why)}</ul></div></div>`;
 }
 function bars(x){
-  const m=Math.max(1,Math.abs(x.l.v),Math.abs(x.k.v),Math.abs(x.s.v),Math.abs(x.m.v));
+  const m=Math.max(1,Math.abs(x.l.v),Math.abs(x.k.v),Math.abs(x.s.v));
   const bar=(lab,v)=>{const w=Math.abs(v)/m*50;return `<div class="bar"><span>${esc(tr(lab))}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?'var(--good)':'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
-  return `<div class="bars">${bar('Линия',x.l.v)}${bar('Против состава',x.k.v)}${bar('Синергия',x.s.v)}${bar('Сила на патче',x.m.v)}</div>`;
+  return `<div class="bars">${bar('Линия',x.l.v)}${bar('Против состава',x.k.v)}${bar('Синергия',x.s.v)}</div>`;
 }
 
 function renderDetail(){
@@ -199,8 +199,7 @@ function renderDetail(){
     ${a.skip?'':`<div class="total"><div class="kicker">${esc(tr('Оценка пика'))}</div><div class="big ${cls(a.mine.t)}">${sgn(a.mine.t)}</div></div>`}</div>`;
   if(a.skip){box.innerHTML=html+`<p class="sub ga-skipnote">${esc(tr(SKIP[a.skip]))}</p>`;return}
   const placeText=tr(a.rank===1?'Лучший вариант по модели':`${a.rank} место из ${a.of}`);
-  const w=patchWR(a.me.c,a.role);
-  html+=`<div class="ga-verdict"><span class="tier t-${a.tier[1]}">${a.tier[0]}</span>${w?`<span class="wrchip" title="${esc(tr('Реальный винрейт на этой роли по данным матчей'))}">${w.wr.toFixed(1)}% · ${w.games} ${esc(tr('игр'))}</span>`:''}<span>${esc(placeText)}</span>
+  html+=`<div class="ga-verdict"><span class="tier t-${a.tier[1]}">${a.tier[0]}</span><span>${esc(placeText)}</span>
     <span class="ga-dot">·</span><span>${esc(tr('Драфт команд'))}: <b class="${cls(a.diff)}">${sgn(a.diff)}</b> ${esc(tr(a.diff>1?'в вашу пользу':a.diff<-1?'против вас':'примерно равный'))}</span></div>`;
   html+=bars(a.mine)+reasons(a.mine);
   html+=`<h3 class="ga-sub">${esc(tr(a.rank===1?'Другие сильные варианты':'Модель предложила бы'))}</h3><div class="ga-alts">${a.alts.map(x=>{
@@ -237,9 +236,6 @@ async function load(){
   status('Загружаю последние игры из клиента…');$('reload').disabled=true;
   try{
     readPrefs();
-    if(!D.on&&!stats){ /* экран драфта обычно уже загрузил данные матчей в общую модель */
-      try{const r=await fetch(BASE+'/stats.json',{cache:'no-store',signal:AbortSignal.timeout(5000)});const s=r.ok?await r.json():null;if(s?.games&&!D.on){setStats(s);stats=s}}catch(e){}
-    }
     const r=await fetch(BASE+'/games',{cache:'no-store',signal:AbortSignal.any?AbortSignal.any([req.signal,AbortSignal.timeout(90000)]):req.signal});
     if(!r.ok)throw Error('http');
     data=await r.json();

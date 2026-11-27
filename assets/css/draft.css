@@ -130,7 +130,7 @@ details p { margin-top: 10px }
 .track,.mt { position: relative; height: 6px; border-radius: 4px; background: var(--well); overflow: hidden }
 .fill,.mt i { position: absolute; height: 100%; border-radius: 4px }
 .num,.v { text-align: right; font-variant-numeric: tabular-nums }
-.why { grid-template-columns: repeat(4,minmax(0,1fr)); border-top: 1px solid var(--line); padding-top: 12px; font-size: 12px }
+.why { grid-template-columns: repeat(3,minmax(0,1fr)); border-top: 1px solid var(--line); padding-top: 12px; font-size: 12px }
 .why ul { padding: 0; margin: 5px 0; list-style: none; color: var(--mute) }
 .why li { margin-bottom: 4px }.why li span:first-child { margin-right: 4px }
 .tops { grid-template-columns: repeat(auto-fit,minmax(155px,1fr)); margin-top: 0 }
@@ -222,5 +222,3 @@ button.profile-match:hover { border-color: var(--lime); background: #15222d }
   .profile-numbers > div + div { border: 0; padding: 0 }.profile-numbers strong { font-size: 18px }
   #recentGames { grid-template-columns: repeat(auto-fit,minmax(130px,1fr)) }
 }
-
-.wrchip { align-self: center; margin-left: 8px; padding: 3px 8px; border: 1px solid var(--line); border-radius: 999px; color: var(--mute); font-size: 12px; font-weight: 650; white-space: nowrap }
