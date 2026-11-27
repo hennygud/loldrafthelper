@@ -64,6 +64,9 @@ ORIGINS_OK = (f"http://127.0.0.1:{PORT}", "https://hennygud.github.io")
 APP_DIR = os.path.join(os.environ.get("LOCALAPPDATA") or os.path.expanduser("~"), "LoLDraftHelper")
 LOG_PATH = os.path.join(APP_DIR, "log.txt")
 NO_CONSOLE = sys.stdout is None                      # собрано как оконное приложение: печатать некуда
+STATS_URL = os.environ.get("LOL_STATS_URL", f"https://raw.githubusercontent.com/{REPO}/main/stats.json")
+STATS_PATH = os.path.join(APP_DIR, "stats.json")     # свежая копия данных матчей, скачанная из репозитория
+STATS_MAX = 8_000_000
 LAST_SEEN = [0.0]                                    # когда страница в последний раз обращалась к мосту
 
 
@@ -75,19 +78,61 @@ def find_page():
     return None
 
 
+def stats_ok(raw):
+    """Проверка файла данных: чужой или битый файл не должен попасть в приложение."""
+    try:
+        d = json.loads(raw.decode("utf-8"))
+        return (isinstance(d, dict) and isinstance(d.get("games"), int) and d["games"] > 0 and isinstance(d.get("patch"), str)
+                and all(isinstance(d.get(k, []), list) for k in ("counters", "vs", "synergy")) and isinstance(d.get("champs", {}), dict))
+    except Exception:
+        return False
+
+
 def load_stats():
-    """stats.json лежит рядом с .exe/скриптом, внутри сборки или в текущей папке. Нет файла — приложение работает по моим оценкам."""
-    bases = [os.path.dirname(SELF_PATH) if SELF_PATH else "", getattr(sys, "_MEIPASS", None),
-             os.path.dirname(os.path.abspath(__file__)), os.getcwd()]
-    for base in bases:
-        p = os.path.join(base, "stats.json") if base else ""
+    """Данные матчей: сначала свежая копия из репозитория, иначе та, что упакована в .exe, иначе рядом со скриптом.
+    Нет файла — приложение работает по моим оценкам."""
+    cands = [STATS_PATH, os.path.join(os.path.dirname(SELF_PATH), "stats.json") if SELF_PATH else "",
+             os.path.join(getattr(sys, "_MEIPASS", "") or "", "stats.json"),
+             os.path.join(os.path.dirname(os.path.abspath(__file__)), "stats.json"), os.path.join(os.getcwd(), "stats.json")]
+    for p in cands:
         if p and os.path.isfile(p):
             try:
                 with open(p, "rb") as f:
-                    return f.read()
+                    raw = f.read()
             except OSError:
-                pass
+                continue
+            if stats_ok(raw):
+                return raw
     return None
+
+
+def stats_stamp():
+    raw = load_stats()
+    if not raw:
+        return ""
+    d = json.loads(raw.decode("utf-8"))
+    return f"{d.get('patch')}:{d.get('games')}"
+
+
+def fetch_stats():
+    """Подтягивает свежие данные матчей из репозитория (без нового релиза). Ошибки сети молча игнорируются."""
+    try:
+        req = urllib.request.Request(STATS_URL, headers={"User-Agent": "LoLDraftHelper"})
+        with urllib.request.urlopen(req, timeout=20) as r:
+            raw = r.read(STATS_MAX + 1)
+        if len(raw) > STATS_MAX or not stats_ok(raw):
+            return
+        old = load_stats()
+        if old == raw:
+            return
+        os.makedirs(APP_DIR, exist_ok=True)
+        tmp = STATS_PATH + ".tmp"
+        with open(tmp, "wb") as f:
+            f.write(raw)
+        os.replace(tmp, STATS_PATH)
+        say(f"Обновлены данные матчей: {stats_stamp()}")
+    except Exception:
+        pass
 
 
 def load_page():
@@ -307,6 +352,7 @@ def check_update():
 
 def update_loop():
     while True:
+        fetch_stats()
         check_update()
         time.sleep(6 * 3600)
 
@@ -475,7 +521,7 @@ class Handler(BaseHTTPRequestHandler):
             return
         if self.path.startswith("/state"):
             with LOCK:
-                data = dict(STATE, version=VERSION, update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
+                data = dict(STATE, version=VERSION, stats=stats_stamp(), update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
                 body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             ctype = "application/json; charset=utf-8"
         elif self.path.startswith("/stats.json"):

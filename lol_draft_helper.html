@@ -938,6 +938,8 @@ async function poll(){
   try{
     const r=await fetch(BRIDGE,{cache:'no-store'});const d=await r.json();
     if(live.ver&&d.version&&d.version!==live.ver){location.reload();return}
+    if(live.st!==undefined&&d.stats!==undefined&&d.stats!==live.st){location.reload();return}
+    live.st=d.stats;
     live.upd=d.update;live.ver=d.version;live.err=0;live.phase=d.phaseName||'';live.timer=d.champSelect?d.timer:null;
     live.s=!d.client?'noclient':d.champSelect?'live':'idle';
     if(d.champSelect)changed=applyLive(d);else live.last='';
