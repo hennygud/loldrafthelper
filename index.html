@@ -589,8 +589,8 @@ const ROLE_FULL={T:'топ',J:'лес',M:'мид',B:'АДК',S:'саппорт'}
 
 /* ---------- данные матчей (необязательно): stats.json из analyze.py ----------
    Пока данных нет, всё работает по моим оценкам, как раньше. Когда данные есть, каждая оценка смешивается с ними:
-   вес данных = игры / (игры + 200), то есть моя оценка «стоит» 200 игр. Отклонение в 1 п.п. от ожидаемого винрейта = 0,6 балла.
-   Данные учитываются, только если перекос значим (|z| >= 3,5): так случайный шум не превращается в «контрпик». */
+   Отклонение в 1 п.п. от ожидаемого винрейта = 0,6 балла.
+   Подмешивание байесовское (см. blend): шум на малых выборках почти не двигает оценку, большие выборки говорят сами за себя. */
 const D={on:false,patch:'',games:0,ln:{},vs:{},sy:{},sc:{},roles:[]};
 const PT=.6,KW=200;
 function setStats(s){
@@ -607,11 +607,15 @@ function setStats(s){
     const n=v.n.reduce((x,y)=>x+y,0);if(n<100)continue;
     if(c.sc0===undefined)c.sc0=c.sc;c.sc=v.sc;D.sc[c.n]=v}
   D.on=true}
-function blend(rule,e,cap,gate){
+function blend(rule,e,cap){
+  /* Байесовское смешивание. Мой балл = «заранее известный» перекос (с неопределённостью 3 п.п.), данные = измеренный перекос
+     с ошибкой 50%/√игр. Если моей оценки нет, ожидаем перекос около нуля (неопределённость 2 п.п.): редкие пары почти не двигаются,
+     а пары с тысячами игр говорят сами за себя. Жёсткого порога нет: данные влияют ровно настолько, насколько они надёжны. */
   if(!e||e.n<30)return{v:rule,note:''};
-  const sig=Math.abs(e.z)>=gate,d=sig?Math.max(-cap,Math.min(cap,e.delta*PT)):0,w=e.n/(e.n+KW);
-  const v=(1-w)*rule+w*d,same=Math.sign(d)===Math.sign(rule);
-  const tag=rule&&sig?(same?'подтверждено данными':'данные не согласны'):rule&&!sig&&e.n>=200?'данные не подтверждают':!rule&&sig?'по данным':'';
+  const se=50/Math.sqrt(e.n),r=rule/PT,tau=rule?3:2;
+  const pm=(r/(tau*tau)+e.delta/(se*se))/(1/(tau*tau)+1/(se*se));
+  const v=Math.max(-cap,Math.min(cap,pm*PT)),z=Math.abs(e.delta)/se,same=Math.sign(e.delta)===Math.sign(rule);
+  const tag=rule?(z>=2?(same?'подтверждено данными':'данные не согласны'):e.n>=200?'данные не подтверждают':''):(z>=2.5?'по данным':'');
   return{v,note:tag?` · ${tag}: ${Math.round(e.wr)}%, ${e.n} игр`:''}}
 
 function lane(c,me,en){
@@ -625,8 +629,8 @@ function lane(c,me,en){
       if(CT[c.n]&&CT[c.n].has(o.n))add(-3*w,`${o.n} контрит ${c.n}`);
     }else{
       const r0=(CT[o.n]&&CT[o.n].has(c.n)?3:0)-(CT[c.n]&&CT[c.n].has(o.n)?3:0);
-      const b=blend(r0,D.ln[c.n+'|'+o.n+'|'+me]||D.vs[c.n+'|'+o.n+'|'+me],4,3.5);
-      if(Math.abs(b.v)>=.05)add(b.v*w,(b.v>0?`контрпик к ${o.n}`:`${o.n} контрит ${c.n}`)+b.note);
+      const b=blend(r0,D.ln[c.n+'|'+o.n+'|'+me]||D.vs[c.n+'|'+o.n+'|'+me],4);
+      if(Math.abs(b.v)>=(r0?.05:.3))add(b.v*w,(b.v>0?`контрпик к ${o.n}`:`${o.n} контрит ${c.n}`)+b.note);
     }
     if(me==='T'||me==='M'){
       if(has(c,'r')&&!has(o,'r'))add(.75,`дальний бой против ближнего ${o.n}`);
@@ -667,7 +671,7 @@ function comp(c,E,laneOpp,me){
   if(n>=3&&sc<=1.6&&c.sc===3)add(-.75,'враги сильнее в ранней игре');
   let cross=0;for(const e of E){if(e===laneOpp)continue;if(CT[e.n]&&CT[e.n].has(c.n)&&cross<1){cross+=.5;add(.5,`неудобен для ${e.n}`)}}
   if(D.on&&me){let dv=0;for(const e of E){if(e===laneOpp)continue;const x=D.vs[c.n+'|'+e.n+'|'+me];if(!x||x.n<100)continue;
-    const b=blend(0,x,2,4);if(Math.abs(b.v)>=.2){dv+=b.v*.5;why.push([R1(b.v*.5),`${b.v>0?'удобен против':'неудобен против'} ${e.n}${b.note}`])}}
+    const b=blend(0,x,2);if(Math.abs(b.v)>=.3){dv+=b.v*.5;why.push([R1(b.v*.5),`${b.v>0?'удобен против':'неудобен против'} ${e.n}${b.note}`])}}
     dv=Math.max(-1.5,Math.min(1.5,dv));v+=dv}
   return{v,why}}
 
@@ -691,8 +695,8 @@ function syn(c,A){
   if(c.n==='Yasuo'||c.n==='Yone'){const k=A.filter(a=>has(a,'k'));if(k.length)add(Math.min(3,.75*k.length),`подбросы союзников: ${names(k)}`)}
   for(const a of A){
     if(!D.on){if(PAIR.has(c.n+'+'+a.n))add(2.5,`известная связка с ${a.n}`);continue}
-    const r0=PAIR.has(c.n+'+'+a.n)?2.5:0,b=blend(r0,D.sy[c.n+'|'+a.n],3,3.5);
-    if(Math.abs(b.v)>=.05)add(b.v,(b.v>0?(r0?'известная связка с ':'хорошо сочетается с '):'плохо сочетается с ')+a.n+b.note)}
+    const r0=PAIR.has(c.n+'+'+a.n)?2.5:0,b=blend(r0,D.sy[c.n+'|'+a.n],3);
+    if(Math.abs(b.v)>=(r0?.05:.3))add(b.v,(b.v>0?(r0?'известная связка с ':'хорошо сочетается с '):'плохо сочетается с ')+a.n+b.note)}
   if(A.filter(a=>a.po===3).length>=2&&c.po>=2)add(1,'поддерживает поук-состав');
   const eng=A.filter(a=>a.en===3);
   if(eng.length&&c.bu>=3&&c.mo>=2)add(.75,`заходит следом за ${names(eng)}`);
