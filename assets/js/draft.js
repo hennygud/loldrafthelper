@@ -235,6 +235,16 @@ const names=a=>a.map(c=>c.n).join(', ');
 const R1=x=>Math.round(x*10)/10;
 const ROLE_FULL={T:'топ',J:'лес',M:'мид',B:'Бот',S:'саппорт'};
 
+/* Насколько вероятно, что чемпион стоит на линии r. Доли из role-data.js (реальные игры) нужны только для того,
+   чтобы правильно расставить соперников по линиям. Нет данных о чемпионе — по моему списку ролей. */
+const ROLE_SHARE=typeof MLK_ROLE_SHARE!=='undefined'?MLK_ROLE_SHARE
+  :typeof require!=='undefined'?(()=>{try{return require('./role-data.js')}catch(e){return null}})():null;
+function roleFit(c,r){
+  const s=c&&ROLE_SHARE&&ROLE_SHARE[c.n];
+  if(s)return Math.log((s[r]||0)+.002);
+  const roles=c?.roles||'',i=roles.indexOf(r);
+  return i<0?Math.log(.002)+roles.length*.01:Math.log([.8,.15,.05][i]||.05);
+}
 function lane(c,me,en){
   const why=[];let v=0;const add=(p,t)=>{v+=p;why.push([p,t])};
   const opps=me==='B'?[[en.B,1],[en.S,.5]]:me==='S'?[[en.S,1],[en.B,.5]]:[[en[me],1]];
@@ -329,7 +339,7 @@ function evaluate(st,selected=null){
 const ICON_ID={"Cho'Gath":'Chogath',"Kai'Sa":'Kaisa',"Kha'Zix":'Khazix',"Vel'Koz":'Velkoz',"Bel'Veth":'Belveth',LeBlanc:'Leblanc',Wukong:'MonkeyKing','Nunu & Willump':'Nunu','Renata Glasc':'Renata'};
 const iconId=n=>ICON_ID[n]||n.replace(/[^A-Za-z0-9]/g,'');
 /* Модель отдельно от интерфейса: её же использует окно анализа игр (analysis.html). */
-const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,ROLES,ROLE_FULL,norm,iconId,R1};
+const MODEL={CH,COUNTERS,PAIRS,find,evaluate,lane,comp,syn,ROLES,ROLE_FULL,norm,iconId,R1,roleFit};
 if(typeof module!=='undefined'){module.exports=MODEL;}
 else if(typeof window!=='undefined'&&(window.MLK_MODEL=MODEL,window.MLK_MODEL_ONLY)){/* окно анализа: интерфейс драфта не нужен */}
 else{
@@ -559,14 +569,13 @@ const profileBanner=createProfileBanner(BASE,displayName,esc);
 const live={s:'connecting',last:'',slots:{ally:{},enemy:{}},bans:{},mine:null,upd:null,ver:''};
 
 /* Клиент не показывает роли врагов. Перебираем все способы раздать свободные роли (до 5! = 120)
-   и берём тот, где больше всего чемпионов стоят на своих обычных ролях:
-   основная роль 3 очка, вторая 2, третья 1. Если кого-то всё равно приходится ставить не на его роль,
-   туда скорее пойдёт чемпион с большим числом ролей (он гибче). */
+   и берём самый вероятный: где произведение долей «как часто этого чемпиона играют на этой линии» по реальным играм
+   наибольшее (см. roleFit и role-data.js). */
 function fillRoles(slots,champs){
   const free=ROLES.map(x=>x[0]).filter(r=>!slots[r]);
   const cs=champs.slice(0,free.length);if(!cs.length)return;
-  const fit=(p,r)=>{const roles=byAlias(p.alias)?.roles||'';const i=roles.indexOf(r);return i<0?roles.length*.1:i===0?3:i===1?2:1};
-  let best=null,bestS=-1;
+  const fit=(p,r)=>roleFit(byAlias(p.alias),r);
+  let best=null,bestS=-Infinity;
   const go=(i,used,acc,s)=>{
     if(i===cs.length){if(s>bestS+1e-9){bestS=s;best=acc.slice()}return}
     for(const r of free){if(used.has(r))continue;used.add(r);acc.push(r);go(i+1,used,acc,s+fit(cs[i],r));acc.pop();used.delete(r)}

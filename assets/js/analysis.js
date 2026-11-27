@@ -1,6 +1,6 @@
 // Экран «Анализ игр» в главном окне: последние 20 игр игрока, разобранные той же моделью, что работает в драфте.
 {
-const {CH,evaluate,norm,iconId,R1}=window.MLK_MODEL;
+const {CH,evaluate,norm,iconId,R1,roleFit}=window.MLK_MODEL;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500';
@@ -34,14 +34,13 @@ function readPrefs(){
 }
 
 /* Роли: клиент не говорит, кто на какой линии. Перебираем все раздачи ролей пятерым (120 вариантов)
-   и берём ту, где лучше всего сходятся подсказка клиента, Смайт и обычные роли чемпиона. */
+   и берём ту, где лучше всего сходятся подсказка клиента, Смайт и то, как часто чемпиона играют на линии (role-data.js). */
 function assignRoles(team){
   const fit=(p,r)=>{
-    let s=0;
-    if(p.smite)s+=r==='J'?6:-2;
-    if(p.hint)s+=p.hint===r?4:p.hint.includes(r)?2:0;
-    const i=(p.c?.roles||'').indexOf(r);
-    return s+(i<0?-1:i===0?3:i===1?2:1);
+    let s=roleFit(p.c,r);
+    if(p.smite)s+=r==='J'?3:-2;
+    if(p.hint)s+=p.hint===r?1.5:p.hint.includes(r)?.7:0;
+    return s;
   };
   let best=null,bestS=-Infinity;
   const go=(i,used,acc,s)=>{
