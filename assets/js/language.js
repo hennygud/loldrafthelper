@@ -46,6 +46,7 @@ const english = {
   "(у вас {0})": "(installed {0})",
   "Автообновление работает только в .exe. Скачайте новую версию по кнопке.": "Download the new version to update this installation.",
   "В релизе нет файла .exe для обновления.": "This release has no Windows executable.",
+  "Обновление уже выполняется.": "An update is already in progress.",
   "Не удалось скачать обновление: {0}": "Download failed: {0}",
   "Не получилось заменить файл: {0}": "Could not replace the file: {0}",
   "файл слишком маленький": "file is too small",

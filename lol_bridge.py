@@ -540,7 +540,23 @@ def exit_soon():
     threading.Timer(1.2, lambda: os._exit(0)).start()
 
 
+UPDATE_FILE_LOCK = threading.Lock()
+
+
 def do_update():
+    if not UPDATE_FILE_LOCK.acquire(blocking=False):
+        return False, "Обновление уже выполняется."
+    restarting = False
+    try:
+        restarting, message = _install_update()
+        return restarting, message
+    finally:
+        # После запуска новой версии только она должна убирать резервную копию.
+        if not restarting:
+            UPDATE_FILE_LOCK.release()
+
+
+def _install_update():
     """Возвращает (успех, текст ошибки). Старый файл переименовывается в .old и стирается новой версией."""
     import hashlib
     if not SELF_PATH:
@@ -588,6 +604,7 @@ def do_update():
         os.replace(SELF_PATH, old)      # работающий .exe на Windows можно переименовать, но нельзя удалить
         try:
             os.replace(new, SELF_PATH)
+            relaunch()
         except Exception:
             os.replace(old, SELF_PATH)  # не вышло: возвращаем всё как было
             raise
@@ -599,25 +616,33 @@ def do_update():
         say(f"Не получилось заменить файл: {e}")
         return False, f"Не получилось заменить файл: {e}"
     say("Новая версия на месте, перезапускаюсь…")
-    relaunch()
     exit_soon()
     return True, ""
 
 
 def cleanup_old():
-    """Стирает .old от прошлого обновления; старый процесс может ещё секунду-две держать файл."""
+    """Удаляет резервную копию, когда Windows освободит её после перезапуска."""
     if not SELF_PATH:
         return
     old = SELF_PATH + ".old"
-    for _ in range(40):
-        if not os.path.exists(old):
-            return
+    delay = 0.5
+    reported = False
+    while True:
         try:
-            os.remove(old)
+            with UPDATE_FILE_LOCK:
+                if not os.path.isfile(SELF_PATH):
+                    return
+                os.remove(old)
             say("Старая версия удалена.")
             return
-        except OSError:
-            time.sleep(0.5)
+        except FileNotFoundError:
+            return
+        except OSError as err:
+            if not reported:
+                say(f"Старая версия пока недоступна для удаления, повторю попытку: {err}")
+                reported = True
+            time.sleep(delay)
+            delay = min(delay * 2, 15)
 
 
 STATE = {"bridge": 1, "client": False, "champSelect": False, "phaseName": "Запуск…"}
@@ -877,6 +902,7 @@ def main():
     if "--selftest" in sys.argv:
         selftest(sys.argv[sys.argv.index("--selftest") + 1])
     headless = "--headless" in sys.argv
+    threading.Thread(target=cleanup_old, daemon=True).start()
     url = f"http://127.0.0.1:{PORT}/"
     say(f"MLK.gg {VERSION}: мост на {url} (только ваш компьютер)")
     srv = None
@@ -892,7 +918,6 @@ def main():
             open_app_mode(url) or webbrowser.open(url)
         return
     srv.lockfile = lockfile
-    threading.Thread(target=cleanup_old, daemon=True).start()
     threading.Thread(target=update_loop, daemon=True).start()
     threading.Thread(target=poll_loop, args=(Client(lockfile),), daemon=True).start()
     threading.Thread(target=srv.serve_forever, daemon=True).start()
