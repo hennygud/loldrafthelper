@@ -1,9 +1,8 @@
-/* Окно «Анализ игр». Базовые цвета, кнопки и шапка окна — из draft.css. */
-.page-label { margin-left: 6px; padding-left: 14px; border-left: 1px solid var(--line); color: var(--mute); font-size: 14px; font-weight: 650; white-space: nowrap }
-.analysis-page .nav-analysis { margin: 0 4px 0 0 }
-.analysis-page .nav-analysis:disabled { opacity: .55; cursor: progress }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px }
-.sub { color: var(--mute) }
+/* Экран «Анализ игр» в главном окне. Базовые цвета, кнопки и панели — из draft.css. */
+#gamesView .sub { color: var(--mute) }
+.nav-analysis[aria-pressed=true] { border-color: var(--lime); color: var(--lime) }
+.ga-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px }
+#reload:disabled { opacity: .55; cursor: progress }
 
 .ga-head { padding: 6px 0 4px }
 .ga-head h1 { font-size: clamp(30px,3.6vw,48px); overflow-wrap: anywhere }
@@ -97,10 +96,8 @@
 @media (max-width: 900px) {
   .ga-layout { grid-template-columns: 1fr }
   .ga-list { position: static; max-height: 360px }
-  .page-label { display: none }
 }
 @media (max-width: 560px) {
   .ga-chart { gap: 3px; height: 130px }
   .ga-draft-head, .ga-draft-row { grid-template-columns: 48px minmax(0,1fr) minmax(0,1fr) }
-  .analysis-page .nav-analysis { padding: 5px 8px }
 }

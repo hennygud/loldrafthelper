@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="assets/css/draft.css">
 <link rel="stylesheet" href="assets/css/portraits.css">
 <link rel="stylesheet" href="assets/css/loadout-icons.css">
+<link rel="stylesheet" href="assets/css/analysis.css">
 </head>
 <body>
 <header class="windowbar" id="windowbar">
@@ -74,9 +75,36 @@
     </aside>
   </div>
 </main>
+<main id="gamesView" hidden>
+  <section class="ga-head">
+    <div class="ga-actions"><button class="primary" id="backToDraft" type="button"><span aria-hidden="true">←</span> Перейти к драфту</button><button id="reload" type="button" title="Заново загрузить игры из клиента"><span aria-hidden="true">↻</span> Загрузить заново</button></div>
+    <div class="game"><i></i> <span id="gaKicker">Последние 20 игр</span></div>
+    <h1 id="gaTitle">Анализ игр</h1>
+    <p id="gaSub">Каждый драфт разобран моделью MLK.gg: насколько удачен был ваш пик против линии, против состава соперника и вместе с командой.</p>
+  </section>
+  <div id="gaStatus" class="loadout" role="status">Загружаю последние игры из клиента…</div>
+  <section id="gaSummary" class="ga-summary" hidden aria-label="Итоги"></section>
+  <section id="gaInsights" class="panel ga-insights" hidden aria-labelledby="gaInsightsTitle"></section>
+  <section id="gaChartBox" class="panel ga-chartbox" hidden aria-labelledby="gaChartTitle">
+    <div class="heading"><h2 id="gaChartTitle">Оценка вашего пика по играм</h2><span class="ga-legend"><i class="w"></i>победа <i class="l"></i>поражение</span></div>
+    <div id="gaChart" class="ga-chart"></div>
+  </section>
+  <div class="ga-layout" id="gaLayout" hidden>
+    <nav class="panel ga-list" aria-labelledby="gaListTitle"><h2 id="gaListTitle">Игры</h2><ol id="gaList"></ol></nav>
+    <section class="panel ga-detail" id="gaDetail" aria-live="polite"></section>
+  </div>
+  <details class="ga-notes">
+    <summary>Как читать анализ</summary>
+    <p><b>Оценка пика</b> — та же модель, что подсказывает в драфте: линия, игра против состава соперника и синергия с командой. Плюс — модель считает пик удачным, минус — неудачным.</p>
+    <p><b>Место в рейтинге</b> — каким по счёту ваш чемпион оказался среди всех вариантов для вашей роли в этом драфте (без забаненных и уже взятых чемпионов).</p>
+    <p><b>Драфт команд</b> — сумма оценок пяти пиков каждой команды. Положительная разница значит, что по модели составы были в вашу пользу.</p>
+    <p>Модель видит итоговые составы, а в самом драфте часть пиков соперника была ещё неизвестна. Роли соперников клиент не сообщает, поэтому они определяются по подсказкам клиента, Смайту и обычным ролям чемпионов. 20 игр — маленькая выборка: цифры показывают тенденции, а не доказательства.</p>
+  </details>
+</main>
 <script src="assets/js/game-data.js"></script>
 <script src="assets/js/language.js"></script>
 <script src="assets/js/profile.js"></script>
 <script src="assets/js/draft.js"></script>
+<script src="assets/js/analysis.js"></script>
 </body>
 </html>

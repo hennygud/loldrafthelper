@@ -1,6 +1,6 @@
-// Окно «Анализ игр»: последние 20 игр игрока, разобранные той же моделью, что работает в драфте.
+// Экран «Анализ игр» в главном окне: последние 20 игр игрока, разобранные той же моделью, что работает в драфте.
 {
-const {CH,evaluate,setStats,norm,iconId,R1}=window.MLK_MODEL;
+const {CH,evaluate,setStats,D,norm,iconId,R1}=window.MLK_MODEL;
 const $=id=>document.getElementById(id);
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const SERVED=location.hostname==='127.0.0.1'&&location.port==='27500';
@@ -24,10 +24,14 @@ const sgn=v=>(v>0?'+':v<0?'−':'')+Math.abs(R1(v));
 const cls=v=>v>0?'pos':v<0?'neg':'';
 const pct=(a,b)=>b?Math.round(a/b*100)+'%':'—';
 
-let prefs={};
-try{prefs=JSON.parse(localStorage.getItem('draft-helper'))||{}}catch(e){}
-const W={l:1,c:1,s:1,...prefs.w};
-const POOL=new Set(String(prefs.pool||'').split(/[,\n]/).map(x=>BY_ALIAS[norm(iconId(x.trim()))]||CH.find(c=>norm(c.n)===norm(x))).filter(Boolean));
+/* Веса и пул читаются при каждом разборе: их можно поменять на экране драфта. */
+let W={l:1,c:1,s:1},POOL=new Set();
+function readPrefs(){
+  let prefs={};
+  try{prefs=JSON.parse(localStorage.getItem('draft-helper'))||{}}catch(e){}
+  W={l:1,c:1,s:1,...prefs.w};
+  POOL=new Set(String(prefs.pool||'').split(/[,\n]/).map(x=>BY_ALIAS[norm(iconId(x.trim()))]||CH.find(c=>norm(c.n)===norm(x.trim()))).filter(Boolean));
+}
 
 /* Роли: клиент не говорит, кто на какой линии. Перебираем все раздачи ролей пятерым (120 вариантов)
    и берём ту, где лучше всего сходятся подсказка клиента, Смайт и обычные роли чемпиона. */
@@ -213,18 +217,15 @@ function renderDetail(){
 
 function render(){
   renderSummary();renderChart();renderList();renderDetail();
-  localize(document.querySelector('.windowbar'));localize(document.querySelector('.ga-head'));localize(document.querySelector('.ga-notes'));localize($('gaChartBox').querySelector('.heading'));localize($('gaListTitle'));
+  const view=$('gamesView');localize(view.querySelector('.ga-head'));localize(view.querySelector('.ga-notes'));localize($('gaChartBox').querySelector('.heading'));localize($('gaListTitle'));
 }
 
 function select(id,scroll){
   if(!list.some(a=>a.id===id))id=list.find(a=>!a.skip)?.id||list[0]?.id||'';
   selected=id;
-  if(id&&location.hash!=='#game='+id)history.replaceState(null,'','#game='+id);
   render();
-  if(scroll)$('gaDetail').scrollIntoView({block:'nearest'});
+  if(scroll&&id)$('gaDetail').scrollIntoView({block:'nearest'});
 }
-window.mlkOpenGame=id=>select(String(id),true);
-window.addEventListener('hashchange',()=>{const m=location.hash.match(/game=(\d+)/);if(m&&m[1]!==selected)select(m[1],true)});
 
 function status(text){const s=$('gaStatus');s.hidden=!text;s.textContent=text?tr(text):''}
 
@@ -234,8 +235,9 @@ async function load(){
   const req=new AbortController();loading=req;
   status('Загружаю последние игры из клиента…');$('reload').disabled=true;
   try{
-    if(!stats){
-      try{const r=await fetch(BASE+'/stats.json',{cache:'no-store',signal:AbortSignal.timeout(5000)});const s=r.ok?await r.json():null;if(s?.games){setStats(s);stats=s}}catch(e){}
+    readPrefs();
+    if(!D.on&&!stats){ /* экран драфта обычно уже загрузил данные матчей в общую модель */
+      try{const r=await fetch(BASE+'/stats.json',{cache:'no-store',signal:AbortSignal.timeout(5000)});const s=r.ok?await r.json():null;if(s?.games&&!D.on){setStats(s);stats=s}}catch(e){}
     }
     const r=await fetch(BASE+'/games',{cache:'no-store',signal:AbortSignal.any?AbortSignal.any([req.signal,AbortSignal.timeout(90000)]):req.signal});
     if(!r.ok)throw Error('http');
@@ -256,32 +258,23 @@ async function load(){
     if(loading===req){loading=null;$('reload').disabled=false}
   }
   $('gaLayout').hidden=!list.length;
-  const m=location.hash.match(/game=(\d+)/);
-  select(m?m[1]:selected,false);
+  select(wanted||selected,!!wanted);wanted='';
 }
 
-/* ---------- кнопки окна и язык ---------- */
-document.addEventListener('click',e=>{
+/* ---------- переключение экранов ---------- */
+let wanted='',loadedAt=0;
+$('gamesView').addEventListener('click',e=>{
   const pick=e.target.closest('[data-id]');
-  if(pick){select(pick.dataset.id,pick.classList.contains('ga-bar'));return}
+  if(pick)select(pick.dataset.id,pick.classList.contains('ga-bar'));
 });
 $('reload').onclick=load;
-function bindWindow(){
-  const api=window.pywebview?.api;
-  for(const [id,fn] of [['minimize','minimize'],['close','close'],['fullscreen','toggle_fullscreen']]){
-    $(id).hidden=!api?.[fn];if(api?.[fn])$(id).onclick=()=>api[fn]();
-  }
+/* Показать экран анализа (можно сразу с нужной игрой). Игры перечитываются, если прошло больше минуты. */
+function show(id){
+  wanted=/^\d+$/.test(String(id||''))?String(id):'';
+  if(!loading&&(!data||Date.now()-loadedAt>60000)){loadedAt=Date.now();load();return}
+  if(loading)return;
+  if(Array.isArray(data?.games)){readPrefs();list=data.games.map(analyse)} /* пул или веса могли поменяться на экране драфта */
+  if(wanted){select(wanted,true);wanted=''}else render();
 }
-window.addEventListener('pywebviewready',bindWindow);bindWindow();
-const langButtons=document.querySelectorAll('[data-lang]');
-const markLanguage=()=>{for(const b of langButtons)b.setAttribute('aria-pressed',String(b.dataset.lang===interfaceLanguage))};
-for(const b of langButtons)b.onclick=()=>{
-  if(b.dataset.lang===interfaceLanguage)return;
-  interfaceLanguage=b.dataset.lang;document.documentElement.lang=interfaceLanguage;
-  try{localStorage.setItem('mlk-language',interfaceLanguage)}catch{}
-  localize(document.body);markLanguage();
-  if(data?.games)$('gaKicker').textContent=tr('Последние игры')+': '+list.length;
-  render();
-};
-markLanguage();localize(document.body);load();
+window.MLK_GAMES={show,rerender:()=>{if(data?.games)$('gaKicker').textContent=tr('Последние игры')+': '+list.length;if(!$('gamesView').hidden)render()}};
 }

@@ -652,6 +652,8 @@ async function poll(){
     live.stats=d.stats;
     live.ver=d.version;live.upd=d.update;live.phase=d.phase;
     live.s=!d.client?'noclient':d.champSelect?'live':'idle';
+    if(live.s==='live'&&live.was!=='live'&&gamesOpen)setView(false); /* начался выбор чемпионов — сразу к драфту */
+    live.was=live.s;
   }catch(e){live.s='nobridge';live.upd=null}
   lastState=d;
   if(applyLive(d))render();
@@ -702,14 +704,23 @@ function screenLabel(full){
   screenButton.title=tr(label);screenButton.setAttribute('aria-label',tr(label));
   screenButton.setAttribute('aria-pressed',String(full));
 }
-/* Окно анализа последних игр: в приложении — отдельное окно, в браузере — отдельная вкладка. */
-function openAnalysis(game){
-  const id=/^\d+$/.test(String(game||''))?String(game):'';
-  const api=window.pywebview?.api;
-  if(api?.open_analysis){api.open_analysis(id);return}
-  window.open((SERVED?'/analysis.html':'analysis.html')+(id?'#game='+id:''),'mlk-analysis');
+/* Два экрана в одном окне: драфт и анализ последних игр. Кнопка в шапке переключает между ними. */
+let gamesOpen=false;
+function setView(games,id){
+  gamesOpen=games;
+  $('gamesView').hidden=!games;$('overview').hidden=games;
+  const b=$('openAnalysis');
+  b.innerHTML=games?'<span aria-hidden="true">←</span> Перейти к драфту':'<span aria-hidden="true">▤</span> Анализ игр';
+  b.title=games?'Вернуться к драфту':'Разбор последних 20 игр по модели';
+  b.setAttribute('aria-pressed',String(games));
+  localize(b);
+  if(games)window.MLK_GAMES?.show(id);
+  window.scrollTo({top:0});
 }
-$('openAnalysis').onclick=()=>openAnalysis('');
+function openAnalysis(game){setView(true,/^\d+$/.test(String(game||''))?String(game):'')}
+$('openAnalysis').onclick=()=>setView(!gamesOpen);
+$('backToDraft').onclick=()=>setView(false);
+document.querySelector('.brand').addEventListener('click',()=>{if(gamesOpen)setView(false)});
 function bindWindow(){
   const api=window.pywebview?.api;
   $('minimize').hidden=!api?.minimize;$('close').hidden=!api?.close;
@@ -792,6 +803,7 @@ for(const b of languageButtons)b.onclick=()=>{
   prepKey='';
   delete $('poolrow').dataset.pool;
   buildPool();setCatalog(!$('catalog').hidden);render();renderLive(lastState);
+  window.MLK_GAMES?.rerender();
   screenLabel(nativeFull||!!document.fullscreenElement);markLanguage();
 };
 markLanguage();
