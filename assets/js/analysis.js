@@ -180,12 +180,12 @@ function renderList(){
 
 function reasons(x){
   const li=arr=>arr.length?arr.map(([p,t])=>`<li><span class="${cls(p)}">${p?sgn(p):''}</span><span>${esc(tr(t))}</span></li>`).join(''):`<li><span></span><span>${esc(tr('ничего особенного'))}</span></li>`;
-  return `<div class="why"><div><h4>${esc(tr('Линия'))}</h4><ul>${li(x.l.why)}</ul></div><div><h4>${esc(tr('Против состава'))}</h4><ul>${li(x.k.why)}</ul></div><div><h4>${esc(tr('Синергия'))}</h4><ul>${li(x.s.why)}</ul></div></div>`;
+  return `<div class="why"><div><h4>${esc(tr('Линия'))}</h4><ul>${li(x.l.why)}</ul></div><div><h4>${esc(tr('Против состава'))}</h4><ul>${li(x.k.why)}</ul></div><div><h4>${esc(tr('Синергия'))}</h4><ul>${li(x.s.why)}</ul></div><div><h4>${esc(tr('Сила на патче'))}</h4><ul>${li(x.m.why)}</ul></div></div>`;
 }
 function bars(x){
-  const m=Math.max(1,Math.abs(x.l.v),Math.abs(x.k.v),Math.abs(x.s.v));
+  const m=Math.max(1,Math.abs(x.l.v),Math.abs(x.k.v),Math.abs(x.s.v),Math.abs(x.m.v));
   const bar=(lab,v)=>{const w=Math.abs(v)/m*50;return `<div class="bar"><span>${esc(tr(lab))}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?'var(--good)':'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
-  return `<div class="bars">${bar('Линия',x.l.v)}${bar('Против состава',x.k.v)}${bar('Синергия',x.s.v)}</div>`;
+  return `<div class="bars">${bar('Линия',x.l.v)}${bar('Против состава',x.k.v)}${bar('Синергия',x.s.v)}${bar('Сила на патче',x.m.v)}</div>`;
 }
 
 function renderDetail(){

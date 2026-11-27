@@ -322,7 +322,12 @@ const english = {
   "Перейти к драфту": "Back to draft",
   "Вернуться к драфту": "Return to the draft",
   "Драфт": "Draft",
-  "Разделы": "Sections"
+  "Разделы": "Sections",
+  "Сила на патче": "Patch strength",
+  "Патч": "Patch",
+  "По силе на патче": "By patch strength",
+  "мало игр в этой роли на патче": "too few games in this role on the patch",
+  "{0}% побед в этой роли на патче {1}, {2} игр": "{0}% win rate in this role on patch {1}, {2} games"
 };
 let interfaceLanguage='ru';
 try { if(localStorage.getItem('mlk-language')==='en')interfaceLanguage='en' } catch {}
