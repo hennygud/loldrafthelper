@@ -4,15 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>MLK Helper</title>
-<link rel="icon" href="assets/mlkdrafthelper.ico">
+<link rel="icon" type="image/png" href="assets/mlk-helper.png">
 <link rel="stylesheet" href="assets/draft.css">
 <link rel="stylesheet" href="assets/portraits.css">
+<link rel="stylesheet" href="assets/loadout-icons.css">
 </head>
 <body>
 <header class="windowbar" id="windowbar">
   <a class="brand" href="#overview" aria-label="MLK Helper — к обзору"><span class="brand-mark"><img src="assets/mlk-helper.png" alt=""></span><strong>MLK <span>Helper</span></strong></a>
-  <nav aria-label="Навигация"><a href="#overview">Обзор</a><a href="#collection">Чемпионы</a><a href="#settings">Настройки</a></nav>
   <span class="pywebview-drag-region"></span>
+  <div class="languages" role="group" aria-label="Язык интерфейса">
+    <button data-lang="ru" lang="ru" title="Русский" aria-label="Русский"><svg viewBox="0 0 30 20" aria-hidden="true"><path fill="#fff" d="M0 0h30v20H0z"/><path fill="#2456b5" d="M0 7h30v7H0z"/><path fill="#df3845" d="M0 14h30v6H0z"/></svg></button>
+    <button data-lang="en" lang="en" title="English" aria-label="English"><svg viewBox="0 0 60 40" aria-hidden="true"><path fill="#19366b" d="M0 0h60v40H0z"/><path stroke="#fff" stroke-width="8" d="m0 0 60 40m0-40L0 40"/><path stroke="#cd3544" stroke-width="3" d="m0 1 30 20m30 18L30 19m0 2L60 1M0 39l30-20"/><path stroke="#fff" stroke-width="13" d="M30 0v40M0 20h60"/><path stroke="#cd3544" stroke-width="7" d="M30 0v40M0 20h60"/></svg></button>
+  </div>
   <div class="window-actions"><button id="minimize" title="Свернуть" aria-label="Свернуть окно" hidden>−</button><button id="fullscreen" title="На весь экран" aria-label="На весь экран" aria-pressed="false" hidden><span aria-hidden="true">⛶</span></button><button id="close" title="Закрыть" aria-label="Закрыть окно" hidden>×</button></div>
 </header>
 <div class="updbar" id="updbar" hidden><span class="ui">⬆</span><span class="ut">Доступна новая версия <b id="updv"></b> <small id="updc"></small></span><button class="btn primary" id="updgo" type="button" hidden>Обновить</button><a class="btn primary" id="updlink" target="_blank" rel="noopener">Скачать</a><button class="btn" id="upddis" type="button">Позже</button></div>
@@ -48,26 +52,28 @@
 </div>
   <div class="prep-layout">
     <section class="panel collection" id="collection">
-      <div class="heading"><h2>Чемпионы</h2><span class="number" id="count"></span></div>
-      <div class="search"><span aria-hidden="true">⌕</span><input id="pq" type="search" placeholder="Поиск чемпиона" aria-label="Поиск чемпиона" autocomplete="off"></div>
+      <div class="heading"><h2>Мой пул <span class="number" id="poolCount">0</span></h2><button id="catalogToggle" aria-controls="catalog">Добавить чемпиона</button></div>
       <div id="chips" class="chips" role="group" aria-label="Фильтр по роли"></div>
-      <div class="grid" id="grid"></div>
+      <div id="poolrow" class="favorites"></div>
+      <section id="catalog" hidden>
+        <div class="heading"><h3>Каталог чемпионов</h3><span class="number" id="count"></span></div>
+        <div class="search"><span aria-hidden="true">⌕</span><input id="pq" type="search" placeholder="Поиск чемпиона" aria-label="Поиск чемпиона" autocomplete="off"></div>
+        <div class="grid" id="grid"></div>
+      </section>
+      <label class="check"><input type="checkbox" id="poolOnly">Предлагать только из пула</label>
     </section>
-    <aside>
-      <section class="panel"><div class="heading"><h2>Мой пул</h2><span class="number" id="poolCount">0</span></div>
-        <div id="poolrow" class="poolrow"></div>
-        <label class="check"><input type="checkbox" id="poolOnly">Предлагать только из пула</label>
-      </section>
-      <section class="panel" id="settings"><div class="heading"><h2>Веса оценок</h2><button id="resetWeights" class="textbtn">Сбросить</button></div>
-        <div class="w"><label for="wl">Линия</label><output id="wlo"></output><input type="range" id="wl" min="0" max="2" step="0.25"></div>
-<div class="w"><label for="wc">Против состава</label><output id="wco"></output><input type="range" id="wc" min="0" max="2" step="0.25"></div>
-<div class="w"><label for="ws">Синергия</label><output id="wso"></output><input type="range" id="ws" min="0" max="2" step="0.25"></div>
-      </section>
-      <details class="panel connection" id="howto"><summary>Подключение клиента</summary><p>Запустите <b>mlkdrafthelper.exe</b> или мост командой <code>python lol_bridge.py</code>, затем откройте League of Legends. Для сайта разрешите браузеру доступ к локальной сети.</p></details>
-      <div class="source" id="dstat">Оценки по правилам драфта</div>
+    <aside class="panel" id="preparation" aria-labelledby="prepHeading">
+      <h2 id="prepHeading">Подготовка к игре</h2>
+      <p id="prepEmpty" class="sub">Выберите чемпиона из пула, чтобы посмотреть его руны и заклинания.</p>
+      <div id="prepCard" hidden>
+        <div class="prep-champion"><span id="prepPortrait"></span><div><h3 id="prepName"></h3><select id="prepRole" aria-label="Роль чемпиона"></select></div></div>
+        <div id="prepResult" role="status"></div>
+      </div>
     </aside>
   </div>
 </main>
+<script src="assets/game-data.js"></script>
+<script src="assets/language.js"></script>
 <script>
 {
 const RAW=`Aatrox|TJ|P|222011322|khs
@@ -498,6 +504,7 @@ function render(){
   $('analysis').hidden=live.s!=='live'||!st.me;
   document.body.classList.toggle('in-draft',live.s==='live');
   updatePool();
+  localize($('teams'));localize($('banband'));
   if($('analysis').hidden)return;
   const res=evaluate(st);
   ranking=res;
@@ -510,57 +517,122 @@ function render(){
   if(!sel||(showingOwn&&!champion)){
     const message=showingOwn?`${own} · для чемпиона пока нет оценки`:'Нет доступных чемпионов для вашей роли и пула.';
     $('hero').innerHTML=`<div class="hero"><strong>${esc(message)}</strong></div>`;
-    $('comp').innerHTML='';$('tops').innerHTML='';renderRanking('');return;
+    $('comp').innerHTML='';$('tops').innerHTML='';renderRanking('');localize($('hero'));return;
   }
   const mx=k=>Math.max(1,Math.abs(sel[k].v),...res.map(x=>Math.abs(x[k].v)));
   const M={l:mx('l'),k:mx('k'),s:mx('s')};
   const bar=(lab,v,m,col)=>{const w=Math.abs(v)/m*50;return`<div class="bar"><span>${lab}</span><div class="track"><div class="fill" style="width:${w}%;left:${v>=0?50:50-w}%;background:${v>=0?col:'var(--bad)'}"></div></div><span class="num">${sgn(v)}</span></div>`};
   const isBest=sel===res[0];
+  const showBreakdown=$('hero').querySelector('details')?.open;
   $('hero').innerHTML=`<div class="hero"><div class="hero-top">${badge(sel.c.n)}<div><div class="kicker">${showingOwn?(mine.status==='locked'?'Ваш пик':'Ваш препик'):isBest?'Лучший пик':'Выбранный вариант'} · ${ROLE_FULL[st.me]}</div><div class="name-line"><div class="big">${esc(sel.c.n)}</div>${tierB(sel.c.n,'big')}</div></div>
    <div class="total"><div class="kicker">Итог</div><div class="big ${sel.t<0?'neg':sel.t>0?'pos':''}">${sgn(sel.t)}</div></div></div>
-   <div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}</div>
-   ${reasons(sel)}${inspected?`<button class="btn" id="back">${own?'К моему чемпиону':'К лучшему пику'}</button>`:''}</div>`;
+   <details class="breakdown" ${showBreakdown?"open":""}><summary>Почему этот пик</summary><div class="bars">${bar('Линия',sel.l.v,M.l,'var(--good)')}${bar('Против состава',sel.k.v,M.k,'var(--good)')}${bar('Синергия',sel.s.v,M.s,'var(--good)')}</div>
+   ${reasons(sel)}</details>${inspected?`<button class="btn" id="back">${own?'К моему чемпиону':'К лучшему пику'}</button>`:''}</div>`;
   const top=(title,key)=>{const l=[...res].sort((a,b)=>b[key].v-a[key].v||b.t-a.t).slice(0,5);
     return`<div class="top"><h3>${title}</h3>${l.map(x=>`<button class="pick${x===sel?' on':''}" data-n="${esc(x.c.n)}">${badge(x.c.n,'s')}<span>${esc(x.c.n)}</span><span class="${x[key].v>0?'pos':x[key].v<0?'neg':''}">${sgn(x[key].v)}</span></button>`).join('')}</div>`};
-  $('tops').innerHTML=top('Против соперника по линии','l')+top('Против их состава','k')+top('Синергия с вашими','s');
+  $('tops').innerHTML=top('Против соперника по линии','l')+top('Против их состава','k')+top('Синергия с командой','s');
   $('comp').innerHTML=compHTML(sel);
-  renderRanking(sel.c.n);
+  renderRanking(sel.c.n);localize($('analysis'));
 }
 let ranking=[];
 function renderRanking(selected){
   const q=norm($('rankSearch').value), sort=$('rankSort').value;
-  const rows=ranking.filter(x=>norm(x.c.n).includes(q)||ALIAS[q]===x.c.n);
+  const rows=ranking.filter(x=>matchesSearch(x.c.n,q));
   if(sort!=='total')rows.sort((a,b)=>b[sort].v-a[sort].v||b.t-a.t);
   $('tbl').innerHTML=rows.map(x=>`<tr data-n="${esc(x.c.n)}" class="${x.c.n===selected?'on':''}"><td><span class="tn">${badge(x.c.n,'xs')}${esc(x.c.n)}</span></td><td>${tierB(x.c.n)}</td><td>${sgn(x.l.v)}</td><td>${sgn(x.k.v)}</td><td>${sgn(x.s.v)}</td><td><b>${sgn(x.t)}</b></td></tr>`).join('');
   $('rankEmpty').hidden=rows.length>0;
+  localize($('tbl'));
 }
 /* ---------- личный пул ---------- */
-let pickRole='*',tiles=[];
+let pickRole='*', tiles=[], prepName='', prepRole='', prepKey='', retryAfter=0, previewRequest=null;
+const positions={T:'TOP',J:'JUNGLE',M:'MIDDLE',B:'BOTTOM',S:'UTILITY'};
 const poolList=()=>[...new Set(st.pool.split(',').map(find).filter(Boolean).map(c=>c.n))];
+const gameChampion=n=>GAME_DATA.champions[iconId(n)];
+const matchesSearch=(n,q)=>[n,gameChampion(n)?.[1]].some(v=>norm(v).includes(q))||ALIAS[q]===n;
+
+function setCatalog(open){
+  $('catalog').hidden=!open;
+  $('catalogToggle').setAttribute('aria-expanded',String(open));
+  $('catalogToggle').textContent=tr(open?'Скрыть каталог':'Добавить чемпиона');
+}
 function buildPool(){
-  $('chips').innerHTML=[['*','Все'],...ROLES].map(([r,label])=>`<button class="chip" type="button" data-role="${r}">${label}</button>`).join('');
-  $('grid').innerHTML=CH.map(c=>`<button class="tile" type="button" data-c="${esc(c.n)}"><span class="tp">${portrait(c.n)}</span><span class="nm">${esc(c.n)}</span></button>`).join('')+'<span class="noresult" hidden>Ничего не найдено</span>';
+  $('chips').innerHTML=[['*','Все'],...ROLES].map(([r,label])=>`<button class="chip" type="button" data-role="${r}">${tr(label)}</button>`).join('');
+  $('grid').innerHTML=CH.map(c=>`<button class="tile" type="button" data-c="${esc(c.n)}"><span class="tp">${portrait(c.n)}</span><span class="nm">${esc(c.n)}</span></button>`).join('')+'<span class="noresult" hidden>'+tr('Ничего не найдено')+'</span>';
   tiles=[...$('grid').querySelectorAll('.tile')];
 }
 function updatePool(){
   const selected=new Set(poolList()),q=norm($('pq').value);
   let shown=0;
   for(const tile of tiles){
-    const c=BY[norm(tile.dataset.c)];
-    tile.hidden=(pickRole!=='*'&&!c.roles.includes(pickRole))||!(norm(c.n).includes(q)||ALIAS[q]===c.n);
+    const c=BY[norm(tile.dataset.c)], active=selected.has(c.n);
+    tile.hidden=(pickRole!=='*'&&!c.roles.includes(pickRole))||!matchesSearch(c.n,q);
     if(!tile.hidden)shown++;
-    tile.classList.toggle('p',selected.has(c.n));tile.setAttribute('aria-pressed',selected.has(c.n));
+    tile.classList.toggle('p',active);
+    tile.setAttribute('aria-pressed',String(active));
   }
-  if(tiles.length)$('grid').querySelector('.noresult').hidden=shown>0;
-  for(const chip of $('chips').children)chip.classList.toggle('on',chip.dataset.role===pickRole);
+  $('grid').querySelector('.noresult').hidden=shown>0;
+  for(const chip of $('chips').children){
+    const active=chip.dataset.role===pickRole;
+    chip.classList.toggle('on',active);
+    chip.setAttribute('aria-pressed',String(active));
+  }
   $('count').textContent=shown;
   $('poolCount').textContent=selected.size;
-  const row=$('poolrow');
-  if(row.dataset.pool!==st.pool){
-    row.dataset.pool=st.pool;
-    row.innerHTML=[...selected].map(n=>`<span class="pchip">${badge(n,'xs')}${esc(n)}<button type="button" data-c="${esc(n)}" aria-label="Убрать из пула ${esc(n)}">×</button></span>`).join('')||'<span class="hint">Нажмите на портрет, чтобы добавить чемпиона в пул.</span>';
+  const visible=CH.filter(c=>selected.has(c.n)&&(pickRole==='*'||c.roles.includes(pickRole)));
+  if(!visible.some(c=>c.n===prepName))prepName=visible[0]?.n||'';
+  const row=$('poolrow'), signature=JSON.stringify([st.pool,pickRole,prepName]);
+  if(row.dataset.pool!==signature){
+    row.dataset.pool=signature;
+    row.innerHTML=visible.map(c=>`<div class="favorite"><button class="tile" data-inspect="${esc(c.n)}" aria-pressed="${c.n===prepName}"><span class="tp">${portrait(c.n)}</span><span class="nm">${esc(c.n)}</span></button><button class="remove" data-c="${esc(c.n)}" aria-label="${tr('Убрать из пула')} · ${esc(c.n)}">×</button></div>`).join('');
+    if(!visible.length)row.innerHTML='<p class="hint">'+tr(selected.size?'На этой роли пока нет чемпионов.':'Добавьте первого чемпиона из каталога.')+'</p>';
+    if(!selected.size)setCatalog(true);
   }
+  updatePreparation();
 }
+async function updatePreparation(){
+  const c=find(prepName), roles=c?.roles||'';
+  if(!roles.includes(prepRole)||!prepRole)prepRole=roles[0]||'';
+  const cid=c&&gameChampion(c.n)?.[0];
+  const key=JSON.stringify([cid,prepRole,live.s,live.phase]);
+  if(key===prepKey&&Date.now()<retryAfter)return;
+  prepKey=key;retryAfter=Infinity;
+  previewRequest?.abort();
+  previewRequest=null;
+  $('prepEmpty').hidden=!!c;
+  $('prepCard').hidden=!c;
+  if(!c)return;
+  $('prepName').textContent=c.n;
+  $('prepPortrait').innerHTML=badge(c.n);
+  $('prepRole').innerHTML=ROLES.filter(([r])=>roles.includes(r)).map(([r,label])=>`<option value="${r}">${tr(label)}</option>`).join('');
+  $('prepRole').value=prepRole;
+  const result=$('prepResult');
+  const message=ru=>{result.innerHTML='<p class="sub">'+tr(ru)+'</p>'};
+  if(!['idle','live'].includes(live.s)){message('Откройте клиент League of Legends, чтобы увидеть рекомендации.');return}
+  const unavailable='Для этой роли и карты пока нет рекомендаций клиента.';
+  if(!cid){message(unavailable);return}
+  const request=new AbortController();
+  previewRequest=request;
+  message('Загружаем рекомендации…');
+  const timeout=setTimeout(()=>request.abort(),8000);
+  try{
+    const response=await fetch(BASE+'/preview/'+cid+'/'+positions[prepRole],{signal:request.signal});
+    if(!response.ok)throw new Error(String(response.status));
+    const data=await response.json();
+    if(previewRequest!==request)return;
+    if(data.status!=='ready'){message(unavailable);retryAfter=Date.now()+15000;return}
+    const item=(label,kind,id,dict)=>{
+      const name=dict[id]?.[interfaceLanguage==='en'?1:0]||'#'+id;
+      return `<div class="prep-item"><span class="loadout-icon ${kind}-${Number(id)}"></span><div><small>${label}</small><strong>${esc(name)}</strong></div></div>`;
+    };
+    result.innerHTML=item(tr('Ключевая руна'),'perk',data.keystone,GAME_DATA.perks)+
+      data.spells.map((id,i)=>item(i===0?'D':'F','spell',id,GAME_DATA.spells)).join('');
+    retryAfter=Date.now()+60000;
+  }catch(e){
+    if(previewRequest===request){message(unavailable);retryAfter=Date.now()+15000}
+  }finally{clearTimeout(timeout)}
+}
+
+
 /* ---------- анализ составов ---------- */
 
 function teamList(side){return ROLES.map(([r])=>side==='ally'&&r===st.me?null:find(st[side][r]||'')).filter(Boolean)}
@@ -641,6 +713,7 @@ function applyLive(d){
   if(previous?.display!==live.mine?.display||previous?.status!==live.mine?.status||live.s!=='live')st.sel=null;
   return true;
 }
+let lastState={};
 async function poll(){
   let d={};
   try{
@@ -650,20 +723,22 @@ async function poll(){
     if(live.ver&&d.version&&d.version!==live.ver){location.reload();return}
     if(SERVED&&live.stats!==undefined&&d.stats!==undefined&&d.stats!==live.stats){location.reload();return}
     live.stats=d.stats;
-    live.ver=d.version;live.upd=d.update;
+    live.ver=d.version;live.upd=d.update;live.phase=d.phase;
     live.s=!d.client?'noclient':d.champSelect?'live':'idle';
   }catch(e){live.s='nobridge';live.upd=null}
+  lastState=d;
   if(applyLive(d))render();
   renderLive(d);
   setTimeout(poll,1000);
 }
 async function updateNow(){
-  const b=$('updgo'),c=$('updc');b.disabled=true;b.textContent='Обновляю…';c.textContent='';
+  const b=$('updgo'),c=$('updc');b.disabled=true;b.textContent=tr('Обновляю…');c.textContent='';
   try{
     const r=await fetch(BASE+'/update',{method:'POST',headers:{'X-LoL-Update':'1'}});const d=await r.json();
     if(d.ok)c.textContent='Перезапускаюсь, страница обновится сама…';
     else{c.textContent=d.error||'Ошибка обновления';b.disabled=false;b.textContent='Повторить'}
-  }catch(e){c.textContent='Перезапускаюсь, страница обновится сама…'} /* мост мог уже перезапуститься */
+  }catch(e){c.textContent='Перезапускаюсь, страница обновится сама…'}
+  localize($('updbar')); /* мост мог уже перезапуститься */
 }
 function renderUpdate(){
   const bar=$('updbar'),u=live.upd;
@@ -675,8 +750,8 @@ function renderUpdate(){
 }
 function renderLive(d){
   $('livebar').dataset.s=live.s;
-  const messages={nobridge:'Мост отключён',noclient:'Ожидание клиента',idle:d.phaseName||'Клиент подключён',live:'Драфт идёт'};
-  const descriptions={nobridge:'Запустите mlkdrafthelper.exe или локальный мост, чтобы подключить клиент.',
+  const messages={connecting:'Подключение…',nobridge:'Мост отключён',noclient:'Ожидание клиента',idle:d.phaseName||'Клиент подключён',live:'Драфт идёт'};
+  const descriptions={connecting:'Подключаемся к клиенту League of Legends…',nobridge:'Откройте MLK Helper на компьютере, чтобы подключить клиент.',
     noclient:'Запустите League of Legends. Составы и рекомендации появятся при выборе чемпионов.',
     idle:'Клиент подключён. Когда начнётся выбор чемпионов, здесь появятся пики и баны.',
     live:'Пики, баны и рекомендации обновляются из клиента.'};
@@ -688,13 +763,15 @@ function renderLive(d){
   if($('loadout').textContent!==status)$('loadout').textContent=status;
   $('loadout').hidden=!status;
   renderUpdate();
+  localize($('updbar'));localize($('loadout'));localize(document.querySelector('.banner'));
+  updatePreparation();
 }
 
 const screenButton=$('fullscreen');
 let nativeFull=false;
 function screenLabel(full){
   const label=full?'Вернуть размер окна':'На весь экран';
-  screenButton.title=label;screenButton.setAttribute('aria-label',label);
+  screenButton.title=tr(label);screenButton.setAttribute('aria-label',tr(label));
   screenButton.setAttribute('aria-pressed',String(full));
 }
 function bindWindow(){
@@ -711,60 +788,79 @@ screenButton.onclick=async()=>{
     if(api?.toggle_fullscreen){await api.toggle_fullscreen();nativeFull=!nativeFull;screenLabel(nativeFull)}
     else if(document.fullscreenElement)await document.exitFullscreen();
     else await document.documentElement.requestFullscreen();
-  }catch(e){screenButton.title='Полноэкранный режим недоступен'}
+  }catch(e){screenButton.title=tr('Полноэкранный режим недоступен')}
   finally{screenButton.disabled=false}
 };
+const dragRegion=document.querySelector('.pywebview-drag-region');
+let dragStart=null;
+dragRegion.addEventListener('pointerdown',e=>{
+  if(e.button!==0||nativeFull||!window.pywebview?.api?.snap_at_top)return;
+  dragStart=[e.screenX,e.screenY];
+  dragRegion.setPointerCapture(e.pointerId);
+});
+dragRegion.addEventListener('mousedown',e=>{if(nativeFull)e.stopPropagation()});
+dragRegion.addEventListener('pointercancel',()=>{dragStart=null});
+dragRegion.addEventListener('pointerup',async e=>{
+  const start=dragStart;
+  dragStart=null;
+  if(!start||screenButton.disabled||Math.hypot(e.screenX-start[0],e.screenY-start[1])<6)return;
+  screenButton.disabled=true;
+  try{
+    if(await window.pywebview.api.snap_at_top()){nativeFull=true;screenLabel(true)}
+  }finally{screenButton.disabled=false}
+});
 document.addEventListener('fullscreenchange',()=>screenLabel(!!document.fullscreenElement));
 window.addEventListener('pywebviewready',bindWindow);
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'&&nativeFull){e.preventDefault();screenButton.click()}
 });
 bindWindow();
-function markNavigation(){
-  const hash=location.hash||'#overview';
-  for(const link of document.querySelectorAll('nav a')){
-    if(link.hash===hash)link.setAttribute('aria-current','location');
-    else link.removeAttribute('aria-current');
-  }
-}
-window.addEventListener('hashchange',markNavigation);
-markNavigation();
 $('rankSearch').oninput=()=>renderRanking(st.sel||live.mine?.display||ranking[0]?.c.n);
 $('rankSort').onchange=$('rankSearch').oninput;
-$('choosePool').onclick=()=>{location.hash='collection';$('collection').scrollIntoView();$('pq').focus({preventScroll:true})};
-$('resetWeights').onclick=()=>{
-  for(const k of ['l','c','s']){st.w[k]=1;$('w'+k).value=1;$('w'+k+'o').textContent=1}
-  save();render();
-};
+$('choosePool').onclick=()=>{setCatalog(true);$('collection').scrollIntoView();$('pq').focus({preventScroll:true})};
+$('catalogToggle').onclick=()=>setCatalog($('catalog').hidden);
+$('prepRole').onchange=e=>{prepRole=e.target.value;updatePreparation()};
 $('updgo').onclick=updateNow;
 $('upddis').onclick=()=>{try{localStorage.setItem('upd-dismissed',(live.upd||{}).latest||'')}catch(e){}renderUpdate()};
 $('pq').oninput=updatePool;
 $('poolOnly').checked=st.poolOnly;
 $('poolOnly').onchange=e=>{st.poolOnly=e.target.checked;st.sel=null;save();render()};
-for(const k of ['l','c','s']){
-  const input=$('w'+k),output=$('w'+k+'o');
-  input.value=output.textContent=st.w[k];
-  input.oninput=()=>{st.w[k]=+input.value;output.textContent=input.value;save();render()};
-}
 document.addEventListener('click',e=>{
+  const favorite=e.target.closest('[data-inspect]');
+  if(favorite){prepName=favorite.dataset.inspect;prepRole=pickRole;updatePool();return}
   const pool=e.target.closest('[data-c]');
   if(pool){
     const selected=new Set(poolList()),n=pool.dataset.c;
-    if(selected.has(n))selected.delete(n);else selected.add(n);
+    if(selected.has(n))selected.delete(n);else {selected.add(n);prepName=n;prepRole=pickRole}
     st.pool=[...selected].join(', ');save();render();return;
   }
   const chip=e.target.closest('[data-role]');
-  if(chip){pickRole=chip.dataset.role;updatePool();return}
+  if(chip){pickRole=chip.dataset.role;prepRole=pickRole;updatePool();return}
   const suggestion=e.target.closest('.pick[data-n],tr[data-n]');
   if(suggestion||e.target.id==='back'){
     st.sel=suggestion?.dataset.n||null;render();$('hero').scrollIntoView({block:'nearest'});
   }
 });
-buildPool();render();poll();
+const languageButtons=document.querySelectorAll('[data-lang]');
+function markLanguage(){
+  for(const b of languageButtons)b.setAttribute('aria-pressed',String(b.dataset.lang===interfaceLanguage));
+}
+for(const b of languageButtons)b.onclick=()=>{
+  if(b.dataset.lang===interfaceLanguage)return;
+  interfaceLanguage=b.dataset.lang;
+  document.documentElement.lang=interfaceLanguage;
+  try{localStorage.setItem('mlk-language',interfaceLanguage)}catch{}
+  localize(document.body);
+  prepKey='';
+  delete $('poolrow').dataset.pool;
+  buildPool();setCatalog(!$('catalog').hidden);render();renderLive(lastState);
+  screenLabel(nativeFull||!!document.fullscreenElement);markLanguage();
+};
+markLanguage();
+buildPool();setCatalog(!poolList().length);render();localize(document.body);poll();
 fetch('stats.json').then(r=>r.ok?r.json():null).then(s=>{
   if(!s?.games)return;
   setStats(s);
-  $('dstat').textContent=`Патч ${s.patch} · ${s.games.toLocaleString('ru')} матчей Platinum+`;
   render();
 }).catch(()=>{});
 }

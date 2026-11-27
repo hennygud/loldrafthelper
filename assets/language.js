@@ -1,0 +1,269 @@
+// Russian is the source language for the draft engine and bridge messages.
+const english = {
+  "MLK Helper — к обзору": "MLK Helper home",
+  "Язык интерфейса": "Interface language",
+  "Свернуть": "Minimize",
+  "Свернуть окно": "Minimize window",
+  "На весь экран": "Full screen",
+  "Вернуть размер окна": "Restore window",
+  "Полноэкранный режим недоступен": "Full screen unavailable",
+  "Закрыть": "Close",
+  "Закрыть окно": "Close window",
+  "Доступна новая версия": "New version available",
+  "Обновить": "Update",
+  "Скачать": "Download",
+  "Позже": "Later",
+  "Обновляю…": "Updating…",
+  "Повторить": "Retry",
+  "Ошибка обновления": "Update failed",
+  "Перезапускаюсь, страница обновится сама…": "Restarting. This page will refresh automatically…",
+  "(у вас {0})": "(installed {0})",
+  "Автообновление работает только в .exe. Скачайте новую версию по кнопке.": "Download the new version to update this installation.",
+  "В релизе нет файла .exe для обновления.": "This release has no Windows executable.",
+  "Не удалось скачать обновление: {0}": "Download failed: {0}",
+  "Не получилось заменить файл: {0}": "Could not replace the file: {0}",
+  "файл слишком маленький": "file is too small",
+  "это не программа Windows": "invalid Windows executable",
+  "контрольная сумма не совпала, файл повреждён": "checksum mismatch, file is damaged",
+  "Центр драфта": "Draft hub",
+  "Подключаемся к клиенту League of Legends…": "Connecting to the League of Legends client…",
+  "Настроить пул": "Edit champion pool",
+  "Подключение…": "Connecting…",
+  "Баны": "Bans",
+  "Баны союзников": "Ally bans",
+  "Баны соперников": "Enemy bans",
+  "Союзники": "Allies",
+  "Соперники": "Opponents",
+  "Рейтинг для вашей роли": "Rankings for your role",
+  "Найти в рейтинге": "Search rankings",
+  "Найти чемпиона": "Find a champion",
+  "Сортировка рейтинга": "Sort rankings",
+  "По итогу": "Overall score",
+  "По линии": "Lane matchup",
+  "Против состава": "Team matchup",
+  "По синергии": "Team synergy",
+  "Чемпион": "Champion",
+  "Тир": "Tier",
+  "Линия": "Lane",
+  "Состав": "Team",
+  "Синергия": "Synergy",
+  "Итог": "Score",
+  "Нет совпадений": "No matches",
+  "Как считается оценка": "How scoring works",
+  "Линия:": "Lane.",
+  "известные контрпики (±3), дальний бой против ближнего на топе и миде, ранняя сила против поздней, защита от рывков. На боте учитываются оба врага: АДК полностью, саппорт наполовину.": "Known counters (±3), range advantage in top and mid, early power against scaling, and dash denial. In bot lane, the opposing carry has full weight and the support has half weight.",
+  "Против состава:": "Team matchup.",
+  "урон в % от здоровья против танков, бурст против составов без фронтлайна, блок рывков против мобильных врагов, защита от дайва, жёсткий engage против поука, ловля неподвижных керри, наказание поздних составов.": "The score considers percent-health damage against tanks, burst against fragile teams, dash denial, peel against dive, engage into poke, access to immobile carries and pressure against scaling teams.",
+  "Синергия:": "Synergy.",
+  "баланс физического и магического урона, нужен ли фронтлайн, engage и контроль, защита гиперкерри, подбросы для Ясуо и Ёнэ, известные связки (Xayah + Rakan, Orianna + Malphite и другие).": "The score considers damage balance, frontline, engage, crowd control, protection for carries, knock-ups for Yasuo and Yone, and champion pairings such as Xayah and Rakan.",
+  "Базовые оценки рассчитываются по правилам. При наличии статистики матчей модель учитывает данные для конкретных пар чемпионов.": "Scores use draft rules. When match data is available, individual champion matchups also contribute.",
+  "Мой пул": "My champion pool",
+  "Добавить чемпиона": "Add champion",
+  "Скрыть каталог": "Hide catalog",
+  "Каталог чемпионов": "Champion catalog",
+  "Поиск чемпиона": "Search champions",
+  "Фильтр по роли": "Filter by role",
+  "Предлагать только из пула": "Only suggest champions in my pool",
+  "Подготовка к игре": "Match preparation",
+  "Выберите чемпиона из пула, чтобы посмотреть его руны и заклинания.": "Select a champion from your pool to preview runes and summoner spells.",
+  "Роль чемпиона": "Champion role",
+  "На этой роли пока нет чемпионов.": "Your pool has no champions for this role yet.",
+  "Добавьте первого чемпиона из каталога.": "Add your first champion from the catalog.",
+  "Откройте клиент League of Legends, чтобы увидеть рекомендации.": "Open the League of Legends client to see its recommendations.",
+  "Для этой роли и карты пока нет рекомендаций клиента.": "The client has no recommendations for this role and map yet.",
+  "Загружаем рекомендации…": "Loading recommendations…",
+  "Ключевая руна": "Keystone",
+  "Все": "All",
+  "Топ": "Top",
+  "Лес": "Jungle",
+  "Мид": "Mid",
+  "АДК": "Bot",
+  "Сап": "Support",
+  "топ": "Top",
+  "лес": "Jungle",
+  "мид": "Mid",
+  "саппорт": "Support",
+  "Ничего не найдено": "No champions found",
+  "Убрать из пула": "Remove from pool",
+  "Тир среди всех вариантов для вашей роли": "Tier among all options for your role",
+  "Вы": "You",
+  "Пик": "Locked in",
+  "Препик": "Hovering",
+  "Ожидание": "Waiting",
+  "Бан": "Ban",
+  "Свободный слот бана": "Empty ban slot",
+  "ничего особенного": "No specific advantage",
+  "для чемпиона пока нет оценки": "No score for this champion yet",
+  "Нет доступных чемпионов для вашей роли и пула.": "No champions available for this role and pool.",
+  "Ваш пик": "Your pick",
+  "Ваш препик": "Your hover",
+  "Лучший пик": "Best pick",
+  "Выбранный вариант": "Selected champion",
+  "Почему этот пик": "Why this pick?",
+  "К моему чемпиону": "Back to my champion",
+  "К лучшему пику": "Back to best pick",
+  "Против соперника по линии": "Lane counters",
+  "Против их состава": "Against their team",
+  "Синергия с командой": "Team synergy",
+  "Пока никого не выбрано": "No picks yet",
+  "Фронтлайн": "Frontline",
+  "Инициация": "Engage",
+  "Контроль": "Crowd control",
+  "Бурст": "Burst",
+  "Поук": "Poke",
+  "Мобильность": "Mobility",
+  "Почти весь урон физический": "Mostly physical damage",
+  "Почти весь урон магический": "Mostly magic damage",
+  "Нет фронтлайна": "No frontline",
+  "Некому начинать драки": "Low engage",
+  "Очень мобильные": "High mobility",
+  "Взрывной урон": "Burst damage",
+  "Сильны в поздней игре": "Strong late game",
+  "Сильны в ранней игре": "Strong early game",
+  "Сильны в середине игры": "Strong mid game",
+  "Анализ составов": "Team analysis",
+  "Ваша команда показана вместе с {0}, чтобы было видно, какие дыры закрывает пик.": "Your team includes {0} so you can see what this pick brings to the composition.",
+  "Ваша команда": "Your team",
+  "Враги": "Enemies",
+  "{0} из 5": "{0} of 5",
+  "Мост отключён": "Bridge offline",
+  "Ожидание клиента": "Waiting for client",
+  "Клиент подключён": "Client connected",
+  "Драфт идёт": "Draft in progress",
+  "Откройте MLK Helper на компьютере, чтобы подключить клиент.": "Open MLK Helper on your computer to connect to the client.",
+  "Запустите League of Legends. Составы и рекомендации появятся при выборе чемпионов.": "Open League of Legends. Teams and recommendations will appear in champion select.",
+  "Клиент подключён. Когда начнётся выбор чемпионов, здесь появятся пики и баны.": "Client connected. Picks and bans will appear when champion select begins.",
+  "Пики, баны и рекомендации обновляются из клиента.": "Picks, bans and recommendations update live from the client.",
+  "Выбор чемпионов": "Champion select",
+  "Главное меню": "Main menu",
+  "Лобби": "Lobby",
+  "Поиск игры": "Finding match",
+  "Игра найдена": "Match found",
+  "Загрузка": "Loading",
+  "Идёт игра": "In game",
+  "Конец игры": "Game ended",
+  "Переподключение": "Reconnecting",
+  "После вашего пика помощник применит руны и заклинания.": "Runes and summoner spells will be applied after you lock in.",
+  "Руны применены.": "Runes applied.",
+  "Заклинания применены.": "Summoner spells applied.",
+  "Руны: {0}": "Runes: {0}",
+  "Заклинания: {0}": "Summoner spells: {0}",
+  "Подбор рун и заклинаний: {0}": "Loadout recommendation: {0}",
+  "Пик изменился.": "The pick changed.",
+  "Для этого чемпиона и карты пока нет рекомендации клиента.": "The client has no recommendation for this champion and map yet.",
+  "Клиент прислал неполную страницу рун.": "The client returned an incomplete rune page.",
+  "Страницы рун недоступны.": "Rune pages are unavailable.",
+  "Для страницы MLK Helper нужен свободный слот.": "Free a rune page slot for MLK Helper.",
+  "Клиент не предложил два заклинания.": "The client did not recommend two spells.",
+  "подтверждено данными": "confirmed by match data",
+  "данные не согласны": "match data disagrees",
+  "данные не подтверждают": "unconfirmed by match data",
+  "по данным": "match data",
+  "{0}: {1}%, {2} игр": "{0}: {1}%, {2} games",
+  "соперник по линии не указан": "Lane opponent unknown",
+  "контрпик к {0}": "Counters {0}",
+  "{0} контрит {1}": "{0} counters {1}",
+  "дальний бой против ближнего {0}": "Range advantage against {0}",
+  "ближний бой против дальнего {0}": "Range disadvantage against {0}",
+  "давит рано, пока {0} не раскачался": "Can pressure {0} before they scale",
+  "{0} сильнее в ранней фазе": "{0} is stronger early",
+  "гасит рывки {0}": "Stops dashes from {0}",
+  "вражеский состав не указан": "Enemy composition unknown",
+  "враги почти полностью на физ. уроне — броня окупится": "Enemy damage is mostly physical, making armor valuable",
+  "враги почти полностью на маг. уроне — сопротивление магии окупится": "Enemy damage is mostly magic, making magic resistance valuable",
+  "антимаг против AP-состава": "Anti-mage against a magic-heavy team",
+  "урон от % здоровья против {0}": "Percent-health damage against {0}",
+  "ассасину тяжело против танков ({0})": "This assassin struggles against tanks ({0})",
+  "у врагов почти нет фронтлайна — бурст убивает": "Burst threatens their fragile frontline",
+  "блокирует рывки: {0}": "Blocks dashes from {0}",
+  "много контроля против мобильных: {0}": "Crowd control against mobile enemies: {0}",
+  "защитит своих от дайва: {0}": "Peels for allies against {0}",
+  "уязвим к дайву: {0}": "Vulnerable to dives from {0}",
+  "жёсткий engage против поука ({0})": "Hard engage against poke ({0})",
+  "отхил помогает пережить поук": "Sustain helps absorb poke",
+  "ловит неподвижных керри: {0}": "Can catch immobile carries: {0}",
+  "может поймать {0}": "Can catch {0}",
+  "отбивает инициацию: {0}": "Can disengage against {0}",
+  "враги раскачиваются поздно — их можно наказать рано": "Can punish the enemy before they scale",
+  "враги сильнее в ранней игре": "Enemies are stronger early",
+  "неудобен для {0}": "Difficult for {0} to face",
+  "удобен против {0}": "Favorable into {0}",
+  "неудобен против {0}": "Unfavorable into {0}",
+  "союзники не указаны": "Ally composition unknown",
+  "команде не хватает магического урона": "Adds missing magic damage",
+  "в команде уже перебор физ. урона": "Team already has too much physical damage",
+  "смешанный урон разбавит физ. состав": "Mixed damage balances a physical-heavy team",
+  "команде не хватает физического урона": "Adds missing physical damage",
+  "в команде уже перебор маг. урона": "Team already has too much magic damage",
+  "смешанный урон разбавит маг. состав": "Mixed damage balances a magic-heavy team",
+  "в команде нет фронтлайна": "Provides a missing frontline",
+  "команде нужен фронтлайн, а этот чемпион хрупкий": "Team needs a frontline and this champion is fragile",
+  "в команде некому начинать драку": "Provides missing engage",
+  "мало контроля в составе": "Provides needed crowd control",
+  "защищает и усиливает {0}": "Protects and empowers {0}",
+  "{0} раскроет гиперкерри": "{0} enables a hypercarry",
+  "подбросы для {0}": "Knock-ups for {0}",
+  "подбросы союзников: {0}": "Allied knock-ups from {0}",
+  "известная связка с {0}": "Established pairing with {0}",
+  "хорошо сочетается с {0}": "Pairs well with {0}",
+  "плохо сочетается с {0}": "Pairs poorly with {0}",
+  "поддерживает поук-состав": "Supports a poke composition",
+  "заходит следом за {0}": "Can follow up on {0}",
+  "даст позднему составу ранний темп": "Adds early pressure to a scaling team",
+  "команда хочет закончить рано, а он поздний": "Scales later than the rest of the team",
+  "в команде нет дальнего боя": "Adds a ranged threat"
+};
+let interfaceLanguage='ru';
+try { if(localStorage.getItem('mlk-language')==='en')interfaceLanguage='en' } catch {}
+document.documentElement.lang=interfaceLanguage;
+
+const phrasePatterns=Object.entries(english)
+  .filter(([source])=>source.includes('{0}'))
+  .map(([source,target])=>{
+    const parts=source.split(/\{\d+\}/).map(part=>part.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'));
+    return [new RegExp('^'+parts.join('(.+?)')+'$'),target];
+  });
+
+function translatePhrase(text){
+  if(Object.prototype.hasOwnProperty.call(english,text))return english[text];
+  if(text.includes(' · '))return text.split(' · ').map(translatePhrase).join(' · ');
+  const messages=text.split(/ (?=Заклинания(?: применены\.|:))/);
+  if(messages.length>1)return messages.map(translatePhrase).join(' ');
+  for(const [pattern,target] of phrasePatterns){
+    const parts=text.match(pattern);
+    if(parts)return target.replace(/\{(\d+)\}/g,(_,i)=>translatePhrase(parts[Number(i)+1]));
+  }
+  return text;
+}
+function tr(text){
+  if(interfaceLanguage!=='en'||!/[А-Яа-яЁё]/.test(text))return text;
+  return text.replace(/^(\s*)([\s\S]*?)(\s*)$/,(_,before,body,after)=>before+translatePhrase(body)+after);
+}
+
+// Keep source text for switching languages in place, including aria labels and placeholders.
+const originals=new WeakMap();
+function localize(root){
+  const translateField=(node,field,value,write)=>{
+    if(!value)return;
+    let record=originals.get(node);
+    const previous=record?.[field];
+    const source=previous?.display===value?previous.source:value;
+    if(!/[А-Яа-яЁё]/.test(source))return;
+    const display=tr(source);
+    if(display!==value)write(display);
+    if(!record){record={};originals.set(node,record)}
+    record[field]={source,display};
+  };
+  const walk=node=>{
+    if(node.nodeType===Node.TEXT_NODE){
+      translateField(node,'text',node.nodeValue,v=>{node.nodeValue=v});
+      return;
+    }
+    if(node.nodeType!==Node.ELEMENT_NODE||node.matches('script,style,[data-lang],svg'))return;
+    for(const attr of ['aria-label','title','placeholder']){
+      translateField(node,attr,node.getAttribute(attr),v=>node.setAttribute(attr,v));
+    }
+    for(const child of node.childNodes)walk(child);
+  };
+  walk(root);
+}

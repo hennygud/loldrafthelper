@@ -6,7 +6,7 @@
 Что делает: раз в секунду смотрит в клиент League of Legends, кто кого
 пикнул и забанил, и отдаёт это странице помощника драфта.
 
-Как запустить: дважды кликните по mlkdrafthelper.exe — откроется окно помощника.
+Как запустить: откройте ярлык MLK Helper или файл MLK Helper.exe — откроется окно помощника.
 Закрыли окно — программа выключилась. Из исходников: python lol_bridge.py
 (без пакета pywebview страница откроется в окне Edge или в браузере).
 Флаги: --headless (только мост, без окна), --selftest ФАЙЛ (проверка сборки).
@@ -351,6 +351,47 @@ def read_state(cl, loadout=None):
     return st
 
 
+POSITIONS = {"TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"}
+
+
+def recommended_page(cl, cid, position, map_id):
+    if map_id:
+        pages = cl.get(f"/lol-perks/v1/recommended-pages/champion/{cid}/position/{position}/map/{map_id}")
+        if pages:
+            return pages[0]
+    raise ValueError("Для этого чемпиона и карты пока нет рекомендации клиента.")
+
+
+def ordered_spells(rec, current):
+    ids = rec.get("summonerSpellIds") or []
+    if len(ids) != 2 or len(set(ids)) != 2 or not all(ids):
+        raise ValueError("Клиент не предложил два заклинания.")
+    if ids[1] == current.get("spell1Id") or ids[0] == current.get("spell2Id"):
+        return ids[::-1]
+    return ids
+
+
+def preview_loadout(cl, cid, position):
+    """Preview Riot's page for a lobby map, or Summoner's Rift before joining a lobby."""
+    try:
+        flow = cl.get("/lol-gameflow/v1/session") or {}
+        map_id = (flow.get("map") or {}).get("id")
+        if not map_id:
+            lobby = cl.get("/lol-lobby/v2/lobby") or {}
+            map_id = (lobby.get("gameConfig") or {}).get("mapId") or 11
+        rec = recommended_page(cl, cid, position, map_id)
+        perks = rec.get("perks") or []
+        keystone = perks[0]["id"] if perks else None
+        if not keystone:
+            return {"status": "unavailable"}
+        current = cl.get(SESSION + "/my-selection") or {}
+        return {"status": "ready", "keystone": keystone, "spells": ordered_spells(rec, current), "map": map_id}
+    except ConnectionError:
+        return {"status": "offline"}
+    except (urllib.error.HTTPError, ValueError, KeyError, TypeError):
+        return {"status": "unavailable"}
+
+
 class Loadout:
     page_name = "MLK Helper"
 
@@ -371,13 +412,9 @@ class Loadout:
         _, cid, position = self.target
         flow = cl.get("/lol-gameflow/v1/session") or {}
         map_id = (flow.get("map") or {}).get("id")
-        if position not in {"TOP", "JUNGLE", "MIDDLE", "BOTTOM", "UTILITY"}:
+        if position not in POSITIONS:
             position = cl.get(f"/lol-perks/v1/recommended-pages-position/champion/{cid}") or "NONE"
-        if map_id:
-            pages = cl.get(f"/lol-perks/v1/recommended-pages/champion/{cid}/position/{position}/map/{map_id}")
-            if pages:
-                return pages[0]
-        raise ValueError("Для этого чемпиона и карты пока нет рекомендации клиента.")
+        return recommended_page(cl, cid, position, map_id)
 
     def runes(self, cl, rec):
         path = "/lol-perks/v1/pages"
@@ -405,17 +442,11 @@ class Loadout:
         cl.request("PUT", "/lol-perks/v1/currentpage", page_id)
 
     def spells(self, cl, rec):
-        ids = rec.get("summonerSpellIds") or []
-        if len(ids) != 2 or len(set(ids)) != 2 or not all(ids):
-            raise ValueError("Клиент не предложил два заклинания.")
         path = SESSION + "/my-selection"
         current = cl.get(path) or {}
-        first, second = current.get("spell1Id"), current.get("spell2Id")
-        if {first, second} == set(ids):
+        ids = ordered_spells(rec, current)
+        if ids == [current.get("spell1Id"), current.get("spell2Id")]:
             return
-        # Сохраняем привычную клавишу заклинания, которое есть в обоих наборах.
-        if ids[1] == first or ids[0] == second:
-            ids = ids[::-1]
         self.check_pick(cl)
         cl.request("PATCH", path, {"spell1Id": ids[0], "spell2Id": ids[1]})
 
@@ -652,7 +683,11 @@ class Handler(BaseHTTPRequestHandler):
                 data = dict(STATE, version=VERSION, stats=stats_stamp(), update=dict(UPDATE, canUpdate=bool(SELF_PATH)))
                 body = json.dumps(data, ensure_ascii=False).encode("utf-8")
             ctype = "application/json; charset=utf-8"
-        elif re.fullmatch(r"/assets/[a-zA-Z0-9_-]+\.(?:css|png|jpg|ico)", self.path):
+        elif (preview := re.fullmatch(r"/preview/([1-9][0-9]{0,5})/(TOP|JUNGLE|MIDDLE|BOTTOM|UTILITY)", self.path)):
+            client = Client(getattr(self.server, "lockfile", None))
+            body = json.dumps(preview_loadout(client, int(preview[1]), preview[2])).encode()
+            ctype = "application/json; charset=utf-8"
+        elif re.fullmatch(r"/assets/[a-zA-Z0-9_-]+\.(?:css|js|png|jpg|ico)", self.path):
             page = find_page()
             path = os.path.join(os.path.dirname(page), self.path[1:]) if page else ""
             if not os.path.isfile(path):
@@ -660,7 +695,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             with open(path, "rb") as f:
                 body = f.read()
-            ctype = {".css": "text/css", ".png": "image/png", ".jpg": "image/jpeg",
+            ctype = {".css": "text/css", ".js": "text/javascript; charset=utf-8", ".png": "image/png", ".jpg": "image/jpeg",
                      ".ico": "image/x-icon"}[os.path.splitext(path)[1]]
         elif self.path.startswith("/stats.json"):
             body = load_stats()
@@ -716,6 +751,37 @@ class WindowControls:
     def toggle_fullscreen(self):
         self._window.toggle_fullscreen()
 
+    def snap_at_top(self):
+        if sys.platform == "win32":
+            import ctypes
+            from ctypes import wintypes
+
+            class MonitorInfo(ctypes.Structure):
+                _fields_ = [("size", wintypes.DWORD), ("monitor", wintypes.RECT),
+                            ("work", wintypes.RECT), ("flags", wintypes.DWORD)]
+
+            user32 = ctypes.windll.user32
+            user32.MonitorFromPoint.argtypes = [wintypes.POINT, wintypes.DWORD]
+            user32.MonitorFromPoint.restype = wintypes.HANDLE
+            user32.GetMonitorInfoW.argtypes = [wintypes.HANDLE, ctypes.POINTER(MonitorInfo)]
+            point, info = wintypes.POINT(), MonitorInfo()
+            info.size = ctypes.sizeof(info)
+            if not user32.GetCursorPos(ctypes.byref(point)):
+                return False
+            monitor = user32.MonitorFromPoint(point, 2)
+            at_top = user32.GetMonitorInfoW(monitor, ctypes.byref(info)) and point.y <= info.monitor.top + 8
+        elif sys.platform == "darwin":
+            from AppKit import NSEvent, NSScreen
+            point = NSEvent.mouseLocation()
+            at_top = any(frame.origin.x <= point.x < frame.origin.x + frame.size.width
+                         and 0 <= frame.origin.y + frame.size.height - point.y <= 8
+                         for frame in (screen.frame() for screen in NSScreen.screens()))
+        else:
+            return False
+        if at_top:
+            self.toggle_fullscreen()
+        return bool(at_top)
+
     def minimize(self):
         self._window.minimize()
 
@@ -735,9 +801,12 @@ def open_window(url):
         os.makedirs(store, exist_ok=True)
         controls = WindowControls()
         controls._window = webview.create_window(
-            f"MLK Helper · {VERSION}", url, width=1380, height=920, min_size=(960, 640),
+            "MLK Helper", url, width=1380, height=920, min_size=(960, 640),
             frameless=True, easy_drag=False, js_api=controls, background_color="#0b0d14")
-        webview.start(private_mode=False, storage_path=store)  # private_mode=False: пул и настройки сохраняются
+        page = find_page()
+        icon_name = "mlkdrafthelper.ico" if sys.platform == "win32" else "mlk-helper.png"
+        icon = os.path.join(os.path.dirname(page), "assets", icon_name) if page else None
+        webview.start(private_mode=False, storage_path=store, icon=icon)  # private_mode=False: пул и настройки сохраняются
         return True
     except Exception as e:
         say(f"Не удалось открыть окно: {e}")
@@ -798,6 +867,7 @@ def main():
         if not headless and not open_window(url):
             open_app_mode(url) or webbrowser.open(url)
         return
+    srv.lockfile = lockfile
     threading.Thread(target=cleanup_old, daemon=True).start()
     threading.Thread(target=update_loop, daemon=True).start()
     threading.Thread(target=poll_loop, args=(Client(lockfile),), daemon=True).start()
