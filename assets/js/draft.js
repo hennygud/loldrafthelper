@@ -704,21 +704,19 @@ function screenLabel(full){
   screenButton.title=tr(label);screenButton.setAttribute('aria-label',tr(label));
   screenButton.setAttribute('aria-pressed',String(full));
 }
-/* Два экрана в одном окне: драфт и анализ последних игр. Кнопка в шапке переключает между ними. */
+/* Вкладки приложения: «Драфт» и «Анализ игр». Обе живут в этом же окне, переключается только содержимое. */
 let gamesOpen=false;
 function setView(games,id){
   gamesOpen=games;
   $('gamesView').hidden=!games;$('overview').hidden=games;
-  const b=$('openAnalysis');
-  b.innerHTML=games?'<span aria-hidden="true">←</span> Перейти к драфту':'<span aria-hidden="true">▤</span> Анализ игр';
-  b.title=games?'Вернуться к драфту':'Разбор последних 20 игр по модели';
-  b.setAttribute('aria-pressed',String(games));
-  localize(b);
+  $('tabDraft').setAttribute('aria-selected',String(!games));
+  $('openAnalysis').setAttribute('aria-selected',String(games));
   if(games)window.MLK_GAMES?.show(id);
   window.scrollTo({top:0});
 }
 function openAnalysis(game){setView(true,/^\d+$/.test(String(game||''))?String(game):'')}
-$('openAnalysis').onclick=()=>setView(!gamesOpen);
+$('tabDraft').onclick=()=>setView(false);
+$('openAnalysis').onclick=()=>setView(true);
 $('backToDraft').onclick=()=>setView(false);
 document.querySelector('.brand').addEventListener('click',()=>{if(gamesOpen)setView(false)});
 function bindWindow(){

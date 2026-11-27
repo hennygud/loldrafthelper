@@ -13,7 +13,10 @@
 <body>
 <header class="windowbar" id="windowbar">
   <a class="brand" href="#overview" aria-label="MLK.gg — к обзору"><span class="brand-mark"><img src="assets/img/logo.png" alt=""></span><strong>MLK<span>.gg</span></strong></a>
-  <button class="nav-analysis" id="openAnalysis" type="button" title="Разбор последних 20 игр по модели"><span aria-hidden="true">▤</span> Анализ игр</button>
+  <nav class="app-tabs" role="tablist" aria-label="Разделы">
+    <button role="tab" id="tabDraft" type="button" aria-selected="true" aria-controls="overview">Драфт</button>
+    <button role="tab" id="openAnalysis" type="button" aria-selected="false" aria-controls="gamesView" title="Разбор последних 20 игр по модели">Анализ игр</button>
+  </nav>
   <span class="pywebview-drag-region"></span>
   <div class="languages" role="group" aria-label="Язык интерфейса">
     <button data-lang="ru" lang="ru" title="Русский" aria-label="Русский"><svg viewBox="0 0 30 20" aria-hidden="true"><path fill="#fff" d="M0 0h30v20H0z"/><path fill="#2456b5" d="M0 7h30v7H0z"/><path fill="#df3845" d="M0 14h30v6H0z"/></svg></button>
@@ -22,7 +25,7 @@
   <div class="window-actions"><button id="minimize" title="Свернуть" aria-label="Свернуть окно" hidden>−</button><button id="fullscreen" title="На весь экран" aria-label="На весь экран" aria-pressed="false" hidden><span aria-hidden="true">⛶</span></button><button id="close" title="Закрыть" aria-label="Закрыть окно" hidden>×</button></div>
 </header>
 <div class="updbar" id="updbar" hidden><span class="ui">⬆</span><span class="ut">Доступна новая версия <b id="updv"></b> <small id="updc"></small></span><button class="btn primary" id="updgo" type="button" hidden>Обновить</button><a class="btn primary" id="updlink" target="_blank" rel="noopener">Скачать</a><button class="btn" id="upddis" type="button">Позже</button></div>
-<main id="overview">
+<main id="overview" role="tabpanel" aria-labelledby="tabDraft">
   <section class="banner" aria-labelledby="phaseTitle">
     <div class="banner-copy">
       <div class="game"><i></i> League of Legends</div>
@@ -75,7 +78,7 @@
     </aside>
   </div>
 </main>
-<main id="gamesView" hidden>
+<main id="gamesView" role="tabpanel" aria-labelledby="openAnalysis" hidden>
   <section class="ga-head">
     <div class="ga-actions"><button class="primary" id="backToDraft" type="button"><span aria-hidden="true">←</span> Перейти к драфту</button><button id="reload" type="button" title="Заново загрузить игры из клиента"><span aria-hidden="true">↻</span> Загрузить заново</button></div>
     <div class="game"><i></i> <span id="gaKicker">Последние 20 игр</span></div>

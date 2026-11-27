@@ -28,10 +28,12 @@ main, [id] { scroll-margin-top: 82px }
 .brand span { font-weight: 500; color: #bbc4d2 }
 nav a:hover, nav a[aria-current] { color: var(--ink); border-color: var(--lime) }
 .pywebview-drag-region { flex: 1; align-self: stretch }
-.nav-analysis { display: inline-flex; align-items: center; gap: 7px; margin-left: 10px; padding: 6px 12px; border-color: #3d4a5c; background: #182130; font-size: 13px; font-weight: 650 }
-.nav-analysis:hover { border-color: var(--lime); color: var(--lime) }
-.nav-analysis span { color: var(--lime) }
-@media(max-width:560px){.nav-analysis{margin-left:4px;padding:5px 8px;font-size:12px}}
+.app-tabs { display: flex; align-self: stretch; gap: 4px; margin-left: 18px }
+.app-tabs button { position: relative; padding: 0 14px; border: 0; border-radius: 0; background: transparent; color: var(--mute); font-size: 14px; font-weight: 650; white-space: nowrap }
+.app-tabs button:hover { color: var(--ink); background: #182130 }
+.app-tabs button[aria-selected=true] { color: var(--ink) }
+.app-tabs button[aria-selected=true]::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: 0; height: 3px; border-radius: 3px 3px 0 0; background: var(--lime) }
+@media(max-width:560px){.app-tabs{margin-left:4px;gap:0}.app-tabs button{padding:0 8px;font-size:13px}}
 .window-actions { gap: 2px }
 .window-actions button { padding: 0; width: 35px; height: 31px; border: 0; background: transparent; font: 20px/1 system-ui }
 .window-actions button:hover { background: #303949 }

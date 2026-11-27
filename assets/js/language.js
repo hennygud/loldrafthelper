@@ -320,7 +320,9 @@ const english = {
   "Войдите в клиент League of Legends: история игр берётся из него.": "Sign in to the League of Legends client: match history comes from it.",
   "Не удалось получить игры из клиента. Нажмите «Загрузить заново».": "Could not get the games from the client. Select Reload.",
   "Перейти к драфту": "Back to draft",
-  "Вернуться к драфту": "Return to the draft"
+  "Вернуться к драфту": "Return to the draft",
+  "Драфт": "Draft",
+  "Разделы": "Sections"
 };
 let interfaceLanguage='ru';
 try { if(localStorage.getItem('mlk-language')==='en')interfaceLanguage='en' } catch {}

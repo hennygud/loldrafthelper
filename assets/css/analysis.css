@@ -1,6 +1,5 @@
 /* Экран «Анализ игр» в главном окне. Базовые цвета, кнопки и панели — из draft.css. */
 #gamesView .sub { color: var(--mute) }
-.nav-analysis[aria-pressed=true] { border-color: var(--lime); color: var(--lime) }
 .ga-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px }
 #reload:disabled { opacity: .55; cursor: progress }
 
