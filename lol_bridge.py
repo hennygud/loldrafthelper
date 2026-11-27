@@ -52,7 +52,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from player_profile import read_profile
 
 PORT = 27500
-PAGE_NAME = "lol_draft_helper.html"
+PAGE_NAME = "index.html"
 VERSION = "1.0.1"  # при выпуске через GitHub Actions подставляется из тега автоматически
 REPO = "hennygud/loldrafthelper"
 UPDATE_URL = os.environ.get("LOL_UPDATE_URL", f"https://api.github.com/repos/{REPO}/releases/latest")
@@ -76,7 +76,8 @@ LAST_SEEN = [0.0]                                    # когда страниц
 def find_page():
     """Страница лежит рядом со скриптом или внутри собранного .exe (PyInstaller)."""
     for base in (getattr(sys, "_MEIPASS", None), os.path.dirname(os.path.abspath(__file__)), os.getcwd()):
-        if base and os.path.isfile(os.path.join(base, PAGE_NAME)):
+        if (base and os.path.isfile(os.path.join(base, PAGE_NAME))
+                and os.path.isfile(os.path.join(base, "assets", "js", "draft.js"))):
             return os.path.join(base, PAGE_NAME)
     return None
 
@@ -710,7 +711,7 @@ class Handler(BaseHTTPRequestHandler):
             client = Client(getattr(self.server, "lockfile", None))
             body = json.dumps(preview_loadout(client, int(preview[1]), preview[2])).encode()
             ctype = "application/json; charset=utf-8"
-        elif re.fullmatch(r"/assets/[a-zA-Z0-9_-]+\.(?:css|js|png|jpg|ico)", self.path):
+        elif re.fullmatch(r"/assets/(?:css/[\w-]+\.css|js/[\w-]+\.js|img/[\w-]+\.(?:png|jpg|ico))", self.path, re.ASCII):
             page = find_page()
             path = os.path.join(os.path.dirname(page), self.path[1:]) if page else ""
             if not os.path.isfile(path):
@@ -728,7 +729,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 return
             ctype = "application/json; charset=utf-8"
-        elif self.path in ("/", "/index.html"):
+        elif self.path in ("/", "/index.html", "/lol_draft_helper.html"):
             body, ctype = (load_page() or STATUS_PAGE.encode("utf-8")), "text/html; charset=utf-8"
         else:
             self.send_response(404)
@@ -827,8 +828,8 @@ def open_window(url):
             "MLK.gg", url, width=1380, height=920, min_size=(960, 640),
             frameless=True, easy_drag=False, js_api=controls, background_color="#0b0d14")
         page = find_page()
-        icon_name = "mlkdrafthelper.ico" if sys.platform == "win32" else "mlk-helper.png"
-        icon = os.path.join(os.path.dirname(page), "assets", icon_name) if page else None
+        icon_name = "logo.ico" if sys.platform == "win32" else "logo.png"
+        icon = os.path.join(os.path.dirname(page), "assets", "img", icon_name) if page else None
         webview.start(private_mode=False, storage_path=store, icon=icon)  # private_mode=False: пул и настройки сохраняются
         return True
     except Exception as e:

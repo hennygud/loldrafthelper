@@ -13,16 +13,12 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install pyinstaller pywebview
       - if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: sed -i "s/^VERSION = .*/VERSION = \"${GITHUB_REF_NAME#v}\"/" lol_bridge.py
-      - name: build exe (stats.json, если лежит в репозитории, упаковывается внутрь)
-        shell: bash
-        run: |
-          EXTRA=""
-          if [ -f stats.json ]; then EXTRA='--add-data stats.json;.'; fi
-          pyinstaller --onefile --windowed --name "MLK.gg" --icon assets/mlkdrafthelper.ico --add-data "assets;assets" --add-data "lol_draft_helper.html;." $EXTRA --collect-all webview --collect-all clr_loader --collect-all pythonnet --hidden-import clr lol_bridge.py
+      - name: Build Windows app and portable archive
+        shell: cmd
+        run: call build_exe.bat python
       - name: selftest (не выпускаем сломанный exe)
         shell: pwsh
         run: |
@@ -32,9 +28,6 @@ jobs:
           if ((Get-Content selftest.txt -TotalCount 1) -ne 'ok') { throw 'selftest failed' }
       - shell: pwsh
         run: (Get-FileHash "dist/MLK.gg.exe" -Algorithm SHA256).Hash.ToLower() | Out-File -Encoding ascii -NoNewline "dist/MLK.gg.exe.sha256"
-      - name: Package portable Windows launcher
-        shell: pwsh
-        run: ./package_windows.ps1
       - uses: actions/upload-artifact@v4
         with:
           name: MLK.gg

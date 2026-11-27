@@ -1,6 +1,6 @@
 # Keep the launcher's display name independent of Explorer's file extension settings.
 $ErrorActionPreference = 'Stop'
-$dist = Join-Path $PSScriptRoot 'dist'
+$dist = Join-Path (Split-Path -Parent $PSScriptRoot) 'dist'
 $bundle = Join-Path ([IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())
 $app = New-Item -ItemType Directory -Path (Join-Path $bundle 'app') -Force
 try {

@@ -35,7 +35,7 @@ nav a:hover, nav a[aria-current] { color: var(--ink); border-color: var(--lime) 
 #fullscreen[aria-pressed=true] { background: #303949; color: var(--lime) }
 main { max-width: 1440px; padding: 24px clamp(16px,3.2vw,48px) 48px; margin: auto }
 .banner { position: relative; isolation: isolate; overflow: hidden; min-height: 278px; display: flex; align-items: center; padding: clamp(24px,3.3vw,46px); border: 1px solid #38434e; border-radius: 16px; background: #16202a }
-.banner::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg,#141e27 2%,rgba(19,29,38,.96) 20%,rgba(19,29,38,.7) 43%,rgba(12,16,23,.06) 70%),url("kindred.jpg") right 36% / 78% auto no-repeat }
+.banner::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg,#141e27 2%,rgba(19,29,38,.96) 20%,rgba(19,29,38,.7) 43%,rgba(12,16,23,.06) 70%),url("../img/kindred.jpg") right 36% / 78% auto no-repeat }
 .banner-copy { width: min(48%,540px) }
 .game, .kicker { color: var(--mute); font-size: 12px; font-weight: 650 }
 .game { gap: 8px; color: #d5dfc7; letter-spacing: .13em; text-transform: uppercase; font-size: 11px }
@@ -142,7 +142,7 @@ th,td { padding: 6px; border-bottom: 1px solid var(--line); text-align: right } 
 th { position: sticky; top: 0; background: var(--well); color: var(--mute) }tbody tr { cursor: pointer }tbody tr:hover { background: #222c38 }
 @media(max-width:1050px){.team{padding:10px}.why{grid-template-columns:1fr}.cgrid{grid-template-columns:1fr}}
 @media(max-width:760px){main{padding-top:12px}.windowbar{gap:12px}.prep-layout,.draft-layout{grid-template-columns:1fr}.banner-copy{width:65%}.banner{min-height:245px}.cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{max-height:300px}}
-@media(max-width:560px){.banner{padding:52px 18px 22px}.banner-copy{width:100%}.banner::before{background:linear-gradient(90deg,#131c26f0,#131c26ab),url("kindred.jpg") 60% center/cover}.livebar{top:10px;right:10px}.in-draft .banner{padding:40px 15px 13px}.cgrid{grid-template-columns:1fr}.grid{grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:7px}.banbar{padding:10px}.bslots{gap:3px}.chips{gap:4px}.chip{padding:4px 8px}}
+@media(max-width:560px){.banner{padding:52px 18px 22px}.banner-copy{width:100%}.banner::before{background:linear-gradient(90deg,#131c26f0,#131c26ab),url("../img/kindred.jpg") 60% center/cover}.livebar{top:10px;right:10px}.in-draft .banner{padding:40px 15px 13px}.cgrid{grid-template-columns:1fr}.grid{grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:7px}.banbar{padding:10px}.bslots{gap:3px}.chips{gap:4px}.chip{padding:4px 8px}}
 
 @media (min-width: 1051px) and (min-height: 660px) { .teams { position: sticky; top: 76px } }
 

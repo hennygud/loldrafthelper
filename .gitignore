@@ -1,0 +1,14 @@
+# Local Python and editor files
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+
+# Generated Windows builds and release artifacts
+/build/
+/dist/
+/MLK.gg.spec
+*.exe
+*.exe.sha256
+/MLK.gg-Windows.zip
+/selftest.txt
